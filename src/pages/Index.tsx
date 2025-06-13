@@ -1,12 +1,35 @@
-// Update this page (the content is just a fallback if you fail to update the page)
+
+import { useState } from 'react';
+import Navigation from '../components/Navigation';
+import Dashboard from '../components/Dashboard';
+import Strategy from '../components/Strategy';
+import Roadmap from '../components/Roadmap';
+import CustomerBoard from '../components/CustomerBoard';
 
 const Index = () => {
+  const [activeModule, setActiveModule] = useState('dashboard');
+
+  const renderModule = () => {
+    switch (activeModule) {
+      case 'dashboard':
+        return <Dashboard />;
+      case 'strategy':
+        return <Strategy />;
+      case 'roadmap':
+        return <Roadmap />;
+      case 'customer':
+        return <CustomerBoard />;
+      default:
+        return <Dashboard />;
+    }
+  };
+
   return (
-    <div className="min-h-screen flex items-center justify-center bg-background">
-      <div className="text-center">
-        <h1 className="text-4xl font-bold mb-4">Welcome to Your Blank App</h1>
-        <p className="text-xl text-muted-foreground">Start building your amazing project here!</p>
-      </div>
+    <div className="min-h-screen bg-gradient-to-br from-slate-50 to-blue-50">
+      <Navigation activeModule={activeModule} setActiveModule={setActiveModule} />
+      <main className="transition-all duration-300">
+        {renderModule()}
+      </main>
     </div>
   );
 };
