@@ -22,7 +22,7 @@ const Navigation = ({ activeModule, setActiveModule }: NavigationProps) => {
         <div className="flex justify-between items-center h-16">
           <div className="flex items-center space-x-8">
             <div className="flex-shrink-0">
-              <h1 className="text-2xl font-bold bg-gradient-to-r from-blue-600 to-purple-600 bg-clip-text text-transparent">
+              <h1 className="text-2xl font-bold gradient-primary bg-clip-text text-transparent">
                 ProductHub
               </h1>
             </div>
@@ -35,7 +35,7 @@ const Navigation = ({ activeModule, setActiveModule }: NavigationProps) => {
                     onClick={() => setActiveModule(module.id)}
                     className={`flex items-center px-3 py-2 rounded-lg text-sm font-medium transition-all duration-200 ${
                       activeModule === module.id
-                        ? 'bg-blue-100 text-blue-700 shadow-sm'
+                        ? 'bg-primary/10 text-primary shadow-sm'
                         : 'text-slate-600 hover:text-slate-900 hover:bg-slate-100'
                     }`}
                   >
@@ -47,7 +47,7 @@ const Navigation = ({ activeModule, setActiveModule }: NavigationProps) => {
             </div>
           </div>
           <div className="flex items-center space-x-4">
-            <div className="w-8 h-8 bg-gradient-to-r from-blue-500 to-purple-500 rounded-full flex items-center justify-center">
+            <div className="w-8 h-8 gradient-primary rounded-full flex items-center justify-center">
               <span className="text-white text-sm font-medium">JD</span>
             </div>
           </div>
