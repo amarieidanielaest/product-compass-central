@@ -1,5 +1,5 @@
 
-import { BarChart3, Target, Map, MessageSquare, Home } from 'lucide-react';
+import { BarChart3, Target, Map, MessageSquare, Home, FileText, Kanban } from 'lucide-react';
 
 interface NavigationProps {
   activeModule: string;
@@ -11,6 +11,8 @@ const Navigation = ({ activeModule, setActiveModule }: NavigationProps) => {
     { id: 'dashboard', name: 'Dashboard', icon: Home },
     { id: 'strategy', name: 'Strategy', icon: Target },
     { id: 'roadmap', name: 'Roadmap', icon: Map },
+    { id: 'sprints', name: 'Sprint Board', icon: Kanban },
+    { id: 'prd', name: 'PRD Generator', icon: FileText },
     { id: 'customer', name: 'Customer Board', icon: MessageSquare },
   ];
 

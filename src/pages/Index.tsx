@@ -4,6 +4,8 @@ import Navigation from '../components/Navigation';
 import Dashboard from '../components/Dashboard';
 import Strategy from '../components/Strategy';
 import Roadmap from '../components/Roadmap';
+import SprintBoard from '../components/SprintBoard';
+import PRDGenerator from '../components/PRDGenerator';
 import CustomerBoard from '../components/CustomerBoard';
 
 const Index = () => {
@@ -17,6 +19,10 @@ const Index = () => {
         return <Strategy />;
       case 'roadmap':
         return <Roadmap />;
+      case 'sprints':
+        return <SprintBoard />;
+      case 'prd':
+        return <PRDGenerator />;
       case 'customer':
         return <CustomerBoard />;
       default:
