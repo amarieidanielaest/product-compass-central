@@ -1,4 +1,3 @@
-
 import { useState } from 'react';
 import { 
   MessageSquare, User, Clock, AlertTriangle, CheckCircle, 
@@ -11,8 +10,8 @@ import { Input } from '@/components/ui/input';
 import { Tabs, TabsContent, TabsList, TabsTrigger } from '@/components/ui/tabs';
 
 interface CustomerBoardProps {
-  selectedProductId?: string;
-  onNavigate?: (module: string) => void;
+  selectedProductId: string;
+  onNavigate: (module: string) => void;
 }
 
 const CustomerBoard = ({ selectedProductId, onNavigate }: CustomerBoardProps) => {
@@ -89,7 +88,7 @@ const CustomerBoard = ({ selectedProductId, onNavigate }: CustomerBoardProps) =>
   const linkToSprint = (ticketId: string) => {
     // In a real app, this would create the actual link
     console.log(`Linking ticket ${ticketId} to sprint`);
-    onNavigate?.('sprints');
+    onNavigate('sprints');
   };
 
   return (
@@ -104,7 +103,7 @@ const CustomerBoard = ({ selectedProductId, onNavigate }: CustomerBoardProps) =>
           </p>
         </div>
         <div className="flex space-x-2">
-          <Button variant="outline" onClick={() => onNavigate?.('strategy')}>
+          <Button variant="outline" onClick={() => onNavigate('strategy')}>
             <ExternalLink className="w-4 h-4 mr-2" />
             View Strategy
           </Button>
@@ -255,7 +254,7 @@ const CustomerBoard = ({ selectedProductId, onNavigate }: CustomerBoardProps) =>
                     <Button
                       size="sm"
                       variant="outline"
-                      onClick={() => onNavigate?.('sprints')}
+                      onClick={() => onNavigate('sprints')}
                       className="whitespace-nowrap"
                     >
                       <ExternalLink className="w-4 h-4 mr-2" />
