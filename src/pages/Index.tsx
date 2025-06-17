@@ -1,6 +1,7 @@
 
 import { useState } from 'react';
-import Navigation from '../components/Navigation';
+import { SidebarProvider } from '@/components/ui/sidebar';
+import AppSidebar from '../components/AppSidebar';
 import Dashboard from '../components/Dashboard';
 import Strategy from '../components/Strategy';
 import Roadmap from '../components/Roadmap';
@@ -45,42 +46,46 @@ const Index = () => {
       case 'products':
         return <ProductManager onProductSelect={setSelectedProductId} selectedProductId={selectedProductId} />;
       case 'strategy':
-        return <Strategy selectedProductId={selectedProductId} />;
+        return <Strategy selectedProductId={selectedProductId} onNavigate={setActiveModule} />;
       case 'roadmap':
-        return <Roadmap />;
+        return <Roadmap selectedProductId={selectedProductId} onNavigate={setActiveModule} />;
       case 'sprints':
-        return <SprintBoard />;
+        return <SprintBoard selectedProductId={selectedProductId} onNavigate={setActiveModule} />;
       case 'prd':
         return <PRDGenerator />;
       case 'customer':
-        return <CustomerBoard />;
+        return <CustomerBoard onNavigate={setActiveModule} />;
       default:
         return <Dashboard />;
     }
   };
 
   return (
-    <div className="min-h-screen bg-gradient-to-br from-slate-50 via-purple-50 to-pink-50">
-      <Navigation 
-        activeModule={activeModule} 
-        setActiveModule={setActiveModule}
-        selectedProductId={selectedProductId}
-        onProductChange={setSelectedProductId}
-      />
-      <main className="transition-all duration-300">
-        <div className="max-w-7xl mx-auto px-4 sm:px-6 lg:px-8 py-4 sm:py-8">
-          <BreadcrumbNav 
-            items={getBreadcrumbItems()}
-            currentProduct={getCurrentProduct()}
-          />
-          <QuickActions 
-            currentModule={activeModule}
-            onNavigate={setActiveModule}
-          />
-          {renderModule()}
-        </div>
-      </main>
-    </div>
+    <SidebarProvider>
+      <div className="min-h-screen flex w-full bg-gradient-to-br from-slate-50 via-purple-50 to-pink-50">
+        <AppSidebar 
+          activeModule={activeModule} 
+          setActiveModule={setActiveModule}
+          selectedProductId={selectedProductId}
+          onProductChange={setSelectedProductId}
+        />
+        <main className="flex-1 transition-all duration-300 overflow-hidden">
+          <div className="h-full overflow-auto">
+            <div className="max-w-7xl mx-auto px-4 sm:px-6 lg:px-8 py-4 sm:py-8">
+              <BreadcrumbNav 
+                items={getBreadcrumbItems()}
+                currentProduct={getCurrentProduct()}
+              />
+              <QuickActions 
+                currentModule={activeModule}
+                onNavigate={setActiveModule}
+              />
+              {renderModule()}
+            </div>
+          </div>
+        </main>
+      </div>
+    </SidebarProvider>
   );
 };
 

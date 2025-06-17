@@ -1,13 +1,14 @@
-import { Target, TrendingUp, Users, Calendar, Package, Globe, Eye, Layers } from 'lucide-react';
+import { Target, TrendingUp, Users, Calendar, Package, Globe, Eye, Layers, ExternalLink } from 'lucide-react';
 import { Card, CardContent, CardHeader, CardTitle } from '@/components/ui/card';
 import { Button } from '@/components/ui/button';
 import { Tabs, TabsContent, TabsList, TabsTrigger } from '@/components/ui/tabs';
 
 interface StrategyProps {
   selectedProductId?: string;
+  onNavigate?: (module: string) => void;
 }
 
-const Strategy = ({ selectedProductId }: StrategyProps) => {
+const Strategy = ({ selectedProductId, onNavigate }: StrategyProps) => {
   // Global objectives that apply to all products
   const globalObjectives = [
     {
@@ -64,13 +65,25 @@ const Strategy = ({ selectedProductId }: StrategyProps) => {
 
   return (
     <div className="space-y-6">
-      <div className="mb-8">
-        <h2 className="text-2xl sm:text-3xl font-bold bg-gradient-to-r from-purple-600 to-pink-600 bg-clip-text text-transparent mb-2">
-          Strategic Overview
-        </h2>
-        <p className="text-slate-600">
-          Unified strategy across your product portfolio with Product-Led Growth focus
-        </p>
+      <div className="flex items-center justify-between">
+        <div>
+          <h2 className="text-2xl sm:text-3xl font-bold bg-gradient-to-r from-purple-600 to-pink-600 bg-clip-text text-transparent mb-2">
+            Strategic Overview
+          </h2>
+          <p className="text-slate-600">
+            Unified strategy across your product portfolio with Product-Led Growth focus
+          </p>
+        </div>
+        <div className="flex space-x-2">
+          <Button variant="outline" onClick={() => onNavigate?.('roadmap')}>
+            <Calendar className="w-4 h-4 mr-2" />
+            View Roadmap
+          </Button>
+          <Button variant="outline" onClick={() => onNavigate?.('customer')}>
+            <Users className="w-4 h-4 mr-2" />
+            Customer Insights
+          </Button>
+        </div>
       </div>
 
       <Tabs defaultValue="unified" className="w-full">
@@ -96,9 +109,15 @@ const Strategy = ({ selectedProductId }: StrategyProps) => {
           {/* Vision Statement */}
           <Card>
             <CardHeader>
-              <CardTitle className="flex items-center">
-                <Target className="w-5 h-5 mr-2 text-purple-600" />
-                Portfolio Vision
+              <CardTitle className="flex items-center justify-between">
+                <div className="flex items-center">
+                  <Target className="w-5 h-5 mr-2 text-purple-600" />
+                  Portfolio Vision
+                </div>
+                <Button variant="outline" size="sm" onClick={() => onNavigate?.('prd')}>
+                  <ExternalLink className="w-4 h-4 mr-1" />
+                  Create PRD
+                </Button>
               </CardTitle>
             </CardHeader>
             <CardContent>
@@ -150,12 +169,7 @@ const Strategy = ({ selectedProductId }: StrategyProps) => {
               </CardHeader>
               <CardContent>
                 <div className="space-y-4">
-                  {[
-                    { metric: 'Portfolio CAC', current: '$35', target: '$25', trend: 'improving' },
-                    { metric: 'Total ARR', current: '$1.2M', target: '$2M', trend: 'improving' },
-                    { metric: 'Cross-Product Usage', current: '23%', target: '40%', trend: 'improving' },
-                    { metric: 'Overall NPS', current: '45', target: '65', trend: 'stable' },
-                  ].map((kpi, index) => (
+                  {globalMetrics.map((kpi, index) => (
                     <div key={index} className="p-3 sm:p-4 bg-slate-50 rounded-lg">
                       <div className="flex justify-between items-center mb-2">
                         <h4 className="font-medium text-slate-900 text-sm sm:text-base">{kpi.metric}</h4>
@@ -192,22 +206,7 @@ const Strategy = ({ selectedProductId }: StrategyProps) => {
               </CardHeader>
               <CardContent>
                 <div className="space-y-6">
-                  {[
-                    {
-                      title: 'Product-Led Growth Strategy',
-                      description: 'Achieve 40% user activation rate across all products',
-                      progress: 72,
-                      deadline: 'Q4 2024',
-                      owner: 'Growth Team'
-                    },
-                    {
-                      title: 'Unified Customer Experience',
-                      description: 'Create seamless cross-product user journey',
-                      progress: 55,
-                      deadline: 'Q3 2024',
-                      owner: 'Product Team'
-                    }
-                  ].map((objective, index) => (
+                  {globalObjectives.map((objective, index) => (
                     <div key={index} className="border-l-4 border-purple-500 pl-4">
                       <div className="flex justify-between items-start mb-2">
                         <h4 className="font-semibold text-slate-900 text-sm sm:text-base">{objective.title}</h4>
@@ -238,9 +237,15 @@ const Strategy = ({ selectedProductId }: StrategyProps) => {
           {/* Product-specific view with both product and global objectives */}
           <Card>
             <CardHeader>
-              <CardTitle className="flex items-center">
-                <Package className="w-5 h-5 mr-2 text-purple-600" />
-                Product Strategy: {selectedProductId === 'main' ? 'Main Product' : 'Beta Product'}
+              <CardTitle className="flex items-center justify-between">
+                <div className="flex items-center">
+                  <Package className="w-5 h-5 mr-2 text-purple-600" />
+                  Product Strategy: {selectedProductId === 'main' ? 'Main Product' : 'Beta Product'}
+                </div>
+                <Button variant="outline" size="sm" onClick={() => onNavigate?.('sprints')}>
+                  <ExternalLink className="w-4 h-4 mr-1" />
+                  View Sprints
+                </Button>
               </CardTitle>
             </CardHeader>
             <CardContent>
@@ -299,19 +304,22 @@ const Strategy = ({ selectedProductId }: StrategyProps) => {
         </TabsContent>
 
         <TabsContent value="detailed" className="space-y-6">
-          {/* Detailed view with all information */}
-          {/* This would include all the existing detailed content */}
           <Card>
             <CardHeader>
               <CardTitle>Detailed Strategic Analysis</CardTitle>
             </CardHeader>
             <CardContent>
-              <p className="text-slate-600">
+              <p className="text-slate-600 mb-4">
                 This view provides comprehensive details about all strategic initiatives, detailed metrics, and cross-product dependencies.
               </p>
-              <Button className="mt-4 bg-gradient-to-r from-purple-600 to-pink-600 hover:from-purple-700 hover:to-pink-700">
-                Explore Detailed Analytics
-              </Button>
+              <div className="flex space-x-4">
+                <Button className="bg-gradient-to-r from-purple-600 to-pink-600 hover:from-purple-700 hover:to-pink-700">
+                  Explore Detailed Analytics
+                </Button>
+                <Button variant="outline" onClick={() => onNavigate?.('roadmap')}>
+                  Strategic Roadmap
+                </Button>
+              </div>
             </CardContent>
           </Card>
         </TabsContent>
