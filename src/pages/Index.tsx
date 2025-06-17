@@ -7,16 +7,20 @@ import Roadmap from '../components/Roadmap';
 import SprintBoard from '../components/SprintBoard';
 import PRDGenerator from '../components/PRDGenerator';
 import CustomerBoard from '../components/CustomerBoard';
+import ProductManager from '../components/ProductManager';
 
 const Index = () => {
   const [activeModule, setActiveModule] = useState('dashboard');
+  const [selectedProductId, setSelectedProductId] = useState('main');
 
   const renderModule = () => {
     switch (activeModule) {
       case 'dashboard':
         return <Dashboard />;
+      case 'products':
+        return <ProductManager onProductSelect={setSelectedProductId} selectedProductId={selectedProductId} />;
       case 'strategy':
-        return <Strategy />;
+        return <Strategy selectedProductId={selectedProductId} />;
       case 'roadmap':
         return <Roadmap />;
       case 'sprints':
@@ -31,8 +35,13 @@ const Index = () => {
   };
 
   return (
-    <div className="min-h-screen bg-gradient-to-br from-slate-50 to-blue-50">
-      <Navigation activeModule={activeModule} setActiveModule={setActiveModule} />
+    <div className="min-h-screen bg-gradient-to-br from-slate-50 via-purple-50 to-pink-50">
+      <Navigation 
+        activeModule={activeModule} 
+        setActiveModule={setActiveModule}
+        selectedProductId={selectedProductId}
+        onProductChange={setSelectedProductId}
+      />
       <main className="transition-all duration-300">
         {renderModule()}
       </main>
