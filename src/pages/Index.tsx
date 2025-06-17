@@ -8,10 +8,35 @@ import SprintBoard from '../components/SprintBoard';
 import PRDGenerator from '../components/PRDGenerator';
 import CustomerBoard from '../components/CustomerBoard';
 import ProductManager from '../components/ProductManager';
+import BreadcrumbNav from '../components/BreadcrumbNav';
+import QuickActions from '../components/QuickActions';
 
 const Index = () => {
   const [activeModule, setActiveModule] = useState('dashboard');
   const [selectedProductId, setSelectedProductId] = useState('main');
+
+  const getModuleName = (moduleId: string) => {
+    const moduleNames: Record<string, string> = {
+      dashboard: 'Dashboard',
+      products: 'Products',
+      strategy: 'Strategy',
+      roadmap: 'Roadmap',
+      sprints: 'Sprint Board',
+      prd: 'PRD Generator',
+      customer: 'Customer Board',
+    };
+    return moduleNames[moduleId] || moduleId;
+  };
+
+  const getCurrentProduct = () => {
+    if (selectedProductId === 'main') return 'Main Product';
+    if (selectedProductId === 'beta') return 'Beta Product';
+    return 'All Products';
+  };
+
+  const getBreadcrumbItems = () => {
+    return [{ label: getModuleName(activeModule) }];
+  };
 
   const renderModule = () => {
     switch (activeModule) {
@@ -43,7 +68,17 @@ const Index = () => {
         onProductChange={setSelectedProductId}
       />
       <main className="transition-all duration-300">
-        {renderModule()}
+        <div className="max-w-7xl mx-auto px-4 sm:px-6 lg:px-8 py-4 sm:py-8">
+          <BreadcrumbNav 
+            items={getBreadcrumbItems()}
+            currentProduct={getCurrentProduct()}
+          />
+          <QuickActions 
+            currentModule={activeModule}
+            onNavigate={setActiveModule}
+          />
+          {renderModule()}
+        </div>
       </main>
     </div>
   );
