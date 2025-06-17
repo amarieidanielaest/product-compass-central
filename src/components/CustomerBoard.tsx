@@ -1,343 +1,292 @@
 
 import { useState } from 'react';
 import { 
-  MessageSquare, Plus, Filter, Search, ArrowUp, ArrowDown, Clock, 
-  User, Tag, ExternalLink, Zap, Target, Calendar, Send
+  MessageSquare, User, Clock, AlertTriangle, CheckCircle, 
+  ArrowRight, Filter, Search, Plus, ExternalLink 
 } from 'lucide-react';
 import { Card, CardContent, CardHeader, CardTitle } from '@/components/ui/card';
 import { Button } from '@/components/ui/button';
-import { Input } from '@/components/ui/input';
 import { Badge } from '@/components/ui/badge';
+import { Input } from '@/components/ui/input';
 import { Tabs, TabsContent, TabsList, TabsTrigger } from '@/components/ui/tabs';
-import {
-  Select,
-  SelectContent,
-  SelectItem,
-  SelectTrigger,
-  SelectValue,
-} from '@/components/ui/select';
 
 interface CustomerBoardProps {
+  selectedProductId?: string;
   onNavigate?: (module: string) => void;
 }
 
-const CustomerBoard = ({ onNavigate }: CustomerBoardProps) => {
-  const [selectedTickets, setSelectedTickets] = useState<number[]>([]);
+const CustomerBoard = ({ selectedProductId, onNavigate }: CustomerBoardProps) => {
+  const [searchTerm, setSearchTerm] = useState('');
+  const [selectedFilter, setSelectedFilter] = useState('all');
 
-  const tickets = [
+  const mockTickets = [
     {
-      id: 1,
-      title: 'Mobile app crashes on login',
-      customer: 'TechCorp Inc.',
+      id: 'CUST-001',
+      title: 'Feature request: Dark mode support',
+      customer: 'Acme Corp',
       priority: 'high',
       status: 'open',
-      created: '2024-01-15',
-      category: 'bug',
-      impact: 'enterprise',
-      votes: 23,
-      description: 'Users unable to login on mobile app, affecting enterprise deployment',
-      linkedFeatures: ['Mobile Authentication', 'SSO Integration']
+      created: '2024-06-15',
+      description: 'Users are requesting dark mode for better accessibility',
+      productId: 'main',
+      linkedSprint: 'SPR-24',
+      votes: 23
     },
     {
-      id: 2,
-      title: 'Need bulk data export feature',
-      customer: 'DataFlow Solutions',
-      priority: 'medium',
-      status: 'in-review',
-      created: '2024-01-12',
-      category: 'feature',
-      impact: 'high',
-      votes: 45,
-      description: 'Enterprise customers need ability to export large datasets',
-      linkedFeatures: ['Data Export API', 'Enterprise Dashboard']
+      id: 'CUST-002',
+      title: 'Bug: Export functionality not working',
+      customer: 'TechFlow Inc',
+      priority: 'critical',
+      status: 'in-progress',
+      created: '2024-06-14',
+      description: 'CSV export fails with large datasets',
+      productId: 'main',
+      linkedSprint: 'SPR-24',
+      votes: 15
     },
     {
-      id: 3,
-      title: 'API rate limiting too restrictive',
-      customer: 'ScaleUp Ltd.',
+      id: 'CUST-003',
+      title: 'Integration with Slack needed',
+      customer: 'StartupXYZ',
       priority: 'medium',
       status: 'planned',
-      created: '2024-01-10',
-      category: 'enhancement',
-      impact: 'medium',
-      votes: 12,
-      description: 'Current API limits prevent integration with high-volume workflows',
-      linkedFeatures: ['API Gateway Enhancement']
-    },
-    {
-      id: 4,
-      title: 'Dashboard loading too slow',
-      customer: 'FastTrack Corp',
-      priority: 'low',
-      status: 'open',
-      created: '2024-01-08',
-      category: 'performance',
-      impact: 'medium',
-      votes: 8,
-      description: 'Main dashboard takes 10+ seconds to load with large datasets',
-      linkedFeatures: ['Performance Optimization', 'Caching Layer']
-    },
-    {
-      id: 5,
-      title: 'White-label customization options',
-      customer: 'BrandCo',
-      priority: 'high',
-      status: 'open',
-      created: '2024-01-05',
-      category: 'feature',
-      impact: 'enterprise',
-      votes: 67,
-      description: 'Need ability to customize UI with company branding for white-label solution',
-      linkedFeatures: ['White-label Platform', 'Custom Theming']
+      created: '2024-06-13',
+      description: 'Need real-time notifications in Slack',
+      productId: 'beta',
+      linkedSprint: null,
+      votes: 8
     }
   ];
 
+  const filteredTickets = mockTickets.filter(ticket => {
+    const matchesSearch = ticket.title.toLowerCase().includes(searchTerm.toLowerCase()) ||
+                         ticket.customer.toLowerCase().includes(searchTerm.toLowerCase());
+    const matchesFilter = selectedFilter === 'all' || ticket.status === selectedFilter;
+    const matchesProduct = !selectedProductId || selectedProductId === 'main' || ticket.productId === selectedProductId;
+    return matchesSearch && matchesFilter && matchesProduct;
+  });
+
   const getPriorityColor = (priority: string) => {
     switch (priority) {
-      case 'high': return 'bg-red-100 text-red-700 border-red-200';
-      case 'medium': return 'bg-orange-100 text-orange-700 border-orange-200';
-      case 'low': return 'bg-green-100 text-green-700 border-green-200';
-      default: return 'bg-gray-100 text-gray-700 border-gray-200';
+      case 'critical': return 'bg-red-100 text-red-800 border-red-200';
+      case 'high': return 'bg-orange-100 text-orange-800 border-orange-200';
+      case 'medium': return 'bg-yellow-100 text-yellow-800 border-yellow-200';
+      case 'low': return 'bg-green-100 text-green-800 border-green-200';
+      default: return 'bg-gray-100 text-gray-800 border-gray-200';
     }
   };
 
   const getStatusColor = (status: string) => {
     switch (status) {
-      case 'open': return 'bg-blue-100 text-blue-700';
-      case 'in-review': return 'bg-yellow-100 text-yellow-700';
-      case 'planned': return 'bg-purple-100 text-purple-700';
-      case 'closed': return 'bg-green-100 text-green-700';
-      default: return 'bg-gray-100 text-gray-700';
+      case 'open': return 'bg-blue-100 text-blue-800';
+      case 'in-progress': return 'bg-purple-100 text-purple-800';
+      case 'planned': return 'bg-cyan-100 text-cyan-800';
+      case 'resolved': return 'bg-green-100 text-green-800';
+      default: return 'bg-gray-100 text-gray-800';
     }
   };
 
-  const getCategoryIcon = (category: string) => {
-    switch (category) {
-      case 'bug': return '🐛';
-      case 'feature': return '✨';
-      case 'enhancement': return '🚀';
-      case 'performance': return '⚡';
-      default: return '💡';
-    }
+  const linkToSprint = (ticketId: string) => {
+    // In a real app, this would create the actual link
+    console.log(`Linking ticket ${ticketId} to sprint`);
+    onNavigate?.('sprints');
   };
-
-  const handleCreateSprint = () => {
-    if (selectedTickets.length > 0) {
-      onNavigate?.('sprints');
-    }
-  };
-
-  const handleCreatePRD = (ticketId: number) => {
-    onNavigate?.('prd');
-  };
-
-  const TicketCard = ({ ticket }: { ticket: any }) => (
-    <Card className="hover:shadow-md transition-shadow duration-200 cursor-pointer">
-      <CardHeader className="pb-3">
-        <div className="flex items-start justify-between">
-          <div className="flex items-start space-x-3">
-            <input
-              type="checkbox"
-              className="mt-1"
-              checked={selectedTickets.includes(ticket.id)}
-              onChange={(e) => {
-                if (e.target.checked) {
-                  setSelectedTickets([...selectedTickets, ticket.id]);
-                } else {
-                  setSelectedTickets(selectedTickets.filter(id => id !== ticket.id));
-                }
-              }}
-            />
-            <div className="flex-1">
-              <div className="flex items-center space-x-2 mb-2">
-                <span className="text-lg">{getCategoryIcon(ticket.category)}</span>
-                <CardTitle className="text-base">{ticket.title}</CardTitle>
-              </div>
-              <p className="text-sm text-slate-600 mb-3">{ticket.description}</p>
-            </div>
-          </div>
-          <div className="flex items-center space-x-2">
-            <Badge variant="outline" className={getPriorityColor(ticket.priority)}>
-              {ticket.priority}
-            </Badge>
-            <Badge className={getStatusColor(ticket.status)}>
-              {ticket.status}
-            </Badge>
-          </div>
-        </div>
-      </CardHeader>
-      <CardContent className="pt-0">
-        <div className="space-y-3">
-          <div className="flex items-center justify-between text-sm">
-            <div className="flex items-center space-x-4">
-              <div className="flex items-center text-slate-600">
-                <User className="w-4 h-4 mr-1" />
-                {ticket.customer}
-              </div>
-              <div className="flex items-center text-slate-600">
-                <Clock className="w-4 h-4 mr-1" />
-                {ticket.created}
-              </div>
-            </div>
-            <div className="flex items-center space-x-2">
-              <div className="flex items-center text-slate-600">
-                <ArrowUp className="w-4 h-4 mr-1" />
-                {ticket.votes}
-              </div>
-              <Badge variant="outline" className="text-xs">
-                {ticket.impact}
-              </Badge>
-            </div>
-          </div>
-
-          {ticket.linkedFeatures && ticket.linkedFeatures.length > 0 && (
-            <div>
-              <div className="text-xs font-medium text-slate-600 mb-1">Linked Features:</div>
-              <div className="flex flex-wrap gap-1">
-                {ticket.linkedFeatures.map((feature: string, index: number) => (
-                  <Badge key={index} variant="secondary" className="text-xs">
-                    <Tag className="w-3 h-3 mr-1" />
-                    {feature}
-                  </Badge>
-                ))}
-              </div>
-            </div>
-          )}
-
-          <div className="flex items-center justify-between pt-2 border-t">
-            <div className="flex space-x-2">
-              <Button size="sm" variant="outline" onClick={() => handleCreatePRD(ticket.id)}>
-                <Target className="w-4 h-4 mr-1" />
-                Create PRD
-              </Button>
-              <Button size="sm" variant="outline">
-                <Send className="w-4 h-4 mr-1" />
-                Reply
-              </Button>
-            </div>
-            <Button size="sm" variant="ghost">
-              <ExternalLink className="w-4 h-4" />
-            </Button>
-          </div>
-        </div>
-      </CardContent>
-    </Card>
-  );
 
   return (
     <div className="space-y-6">
-      <div className="flex items-center justify-between">
+      <div className="flex flex-col sm:flex-row justify-between items-start sm:items-center gap-4">
         <div>
           <h2 className="text-2xl sm:text-3xl font-bold bg-gradient-to-r from-purple-600 to-pink-600 bg-clip-text text-transparent mb-2">
-            Customer Board
+            Customer Insights
           </h2>
           <p className="text-slate-600">
-            Direct customer feedback connected to your development workflow
+            Direct customer feedback connected to your development process
           </p>
         </div>
-        <Button className="bg-gradient-to-r from-purple-600 to-pink-600 hover:from-purple-700 hover:to-pink-700">
-          <Plus className="w-4 h-4 mr-2" />
-          New Ticket
-        </Button>
+        <div className="flex space-x-2">
+          <Button variant="outline" onClick={() => onNavigate?.('strategy')}>
+            <ExternalLink className="w-4 h-4 mr-2" />
+            View Strategy
+          </Button>
+          <Button className="bg-gradient-to-r from-purple-600 to-pink-600 hover:from-purple-700 hover:to-pink-700">
+            <Plus className="w-4 h-4 mr-2" />
+            Add Feedback
+          </Button>
+        </div>
       </div>
 
-      {/* Quick Actions Bar */}
-      {selectedTickets.length > 0 && (
-        <Card className="bg-gradient-to-r from-blue-50 to-purple-50 border-blue-200">
-          <CardContent className="py-4">
+      {/* Overview Cards */}
+      <div className="grid grid-cols-1 sm:grid-cols-2 lg:grid-cols-4 gap-4">
+        <Card className="border-l-4 border-l-red-500">
+          <CardContent className="pt-6">
             <div className="flex items-center justify-between">
-              <div className="flex items-center space-x-4">
-                <span className="font-medium text-blue-900">
-                  {selectedTickets.length} ticket{selectedTickets.length > 1 ? 's' : ''} selected
-                </span>
-                <div className="flex space-x-2">
-                  <Button size="sm" onClick={handleCreateSprint} className="bg-blue-600 hover:bg-blue-700">
-                    <Zap className="w-4 h-4 mr-1" />
-                    Create Sprint
-                  </Button>
-                  <Button size="sm" variant="outline">
-                    <Calendar className="w-4 h-4 mr-1" />
-                    Add to Roadmap
-                  </Button>
-                  <Button size="sm" variant="outline">
-                    <Target className="w-4 h-4 mr-1" />
-                    Bulk PRD
-                  </Button>
-                </div>
+              <div>
+                <p className="text-sm font-medium text-slate-600">Critical Issues</p>
+                <p className="text-2xl font-bold text-slate-900">
+                  {mockTickets.filter(t => t.priority === 'critical').length}
+                </p>
               </div>
-              <Button 
-                size="sm" 
-                variant="ghost" 
-                onClick={() => setSelectedTickets([])}
-              >
-                Clear Selection
-              </Button>
+              <AlertTriangle className="w-8 h-8 text-red-500" />
             </div>
           </CardContent>
         </Card>
-      )}
-
-      <Tabs defaultValue="all" className="w-full">
-        <div className="flex items-center justify-between mb-6">
-          <TabsList>
-            <TabsTrigger value="all">All Tickets</TabsTrigger>
-            <TabsTrigger value="high-priority">High Priority</TabsTrigger>
-            <TabsTrigger value="enterprise">Enterprise</TabsTrigger>
-            <TabsTrigger value="feature-requests">Feature Requests</TabsTrigger>
-          </TabsList>
-          
-          <div className="flex items-center space-x-4">
-            <div className="relative">
-              <Search className="absolute left-3 top-1/2 transform -translate-y-1/2 text-slate-400 w-4 h-4" />
-              <Input placeholder="Search tickets..." className="pl-10 w-64" />
+        
+        <Card className="border-l-4 border-l-purple-500">
+          <CardContent className="pt-6">
+            <div className="flex items-center justify-between">
+              <div>
+                <p className="text-sm font-medium text-slate-600">In Progress</p>
+                <p className="text-2xl font-bold text-slate-900">
+                  {mockTickets.filter(t => t.status === 'in-progress').length}
+                </p>
+              </div>
+              <Clock className="w-8 h-8 text-purple-500" />
             </div>
-            <Select>
-              <SelectTrigger className="w-32">
-                <Filter className="w-4 h-4 mr-2" />
-                <SelectValue placeholder="Filter" />
-              </SelectTrigger>
-              <SelectContent>
-                <SelectItem value="priority">Priority</SelectItem>
-                <SelectItem value="customer">Customer</SelectItem>
-                <SelectItem value="category">Category</SelectItem>
-                <SelectItem value="impact">Impact</SelectItem>
-              </SelectContent>
-            </Select>
+          </CardContent>
+        </Card>
+        
+        <Card className="border-l-4 border-l-green-500">
+          <CardContent className="pt-6">
+            <div className="flex items-center justify-between">
+              <div>
+                <p className="text-sm font-medium text-slate-600">Resolved</p>
+                <p className="text-2xl font-bold text-slate-900">
+                  {mockTickets.filter(t => t.status === 'resolved').length}
+                </p>
+              </div>
+              <CheckCircle className="w-8 h-8 text-green-500" />
+            </div>
+          </CardContent>
+        </Card>
+        
+        <Card className="border-l-4 border-l-blue-500">
+          <CardContent className="pt-6">
+            <div className="flex items-center justify-between">
+              <div>
+                <p className="text-sm font-medium text-slate-600">Total Votes</p>
+                <p className="text-2xl font-bold text-slate-900">
+                  {mockTickets.reduce((sum, t) => sum + t.votes, 0)}
+                </p>
+              </div>
+              <User className="w-8 h-8 text-blue-500" />
+            </div>
+          </CardContent>
+        </Card>
+      </div>
+
+      {/* Filters and Search */}
+      <div className="flex flex-col sm:flex-row gap-4">
+        <div className="flex-1">
+          <div className="relative">
+            <Search className="absolute left-3 top-1/2 transform -translate-y-1/2 text-slate-400 w-4 h-4" />
+            <Input
+              placeholder="Search customer feedback..."
+              value={searchTerm}
+              onChange={(e) => setSearchTerm(e.target.value)}
+              className="pl-10"
+            />
           </div>
         </div>
+        <div className="flex space-x-2">
+          {['all', 'open', 'in-progress', 'planned', 'resolved'].map((filter) => (
+            <Button
+              key={filter}
+              variant={selectedFilter === filter ? 'default' : 'outline'}
+              size="sm"
+              onClick={() => setSelectedFilter(filter)}
+              className="capitalize"
+            >
+              {filter === 'all' ? 'All' : filter.replace('-', ' ')}
+            </Button>
+          ))}
+        </div>
+      </div>
 
-        <TabsContent value="all">
-          <div className="grid grid-cols-1 lg:grid-cols-2 gap-4">
-            {tickets.map((ticket) => (
-              <TicketCard key={ticket.id} ticket={ticket} />
-            ))}
-          </div>
-        </TabsContent>
+      {/* Customer Feedback List */}
+      <div className="space-y-4">
+        {filteredTickets.map((ticket) => (
+          <Card key={ticket.id} className="hover:shadow-md transition-shadow">
+            <CardContent className="p-6">
+              <div className="flex flex-col lg:flex-row lg:items-center justify-between gap-4">
+                <div className="flex-1">
+                  <div className="flex flex-wrap items-center gap-2 mb-2">
+                    <h3 className="font-semibold text-slate-900">{ticket.title}</h3>
+                    <Badge className={getPriorityColor(ticket.priority)}>
+                      {ticket.priority}
+                    </Badge>
+                    <Badge className={getStatusColor(ticket.status)}>
+                      {ticket.status.replace('-', ' ')}
+                    </Badge>
+                  </div>
+                  <p className="text-slate-600 text-sm mb-2">{ticket.description}</p>
+                  <div className="flex flex-wrap items-center gap-4 text-sm text-slate-500">
+                    <span className="flex items-center">
+                      <User className="w-4 h-4 mr-1" />
+                      {ticket.customer}
+                    </span>
+                    <span className="flex items-center">
+                      <Clock className="w-4 h-4 mr-1" />
+                      {ticket.created}
+                    </span>
+                    <span className="flex items-center">
+                      <MessageSquare className="w-4 h-4 mr-1" />
+                      {ticket.votes} votes
+                    </span>
+                    {ticket.linkedSprint && (
+                      <span className="text-purple-600 font-medium">
+                        Linked to {ticket.linkedSprint}
+                      </span>
+                    )}
+                  </div>
+                </div>
+                <div className="flex flex-col sm:flex-row gap-2">
+                  {!ticket.linkedSprint && (
+                    <Button
+                      size="sm"
+                      variant="outline"
+                      onClick={() => linkToSprint(ticket.id)}
+                      className="whitespace-nowrap"
+                    >
+                      <ArrowRight className="w-4 h-4 mr-2" />
+                      Link to Sprint
+                    </Button>
+                  )}
+                  {ticket.linkedSprint && (
+                    <Button
+                      size="sm"
+                      variant="outline"
+                      onClick={() => onNavigate?.('sprints')}
+                      className="whitespace-nowrap"
+                    >
+                      <ExternalLink className="w-4 h-4 mr-2" />
+                      View Sprint
+                    </Button>
+                  )}
+                </div>
+              </div>
+            </CardContent>
+          </Card>
+        ))}
+      </div>
 
-        <TabsContent value="high-priority">
-          <div className="grid grid-cols-1 lg:grid-cols-2 gap-4">
-            {tickets.filter(t => t.priority === 'high').map((ticket) => (
-              <TicketCard key={ticket.id} ticket={ticket} />
-            ))}
-          </div>
-        </TabsContent>
-
-        <TabsContent value="enterprise">
-          <div className="grid grid-cols-1 lg:grid-cols-2 gap-4">
-            {tickets.filter(t => t.impact === 'enterprise').map((ticket) => (
-              <TicketCard key={ticket.id} ticket={ticket} />
-            ))}
-          </div>
-        </TabsContent>
-
-        <TabsContent value="feature-requests">
-          <div className="grid grid-cols-1 lg:grid-cols-2 gap-4">
-            {tickets.filter(t => t.category === 'feature').map((ticket) => (
-              <TicketCard key={ticket.id} ticket={ticket} />
-            ))}
-          </div>
-        </TabsContent>
-      </Tabs>
+      {filteredTickets.length === 0 && (
+        <Card>
+          <CardContent className="p-12 text-center">
+            <MessageSquare className="w-12 h-12 text-slate-400 mx-auto mb-4" />
+            <h3 className="text-lg font-medium text-slate-900 mb-2">No feedback found</h3>
+            <p className="text-slate-600 mb-4">
+              {searchTerm || selectedFilter !== 'all' 
+                ? 'Try adjusting your search or filters'
+                : 'Customer feedback will appear here'
+              }
+            </p>
+            <Button className="bg-gradient-to-r from-purple-600 to-pink-600 hover:from-purple-700 hover:to-pink-700">
+              <Plus className="w-4 h-4 mr-2" />
+              Add First Feedback
+            </Button>
+          </CardContent>
+        </Card>
+      )}
     </div>
   );
 };

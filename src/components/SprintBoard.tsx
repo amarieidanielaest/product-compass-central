@@ -1,266 +1,343 @@
 
 import { useState } from 'react';
-import { Plus, MoreHorizontal, Clock, User, Flag } from 'lucide-react';
+import { 
+  Calendar, Users, Target, Clock, Plus, Filter, 
+  ArrowRight, CheckCircle, AlertCircle, MoreHorizontal,
+  ExternalLink, MessageSquare
+} from 'lucide-react';
 import { Card, CardContent, CardHeader, CardTitle } from '@/components/ui/card';
 import { Button } from '@/components/ui/button';
 import { Badge } from '@/components/ui/badge';
+import { Progress } from '@/components/ui/progress';
 import { Tabs, TabsContent, TabsList, TabsTrigger } from '@/components/ui/tabs';
 
-const SprintBoard = () => {
-  const [tasks, setTasks] = useState({
-    backlog: [
-      { id: 1, title: 'Implement user preferences', priority: 'medium', points: 5, assignee: 'Unassigned' },
-      { id: 2, title: 'Add email templates', priority: 'low', points: 3, assignee: 'Unassigned' },
-      { id: 3, title: 'Optimize database queries', priority: 'high', points: 8, assignee: 'Unassigned' },
-      { id: 4, title: 'Create API documentation', priority: 'medium', points: 5, assignee: 'Unassigned' },
-    ],
-    todo: [
-      { id: 5, title: 'Fix mobile responsive issues', priority: 'high', points: 3, assignee: 'Emily Rodriguez' },
-      { id: 6, title: 'Update user profile UI', priority: 'medium', points: 5, assignee: 'Alex Chen' },
-    ],
-    inProgress: [
-      { id: 7, title: 'Implement password reset flow', priority: 'high', points: 8, assignee: 'Sarah Kim' },
-    ],
-    inReview: [
-      { id: 8, title: 'Add email notifications', priority: 'medium', points: 5, assignee: 'Mike Johnson' },
-    ],
-    done: [
-      { id: 9, title: 'Setup CI/CD pipeline', priority: 'high', points: 8, assignee: 'David Park' },
-      { id: 10, title: 'Design new dashboard layout', priority: 'medium', points: 5, assignee: 'Lisa Wong' },
-    ],
-  });
+interface SprintBoardProps {
+  selectedProductId?: string;
+  onNavigate?: (module: string) => void;
+}
 
-  const [activeSprint, setActiveSprint] = useState({
-    name: 'Sprint 24',
-    startDate: '2024-01-15',
-    endDate: '2024-01-29',
-    capacity: 40,
-    committed: 26,
-  });
+const SprintBoard = ({ selectedProductId, onNavigate }: SprintBoardProps) => {
+  const [selectedSprint, setSelectedSprint] = useState('current');
 
-  const getPriorityColor = (priority: string) => {
-    switch (priority) {
-      case 'high': return 'bg-red-100 text-red-700 border-red-200';
-      case 'medium': return 'bg-orange-100 text-orange-700 border-orange-200';
-      case 'low': return 'bg-green-100 text-green-700 border-green-200';
-      default: return 'bg-gray-100 text-gray-700 border-gray-200';
+  const mockSprints = [
+    {
+      id: 'SPR-24',
+      name: 'Sprint 24 - Dark Mode & Performance',
+      status: 'active',
+      startDate: '2024-06-10',
+      endDate: '2024-06-24',
+      progress: 65,
+      productId: 'main',
+      tasks: [
+        {
+          id: 'TASK-001',
+          title: 'Implement dark mode toggle',
+          status: 'in-progress',
+          assignee: 'John Doe',
+          priority: 'high',
+          linkedCustomerTicket: 'CUST-001',
+          storyPoints: 8
+        },
+        {
+          id: 'TASK-002',
+          title: 'Fix CSV export performance',
+          status: 'in-progress',
+          assignee: 'Jane Smith',
+          priority: 'critical',
+          linkedCustomerTicket: 'CUST-002',
+          storyPoints: 5
+        },
+        {
+          id: 'TASK-003',
+          title: 'Update UI color schemes',
+          status: 'todo',
+          assignee: 'Mike Johnson',
+          priority: 'medium',
+          linkedCustomerTicket: null,
+          storyPoints: 3
+        }
+      ]
+    },
+    {
+      id: 'SPR-25',
+      name: 'Sprint 25 - Integration Features',
+      status: 'planned',
+      startDate: '2024-06-24',
+      endDate: '2024-07-08',
+      progress: 0,
+      productId: 'beta',
+      tasks: [
+        {
+          id: 'TASK-004',
+          title: 'Slack integration setup',
+          status: 'todo',
+          assignee: 'Sarah Wilson',
+          priority: 'high',
+          linkedCustomerTicket: 'CUST-003',
+          storyPoints: 13
+        }
+      ]
+    }
+  ];
+
+  const filteredSprints = mockSprints.filter(sprint => 
+    !selectedProductId || selectedProductId === 'main' || sprint.productId === selectedProductId
+  );
+
+  const currentSprint = filteredSprints.find(s => s.status === 'active') || filteredSprints[0];
+
+  const getStatusColor = (status: string) => {
+    switch (status) {
+      case 'todo': return 'bg-gray-100 text-gray-800';
+      case 'in-progress': return 'bg-blue-100 text-blue-800';
+      case 'done': return 'bg-green-100 text-green-800';
+      case 'blocked': return 'bg-red-100 text-red-800';
+      default: return 'bg-gray-100 text-gray-800';
     }
   };
 
-  const TaskCard = ({ task }: { task: any }) => (
-    <div className="bg-white p-3 rounded-lg border shadow-sm hover:shadow-md transition-shadow cursor-pointer">
-      <div className="flex items-start justify-between mb-2">
-        <h4 className="font-medium text-slate-900 text-sm">{task.title}</h4>
-        <button className="text-slate-400 hover:text-slate-600">
-          <MoreHorizontal className="w-4 h-4" />
-        </button>
-      </div>
-      
-      <div className="flex items-center justify-between">
-        <div className="flex items-center space-x-2">
-          <Badge variant="outline" className={getPriorityColor(task.priority)}>
-            <Flag className="w-3 h-3 mr-1" />
-            {task.priority}
-          </Badge>
-          <span className="text-xs text-slate-500">{task.points} pts</span>
-        </div>
-        
-        <div className="flex items-center text-xs text-slate-500">
-          <User className="w-3 h-3 mr-1" />
-          {task.assignee === 'Unassigned' ? 
-            <span className="text-slate-400">Unassigned</span> : 
-            <span>{task.assignee.split(' ')[0]}</span>
-          }
-        </div>
-      </div>
-    </div>
-  );
+  const getPriorityColor = (priority: string) => {
+    switch (priority) {
+      case 'critical': return 'bg-red-100 text-red-800 border-red-200';
+      case 'high': return 'bg-orange-100 text-orange-800 border-orange-200';
+      case 'medium': return 'bg-yellow-100 text-yellow-800 border-yellow-200';
+      case 'low': return 'bg-green-100 text-green-800 border-green-200';
+      default: return 'bg-gray-100 text-gray-800 border-gray-200';
+    }
+  };
 
-  const Column = ({ title, tasks, color }: { title: string; tasks: any[]; color: string }) => (
-    <div className="flex-1 min-w-72">
-      <div className={`flex items-center justify-between p-3 rounded-t-lg ${color}`}>
-        <h3 className="font-semibold text-white">{title}</h3>
-        <Badge variant="secondary" className="bg-white/20 text-white">
-          {tasks.length}
-        </Badge>
-      </div>
-      <div className="bg-slate-50 p-3 rounded-b-lg min-h-96 space-y-3">
-        {tasks.map((task) => (
-          <TaskCard key={task.id} task={task} />
-        ))}
-        <Button variant="outline" className="w-full border-dashed">
-          <Plus className="w-4 h-4 mr-2" />
-          Add task
-        </Button>
-      </div>
-    </div>
-  );
-
-  const sprintProgress = Math.round((activeSprint.committed / activeSprint.capacity) * 100);
+  const viewCustomerTicket = (ticketId: string) => {
+    console.log(`Viewing customer ticket: ${ticketId}`);
+    onNavigate?.('customer');
+  };
 
   return (
-    <div className="max-w-7xl mx-auto px-4 sm:px-6 lg:px-8 py-8">
-      <div className="mb-8">
-        <h2 className="text-3xl font-bold text-slate-900 mb-2">Sprint Board</h2>
-        <p className="text-slate-600">Manage your sprints and backlog with kanban-style boards</p>
+    <div className="space-y-6">
+      <div className="flex flex-col sm:flex-row justify-between items-start sm:items-center gap-4">
+        <div>
+          <h2 className="text-2xl sm:text-3xl font-bold bg-gradient-to-r from-purple-600 to-pink-600 bg-clip-text text-transparent mb-2">
+            Sprint Board
+          </h2>
+          <p className="text-slate-600">
+            Agile development with direct customer feedback integration
+          </p>
+        </div>
+        <div className="flex space-x-2">
+          <Button variant="outline" onClick={() => onNavigate?.('customer')}>
+            <MessageSquare className="w-4 h-4 mr-2" />
+            Customer Feedback
+          </Button>
+          <Button className="bg-gradient-to-r from-purple-600 to-pink-600 hover:from-purple-700 hover:to-pink-700">
+            <Plus className="w-4 h-4 mr-2" />
+            New Sprint
+          </Button>
+        </div>
       </div>
 
-      <Tabs defaultValue="active-sprint" className="space-y-6">
-        <TabsList>
-          <TabsTrigger value="active-sprint">Active Sprint</TabsTrigger>
-          <TabsTrigger value="backlog">Backlog</TabsTrigger>
+      {/* Sprint Overview Cards */}
+      <div className="grid grid-cols-1 sm:grid-cols-2 lg:grid-cols-4 gap-4">
+        <Card className="border-l-4 border-l-blue-500">
+          <CardContent className="pt-6">
+            <div className="flex items-center justify-between">
+              <div>
+                <p className="text-sm font-medium text-slate-600">Active Sprints</p>
+                <p className="text-2xl font-bold text-slate-900">
+                  {filteredSprints.filter(s => s.status === 'active').length}
+                </p>
+              </div>
+              <Target className="w-8 h-8 text-blue-500" />
+            </div>
+          </CardContent>
+        </Card>
+        
+        <Card className="border-l-4 border-l-purple-500">
+          <CardContent className="pt-6">
+            <div className="flex items-center justify-between">
+              <div>
+                <p className="text-sm font-medium text-slate-600">Total Tasks</p>
+                <p className="text-2xl font-bold text-slate-900">
+                  {currentSprint?.tasks.length || 0}
+                </p>
+              </div>
+              <CheckCircle className="w-8 h-8 text-purple-500" />
+            </div>
+          </CardContent>
+        </Card>
+        
+        <Card className="border-l-4 border-l-green-500">
+          <CardContent className="pt-6">
+            <div className="flex items-center justify-between">
+              <div>
+                <p className="text-sm font-medium text-slate-600">Progress</p>
+                <p className="text-2xl font-bold text-slate-900">
+                  {currentSprint?.progress || 0}%
+                </p>
+              </div>
+              <Clock className="w-8 h-8 text-green-500" />
+            </div>
+          </CardContent>
+        </Card>
+        
+        <Card className="border-l-4 border-l-orange-500">
+          <CardContent className="pt-6">
+            <div className="flex items-center justify-between">
+              <div>
+                <p className="text-sm font-medium text-slate-600">Customer Links</p>
+                <p className="text-2xl font-bold text-slate-900">
+                  {currentSprint?.tasks.filter(t => t.linkedCustomerTicket).length || 0}
+                </p>
+              </div>
+              <MessageSquare className="w-8 h-8 text-orange-500" />
+            </div>
+          </CardContent>
+        </Card>
+      </div>
+
+      <Tabs value={selectedSprint} onValueChange={setSelectedSprint} className="w-full">
+        <TabsList className="grid w-full grid-cols-3">
+          <TabsTrigger value="current">Current Sprint</TabsTrigger>
+          <TabsTrigger value="upcoming">Upcoming</TabsTrigger>
+          <TabsTrigger value="completed">Completed</TabsTrigger>
         </TabsList>
 
-        <TabsContent value="active-sprint">
-          {/* Sprint Info */}
-          <Card className="mb-6">
-            <CardHeader>
-              <CardTitle className="flex items-center justify-between">
-                <div className="flex items-center">
-                  <Clock className="w-5 h-5 mr-2 text-blue-600" />
-                  {activeSprint.name}
-                </div>
-                <Button variant="outline" size="sm">
-                  Complete Sprint
-                </Button>
-              </CardTitle>
-            </CardHeader>
-            <CardContent>
-              <div className="grid grid-cols-1 md:grid-cols-4 gap-4 mb-4">
-                <div>
-                  <label className="text-sm font-medium text-slate-600">Start Date</label>
-                  <p className="text-slate-900">{activeSprint.startDate}</p>
-                </div>
-                <div>
-                  <label className="text-sm font-medium text-slate-600">End Date</label>
-                  <p className="text-slate-900">{activeSprint.endDate}</p>
-                </div>
-                <div>
-                  <label className="text-sm font-medium text-slate-600">Capacity</label>
-                  <p className="text-slate-900">{activeSprint.capacity} points</p>
-                </div>
-                <div>
-                  <label className="text-sm font-medium text-slate-600">Committed</label>
-                  <p className="text-slate-900">{activeSprint.committed} points</p>
-                </div>
-              </div>
-              
-              <div>
-                <div className="flex justify-between items-center mb-2">
-                  <span className="text-sm font-medium text-slate-700">Sprint Progress</span>
-                  <span className="text-sm text-slate-600">{sprintProgress}%</span>
-                </div>
-                <div className="w-full bg-slate-200 rounded-full h-3">
-                  <div
-                    className="bg-blue-600 h-3 rounded-full transition-all duration-300"
-                    style={{ width: `${sprintProgress}%` }}
-                  ></div>
-                </div>
-              </div>
-            </CardContent>
-          </Card>
-
-          {/* Kanban Board */}
-          <div className="bg-white rounded-lg p-6 border">
-            <div className="flex space-x-4 overflow-x-auto pb-4">
-              <Column title="To Do" tasks={tasks.todo} color="bg-slate-600" />
-              <Column title="In Progress" tasks={tasks.inProgress} color="bg-blue-600" />
-              <Column title="In Review" tasks={tasks.inReview} color="bg-orange-600" />
-              <Column title="Done" tasks={tasks.done} color="bg-green-600" />
-            </div>
-          </div>
-        </TabsContent>
-
-        <TabsContent value="backlog">
-          <div className="grid grid-cols-1 lg:grid-cols-3 gap-6">
-            {/* Backlog Items */}
-            <div className="lg:col-span-2">
+        <TabsContent value="current" className="space-y-6">
+          {currentSprint && (
+            <>
+              {/* Sprint Header */}
               <Card>
                 <CardHeader>
-                  <CardTitle className="flex items-center justify-between">
-                    Product Backlog
-                    <Button size="sm" className="bg-blue-600 hover:bg-blue-700">
-                      <Plus className="w-4 h-4 mr-2" />
-                      Add Item
-                    </Button>
-                  </CardTitle>
+                  <div className="flex flex-col sm:flex-row justify-between items-start sm:items-center gap-4">
+                    <div>
+                      <CardTitle className="flex items-center gap-2">
+                        <Target className="w-5 h-5 text-purple-600" />
+                        {currentSprint.name}
+                      </CardTitle>
+                      <p className="text-slate-600 mt-1">
+                        {currentSprint.startDate} - {currentSprint.endDate}
+                      </p>
+                    </div>
+                    <Badge className={
+                      currentSprint.status === 'active' 
+                        ? 'bg-green-100 text-green-800' 
+                        : 'bg-gray-100 text-gray-800'
+                    }>
+                      {currentSprint.status}
+                    </Badge>
+                  </div>
                 </CardHeader>
                 <CardContent>
-                  <div className="space-y-3">
-                    {tasks.backlog.map((task) => (
-                      <div key={task.id} className="p-4 bg-slate-50 rounded-lg border hover:bg-slate-100 transition-colors cursor-pointer">
-                        <div className="flex items-start justify-between">
-                          <div className="flex-1">
-                            <h4 className="font-medium text-slate-900 mb-2">{task.title}</h4>
-                            <div className="flex items-center space-x-3">
-                              <Badge variant="outline" className={getPriorityColor(task.priority)}>
-                                <Flag className="w-3 h-3 mr-1" />
-                                {task.priority}
-                              </Badge>
-                              <span className="text-sm text-slate-600">{task.points} story points</span>
-                              <span className="text-sm text-slate-500">{task.assignee}</span>
-                            </div>
-                          </div>
-                          <Button variant="outline" size="sm">
-                            Add to Sprint
+                  <div className="space-y-2">
+                    <div className="flex justify-between text-sm">
+                      <span>Sprint Progress</span>
+                      <span className="font-medium">{currentSprint.progress}%</span>
+                    </div>
+                    <Progress value={currentSprint.progress} className="w-full" />
+                  </div>
+                </CardContent>
+              </Card>
+
+              {/* Task Board */}
+              <div className="grid grid-cols-1 md:grid-cols-3 gap-6">
+                {['todo', 'in-progress', 'done'].map((status) => (
+                  <div key={status} className="space-y-4">
+                    <h3 className="font-semibold text-slate-900 capitalize flex items-center">
+                      {status === 'todo' && <Clock className="w-4 h-4 mr-2 text-gray-500" />}
+                      {status === 'in-progress' && <AlertCircle className="w-4 h-4 mr-2 text-blue-500" />}
+                      {status === 'done' && <CheckCircle className="w-4 h-4 mr-2 text-green-500" />}
+                      {status.replace('-', ' ')} ({currentSprint.tasks.filter(t => t.status === status).length})
+                    </h3>
+                    
+                    <div className="space-y-3">
+                      {currentSprint.tasks
+                        .filter(task => task.status === status)
+                        .map((task) => (
+                          <Card key={task.id} className="hover:shadow-md transition-shadow">
+                            <CardContent className="p-4">
+                              <div className="space-y-3">
+                                <div className="flex justify-between items-start">
+                                  <h4 className="font-medium text-slate-900 text-sm">{task.title}</h4>
+                                  <Button variant="ghost" size="sm" className="h-6 w-6 p-0">
+                                    <MoreHorizontal className="w-4 h-4" />
+                                  </Button>
+                                </div>
+                                
+                                <div className="flex flex-wrap gap-1">
+                                  <Badge className={getPriorityColor(task.priority)} variant="outline">
+                                    {task.priority}
+                                  </Badge>
+                                  <Badge variant="outline" className="text-xs">
+                                    {task.storyPoints} pts
+                                  </Badge>
+                                </div>
+                                
+                                <div className="flex items-center justify-between text-xs text-slate-500">
+                                  <span className="flex items-center">
+                                    <Users className="w-3 h-3 mr-1" />
+                                    {task.assignee}
+                                  </span>
+                                </div>
+                                
+                                {task.linkedCustomerTicket && (
+                                  <div className="pt-2 border-t border-slate-100">
+                                    <Button
+                                      variant="ghost"
+                                      size="sm"
+                                      onClick={() => viewCustomerTicket(task.linkedCustomerTicket!)}
+                                      className="h-6 p-0 text-xs text-purple-600 hover:text-purple-800"
+                                    >
+                                      <MessageSquare className="w-3 h-3 mr-1" />
+                                      {task.linkedCustomerTicket}
+                                      <ExternalLink className="w-3 h-3 ml-1" />
+                                    </Button>
+                                  </div>
+                                )}
+                              </div>
+                            </CardContent>
+                          </Card>
+                        ))}
+                      
+                      {currentSprint.tasks.filter(t => t.status === status).length === 0 && (
+                        <div className="border-2 border-dashed border-slate-200 rounded-lg p-6 text-center">
+                          <p className="text-slate-500 text-sm">No tasks in {status.replace('-', ' ')}</p>
+                          <Button variant="ghost" size="sm" className="mt-2">
+                            <Plus className="w-4 h-4 mr-1" />
+                            Add Task
                           </Button>
                         </div>
-                      </div>
-                    ))}
+                      )}
+                    </div>
                   </div>
-                </CardContent>
-              </Card>
-            </div>
+                ))}
+              </div>
+            </>
+          )}
+        </TabsContent>
 
-            {/* Sprint Planning */}
-            <div>
-              <Card>
-                <CardHeader>
-                  <CardTitle>Sprint Planning</CardTitle>
-                </CardHeader>
-                <CardContent className="space-y-4">
-                  <div>
-                    <label className="text-sm font-medium text-slate-600">Next Sprint</label>
-                    <p className="text-slate-900">Sprint 25</p>
-                  </div>
-                  
-                  <div>
-                    <label className="text-sm font-medium text-slate-600">Planned Capacity</label>
-                    <p className="text-slate-900">45 story points</p>
-                  </div>
-                  
-                  <div>
-                    <label className="text-sm font-medium text-slate-600">Items Selected</label>
-                    <p className="text-slate-900">0 items (0 points)</p>
-                  </div>
-                  
-                  <Button className="w-full bg-green-600 hover:bg-green-700">
-                    Start New Sprint
-                  </Button>
-                </CardContent>
-              </Card>
+        <TabsContent value="upcoming" className="space-y-6">
+          <Card>
+            <CardContent className="p-8 text-center">
+              <Calendar className="w-12 h-12 text-slate-400 mx-auto mb-4" />
+              <h3 className="text-lg font-medium text-slate-900 mb-2">Upcoming Sprints</h3>
+              <p className="text-slate-600 mb-4">Plan your next sprints based on customer feedback and strategy</p>
+              <Button className="bg-gradient-to-r from-purple-600 to-pink-600 hover:from-purple-700 hover:to-pink-700">
+                <Plus className="w-4 h-4 mr-2" />
+                Plan Next Sprint
+              </Button>
+            </CardContent>
+          </Card>
+        </TabsContent>
 
-              <Card className="mt-6">
-                <CardHeader>
-                  <CardTitle>Quick Stats</CardTitle>
-                </CardHeader>
-                <CardContent className="space-y-3">
-                  <div className="flex justify-between">
-                    <span className="text-slate-600">Backlog Items</span>
-                    <span className="font-medium">{tasks.backlog.length}</span>
-                  </div>
-                  <div className="flex justify-between">
-                    <span className="text-slate-600">In Development</span>
-                    <span className="font-medium">{tasks.todo.length + tasks.inProgress.length}</span>
-                  </div>
-                  <div className="flex justify-between">
-                    <span className="text-slate-600">Completed This Sprint</span>
-                    <span className="font-medium">{tasks.done.length}</span>
-                  </div>
-                </CardContent>
-              </Card>
-            </div>
-          </div>
+        <TabsContent value="completed" className="space-y-6">
+          <Card>
+            <CardContent className="p-8 text-center">
+              <CheckCircle className="w-12 h-12 text-slate-400 mx-auto mb-4" />
+              <h3 className="text-lg font-medium text-slate-900 mb-2">Completed Sprints</h3>
+              <p className="text-slate-600 mb-4">Review past sprints and their customer impact</p>
+              <Button variant="outline">
+                View Sprint History
+              </Button>
+            </CardContent>
+          </Card>
         </TabsContent>
       </Tabs>
     </div>
