@@ -1,3 +1,4 @@
+
 import { useState } from 'react';
 import { SidebarProvider } from '@/components/ui/sidebar';
 import AppSidebar from '../components/AppSidebar';
@@ -41,7 +42,7 @@ const Index = () => {
   const renderModule = () => {
     switch (activeModule) {
       case 'dashboard':
-        return <Dashboard />;
+        return <Dashboard selectedProductId={selectedProductId} onNavigate={setActiveModule} />;
       case 'products':
         return <ProductManager onProductSelect={setSelectedProductId} selectedProductId={selectedProductId} />;
       case 'strategy':
@@ -55,7 +56,7 @@ const Index = () => {
       case 'customer':
         return <CustomerBoard selectedProductId={selectedProductId} onNavigate={setActiveModule} />;
       default:
-        return <Dashboard />;
+        return <Dashboard selectedProductId={selectedProductId} onNavigate={setActiveModule} />;
     }
   };
 
