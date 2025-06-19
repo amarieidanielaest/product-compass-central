@@ -41,6 +41,14 @@ const Dashboard = ({ selectedProductId, onNavigate }: DashboardProps) => {
     adoption: {
       label: "Adoption",
       color: "#10b981"
+    },
+    committed: {
+      label: "Committed",
+      color: "#ef4444"
+    },
+    completed: {
+      label: "Completed", 
+      color: "#22c55e"
     }
   };
 
@@ -254,18 +262,16 @@ const Dashboard = ({ selectedProductId, onNavigate }: DashboardProps) => {
             </CardTitle>
           </CardHeader>
           <CardContent>
-            <div className="h-80 w-full">
-              <ResponsiveContainer width="100%" height="100%">
-                <AreaChart data={userGrowthData} margin={{ top: 10, right: 30, left: 0, bottom: 0 }}>
-                  <XAxis dataKey="month" />
-                  <YAxis yAxisId="left" />
-                  <YAxis yAxisId="right" orientation="right" />
-                  <ChartTooltip content={<ChartTooltipContent />} />
-                  <Area yAxisId="left" type="monotone" dataKey="users" stackId="1" stroke="#8b5cf6" fill="#8b5cf6" fillOpacity={0.3} />
-                  <Line yAxisId="right" type="monotone" dataKey="retention" stroke="#06b6d4" strokeWidth={3} />
-                </AreaChart>
-              </ResponsiveContainer>
-            </div>
+            <ChartContainer config={chartConfig} className="h-80 w-full">
+              <AreaChart data={userGrowthData} margin={{ top: 10, right: 30, left: 0, bottom: 0 }}>
+                <XAxis dataKey="month" />
+                <YAxis yAxisId="left" />
+                <YAxis yAxisId="right" orientation="right" />
+                <ChartTooltip content={<ChartTooltipContent />} />
+                <Area yAxisId="left" type="monotone" dataKey="users" stackId="1" stroke="#8b5cf6" fill="#8b5cf6" fillOpacity={0.3} />
+                <Line yAxisId="right" type="monotone" dataKey="retention" stroke="#06b6d4" strokeWidth={3} />
+              </AreaChart>
+            </ChartContainer>
           </CardContent>
         </Card>
 
@@ -278,16 +284,14 @@ const Dashboard = ({ selectedProductId, onNavigate }: DashboardProps) => {
             </CardTitle>
           </CardHeader>
           <CardContent>
-            <div className="h-80 w-full">
-              <ResponsiveContainer width="100%" height="100%">
-                <BarChart data={featureAdoptionData} margin={{ top: 10, right: 30, left: 0, bottom: 0 }}>
-                  <XAxis dataKey="feature" />
-                  <YAxis />
-                  <ChartTooltip content={<ChartTooltipContent />} />
-                  <Bar dataKey="adoption" fill="#10b981" />
-                </BarChart>
-              </ResponsiveContainer>
-            </div>
+            <ChartContainer config={chartConfig} className="h-80 w-full">
+              <BarChart data={featureAdoptionData} margin={{ top: 10, right: 30, left: 0, bottom: 0 }}>
+                <XAxis dataKey="feature" />
+                <YAxis />
+                <ChartTooltip content={<ChartTooltipContent />} />
+                <Bar dataKey="adoption" fill="#10b981" />
+              </BarChart>
+            </ChartContainer>
           </CardContent>
         </Card>
 
@@ -315,7 +319,6 @@ const Dashboard = ({ selectedProductId, onNavigate }: DashboardProps) => {
                       <Cell key={`cell-${index}`} fill={COLORS[index % COLORS.length]} />
                     ))}
                   </Pie>
-                  <ChartTooltip />
                 </RechartsPieChart>
               </ResponsiveContainer>
             </div>
@@ -331,17 +334,15 @@ const Dashboard = ({ selectedProductId, onNavigate }: DashboardProps) => {
             </CardTitle>
           </CardHeader>
           <CardContent>
-            <div className="h-80 w-full">
-              <ResponsiveContainer width="100%" height="100%">
-                <BarChart data={sprintMetrics} margin={{ top: 10, right: 30, left: 0, bottom: 0 }}>
-                  <XAxis dataKey="sprint" />
-                  <YAxis />
-                  <ChartTooltip content={<ChartTooltipContent />} />
-                  <Bar dataKey="committed" fill="#ef4444" />
-                  <Bar dataKey="completed" fill="#22c55e" />
-                </BarChart>
-              </ResponsiveContainer>
-            </div>
+            <ChartContainer config={chartConfig} className="h-80 w-full">
+              <BarChart data={sprintMetrics} margin={{ top: 10, right: 30, left: 0, bottom: 0 }}>
+                <XAxis dataKey="sprint" />
+                <YAxis />
+                <ChartTooltip content={<ChartTooltipContent />} />
+                <Bar dataKey="committed" fill="#ef4444" />
+                <Bar dataKey="completed" fill="#22c55e" />
+              </BarChart>
+            </ChartContainer>
           </CardContent>
         </Card>
       </div>
