@@ -267,7 +267,7 @@ const CustomerBoard = ({ selectedProductId, onNavigate }: CustomerBoardProps) =>
           <TabsTrigger value="all-boards">All Boards</TabsTrigger>
           <TabsTrigger value="public">Public Boards</TabsTrigger>
           <TabsTrigger value="enterprise">Enterprise Boards</TabsTrigger>
-        </Tabs>
+        </TabsList>
 
         <TabsContent value="all-boards" className="space-y-6">
           {!selectedBoard ? (

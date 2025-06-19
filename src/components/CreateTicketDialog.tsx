@@ -343,7 +343,7 @@ const CreateTicketDialog = ({ onClose, boardId, boards }: CreateTicketDialogProp
                     <SelectValue placeholder="How complex is this?" />
                   </SelectTrigger>
                   <SelectContent>
-                    <SelectItem value="quick">Quick Fix (< 1 week)</SelectItem>
+                    <SelectItem value="quick">Quick Fix (&lt; 1 week)</SelectItem>
                     <SelectItem value="1-sprint">Small (1 sprint)</SelectItem>
                     <SelectItem value="2-3-sprints">Medium (2-3 sprints)</SelectItem>
                     <SelectItem value="epic">Large (Epic/Multiple sprints)</SelectItem>
