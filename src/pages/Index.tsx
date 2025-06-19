@@ -46,9 +46,9 @@ const Index = () => {
       case 'products':
         return <ProductManager onProductSelect={setSelectedProductId} selectedProductId={selectedProductId} />;
       case 'strategy':
-        return <Strategy selectedProductId={selectedProductId} onNavigate={setActiveModule} />;
+        return <Strategy />;
       case 'roadmap':
-        return <Roadmap selectedProductId={selectedProductId} onNavigate={setActiveModule} />;
+        return <Roadmap />;
       case 'sprints':
         return <SprintBoard selectedProductId={selectedProductId} onNavigate={setActiveModule} />;
       case 'prd':
