@@ -1,3 +1,4 @@
+
 import { useState } from 'react';
 import { TrendingUp, Users, Calendar, Star, Settings, Plus, BarChart3, PieChart, LineChart, Target, DollarSign, Clock, AlertTriangle } from 'lucide-react';
 import { Card, CardContent, CardHeader, CardTitle } from '@/components/ui/card';
@@ -236,16 +237,18 @@ const Dashboard = () => {
             </CardTitle>
           </CardHeader>
           <CardContent>
-            <ChartContainer config={chartConfig} className="h-80">
-              <AreaChart data={userGrowthData}>
-                <XAxis dataKey="month" />
-                <YAxis yAxisId="left" />
-                <YAxis yAxisId="right" orientation="right" />
-                <ChartTooltip content={<ChartTooltipContent />} />
-                <Area yAxisId="left" type="monotone" dataKey="users" stackId="1" stroke="#8b5cf6" fill="#8b5cf6" fillOpacity={0.3} />
-                <Line yAxisId="right" type="monotone" dataKey="retention" stroke="#06b6d4" strokeWidth={3} />
-              </AreaChart>
-            </ChartContainer>
+            <div className="h-80 w-full">
+              <ResponsiveContainer width="100%" height="100%">
+                <AreaChart data={userGrowthData} margin={{ top: 10, right: 30, left: 0, bottom: 0 }}>
+                  <XAxis dataKey="month" />
+                  <YAxis yAxisId="left" />
+                  <YAxis yAxisId="right" orientation="right" />
+                  <ChartTooltip content={<ChartTooltipContent />} />
+                  <Area yAxisId="left" type="monotone" dataKey="users" stackId="1" stroke="#8b5cf6" fill="#8b5cf6" fillOpacity={0.3} />
+                  <Line yAxisId="right" type="monotone" dataKey="retention" stroke="#06b6d4" strokeWidth={3} />
+                </AreaChart>
+              </ResponsiveContainer>
+            </div>
           </CardContent>
         </Card>
 
@@ -258,14 +261,16 @@ const Dashboard = () => {
             </CardTitle>
           </CardHeader>
           <CardContent>
-            <ChartContainer config={chartConfig} className="h-80">
-              <BarChart data={featureAdoptionData}>
-                <XAxis dataKey="feature" />
-                <YAxis />
-                <ChartTooltip content={<ChartTooltipContent />} />
-                <Bar dataKey="adoption" fill="#10b981" />
-              </BarChart>
-            </ChartContainer>
+            <div className="h-80 w-full">
+              <ResponsiveContainer width="100%" height="100%">
+                <BarChart data={featureAdoptionData} margin={{ top: 10, right: 30, left: 0, bottom: 0 }}>
+                  <XAxis dataKey="feature" />
+                  <YAxis />
+                  <ChartTooltip content={<ChartTooltipContent />} />
+                  <Bar dataKey="adoption" fill="#10b981" />
+                </BarChart>
+              </ResponsiveContainer>
+            </div>
           </CardContent>
         </Card>
 
@@ -278,14 +283,14 @@ const Dashboard = () => {
             </CardTitle>
           </CardHeader>
           <CardContent>
-            <div className="h-80">
+            <div className="h-80 w-full">
               <ResponsiveContainer width="100%" height="100%">
-                <RechartsPieChart>
+                <RechartsPieChart margin={{ top: 10, right: 30, left: 0, bottom: 0 }}>
                   <Pie
                     data={satisfactionData}
                     cx="50%"
                     cy="50%"
-                    outerRadius={80}
+                    outerRadius="80%"
                     dataKey="count"
                     label={({ score, percentage }) => `${score}: ${percentage}%`}
                   >
@@ -309,15 +314,17 @@ const Dashboard = () => {
             </CardTitle>
           </CardHeader>
           <CardContent>
-            <ChartContainer config={chartConfig} className="h-80">
-              <BarChart data={sprintMetrics}>
-                <XAxis dataKey="sprint" />
-                <YAxis />
-                <ChartTooltip content={<ChartTooltipContent />} />
-                <Bar dataKey="committed" fill="#ef4444" />
-                <Bar dataKey="completed" fill="#22c55e" />
-              </BarChart>
-            </ChartContainer>
+            <div className="h-80 w-full">
+              <ResponsiveContainer width="100%" height="100%">
+                <BarChart data={sprintMetrics} margin={{ top: 10, right: 30, left: 0, bottom: 0 }}>
+                  <XAxis dataKey="sprint" />
+                  <YAxis />
+                  <ChartTooltip content={<ChartTooltipContent />} />
+                  <Bar dataKey="committed" fill="#ef4444" />
+                  <Bar dataKey="completed" fill="#22c55e" />
+                </BarChart>
+              </ResponsiveContainer>
+            </div>
           </CardContent>
         </Card>
       </div>
