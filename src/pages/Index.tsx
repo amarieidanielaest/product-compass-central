@@ -52,7 +52,7 @@ const Index = () => {
       case 'sprints':
         return <SprintBoard selectedProductId={selectedProductId} onNavigate={setActiveModule} />;
       case 'prd':
-        return <PRDGenerator />;
+        return <PRDGenerator selectedProductId={selectedProductId} onNavigate={setActiveModule} />;
       case 'customer':
         return <CustomerBoard selectedProductId={selectedProductId} onNavigate={setActiveModule} />;
       default:
