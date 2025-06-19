@@ -1,4 +1,3 @@
-
 import { useState } from 'react';
 import { SidebarProvider } from '@/components/ui/sidebar';
 import AppSidebar from '../components/AppSidebar';
@@ -54,7 +53,7 @@ const Index = () => {
       case 'prd':
         return <PRDGenerator />;
       case 'customer':
-        return <CustomerBoard onNavigate={setActiveModule} />;
+        return <CustomerBoard selectedProductId={selectedProductId} onNavigate={setActiveModule} />;
       default:
         return <Dashboard />;
     }
