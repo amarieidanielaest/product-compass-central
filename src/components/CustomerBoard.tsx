@@ -46,6 +46,27 @@ const CustomerBoard = ({ selectedProductId, onNavigate }: CustomerBoardProps) =>
   const [showAIProcessor, setShowAIProcessor] = useState(false);
   const [rawFeedbackText, setRawFeedbackText] = useState('');
 
+  // Mock boards data for the CreateTicketDialog
+  const mockBoards = [
+    {
+      id: 'board-1',
+      name: 'Public Feature Requests',
+      type: 'public' as const
+    },
+    {
+      id: 'board-2',
+      name: 'Enterprise Feedback',
+      type: 'enterprise' as const,
+      customerId: 'ent-001'
+    },
+    {
+      id: 'board-3',
+      name: 'Internal Product Board',
+      type: 'enterprise' as const,
+      customerId: 'internal'
+    }
+  ];
+
   const mockTickets: Ticket[] = [
     {
       id: 'FB-001',
@@ -408,11 +429,13 @@ const CustomerBoard = ({ selectedProductId, onNavigate }: CustomerBoardProps) =>
         </div>
       )}
 
-      <CreateTicketDialog 
-        isOpen={isCreateDialogOpen}
-        onClose={() => setIsCreateDialogOpen(false)}
-        selectedProductId={selectedProductId}
-      />
+      {isCreateDialogOpen && (
+        <CreateTicketDialog 
+          onClose={() => setIsCreateDialogOpen(false)}
+          boards={mockBoards}
+          boardId={null}
+        />
+      )}
     </div>
   );
 };
