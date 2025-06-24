@@ -1,32 +1,15 @@
-
 import { useState } from 'react';
-import { 
-  MessageSquare, User, Clock, AlertTriangle, CheckCircle, 
-  ArrowRight, Filter, Search, Plus, ExternalLink, Building2,
-  Globe, Lock, Users, ThumbsUp, MessageCircle, Eye
-} from 'lucide-react';
+import { Plus, Filter, Search, MessageSquare, Star, Clock, User, TrendingUp, Brain, Zap } from 'lucide-react';
 import { Card, CardContent, CardHeader, CardTitle } from '@/components/ui/card';
 import { Button } from '@/components/ui/button';
-import { Badge } from '@/components/ui/badge';
 import { Input } from '@/components/ui/input';
+import { Badge } from '@/components/ui/badge';
 import { Tabs, TabsContent, TabsList, TabsTrigger } from '@/components/ui/tabs';
-import TicketDetail from './TicketDetail';
+import { Select, SelectContent, SelectItem, SelectTrigger, SelectValue } from '@/components/ui/select';
 import CreateTicketDialog from './CreateTicketDialog';
-
-interface CustomerBoardProps {
-  selectedProductId: string;
-  onNavigate: (module: string) => void;
-}
-
-interface Board {
-  id: string;
-  name: string;
-  type: 'public' | 'enterprise';
-  customerId?: string;
-  description: string;
-  ticketCount: number;
-  isActive: boolean;
-}
+import TicketDetail from './TicketDetail';
+import AIInsightsPanel from './AIInsightsPanel';
+import SmartFeedbackProcessor from './SmartFeedbackProcessor';
 
 interface Ticket {
   id: string;
@@ -38,7 +21,6 @@ interface Ticket {
   status: 'open' | 'in-progress' | 'planned' | 'resolved' | 'closed';
   category: 'feature' | 'bug' | 'improvement' | 'integration';
   created: string;
-  boardId: string;
   votes: number;
   comments: number;
   views: number;
@@ -49,145 +31,125 @@ interface Ticket {
   businessValue?: 'low' | 'medium' | 'high';
 }
 
-const CustomerBoard = ({ selectedProductId, onNavigate }: CustomerBoardProps) => {
-  const [activeTab, setActiveTab] = useState('all-boards');
-  const [selectedBoard, setSelectedBoard] = useState<string | null>(null);
-  const [selectedTicket, setSelectedTicket] = useState<Ticket | null>(null);
-  const [searchTerm, setSearchTerm] = useState('');
-  const [selectedFilter, setSelectedFilter] = useState('all');
-  const [showCreateDialog, setShowCreateDialog] = useState(false);
+interface CustomerBoardProps {
+  selectedProductId?: string;
+  onNavigate?: (module: string) => void;
+}
 
-  const mockBoards: Board[] = [
-    {
-      id: 'public-main',
-      name: 'Public Feature Board',
-      type: 'public',
-      description: 'Community-driven feature requests and feedback',
-      ticketCount: 47,
-      isActive: true
-    },
-    {
-      id: 'enterprise-acme',
-      name: 'Acme Corp Board',
-      type: 'enterprise',
-      customerId: 'acme-corp',
-      description: 'Private board for Acme Corp team collaboration',
-      ticketCount: 12,
-      isActive: true
-    },
-    {
-      id: 'enterprise-techflow',
-      name: 'TechFlow Inc Board',
-      type: 'enterprise',
-      customerId: 'techflow-inc',
-      description: 'Dedicated board for TechFlow Inc feature requests',
-      ticketCount: 8,
-      isActive: true
-    }
-  ];
+const CustomerBoard = ({ selectedProductId, onNavigate }: CustomerBoardProps) => {
+  const [activeView, setActiveView] = useState('board');
+  const [selectedTicket, setSelectedTicket] = useState<Ticket | null>(null);
+  const [isCreateDialogOpen, setIsCreateDialogOpen] = useState(false);
+  const [filterStatus, setFilterStatus] = useState('all');
+  const [filterPriority, setFilterPriority] = useState('all');
+  const [searchTerm, setSearchTerm] = useState('');
+  const [showAIProcessor, setShowAIProcessor] = useState(false);
+  const [rawFeedbackText, setRawFeedbackText] = useState('');
 
   const mockTickets: Ticket[] = [
     {
-      id: 'FEAT-001',
-      title: 'Dark mode support across all interfaces',
-      description: 'Implement comprehensive dark mode theme with user preference persistence and automatic switching based on system settings.',
-      customer: 'Community',
-      priority: 'high',
-      status: 'planned',
-      category: 'feature',
-      created: '2024-06-15',
-      boardId: 'public-main',
-      votes: 156,
-      comments: 23,
-      views: 890,
-      tags: ['UI/UX', 'accessibility', 'theming'],
-      submittedBy: 'john.doe@example.com',
-      businessValue: 'high',
-      estimatedEffort: '2-3 sprints'
-    },
-    {
-      id: 'BUG-002',
-      title: 'CSV export fails with large datasets',
-      description: 'When exporting reports with more than 10,000 rows, the system times out and fails to generate the CSV file.',
-      customer: 'TechFlow Inc',
-      customerId: 'techflow-inc',
+      id: 'FB-001',
+      title: 'Export feature limited to 1000 rows',
+      description: 'Our team regularly processes datasets with 10K+ rows. The current export limitation is blocking our monthly reporting workflow. This is critical for our operations.',
+      customer: 'TechCorp Solutions',
+      customerId: 'tc-001',
       priority: 'critical',
-      status: 'in-progress',
-      category: 'bug',
-      created: '2024-06-14',
-      boardId: 'enterprise-techflow',
-      votes: 45,
-      comments: 12,
-      views: 234,
-      linkedSprint: 'SPR-24',
-      tags: ['export', 'performance', 'data'],
-      submittedBy: 'sarah.tech@techflow.com',
-      businessValue: 'high',
-      estimatedEffort: '1 sprint'
-    },
-    {
-      id: 'FEAT-003',
-      title: 'Real-time Slack notifications integration',
-      description: 'Connect with Slack workspace to send instant notifications for important events and updates.',
-      customer: 'Acme Corp',
-      customerId: 'acme-corp',
-      priority: 'medium',
       status: 'open',
-      category: 'integration',
-      created: '2024-06-13',
-      boardId: 'enterprise-acme',
-      votes: 28,
+      category: 'feature',
+      created: '2024-06-14',
+      votes: 23,
       comments: 8,
       views: 156,
-      tags: ['slack', 'notifications', 'integrations'],
-      submittedBy: 'mike.manager@acme.com',
-      businessValue: 'medium',
-      estimatedEffort: '1-2 sprints'
+      tags: ['export', 'data', 'enterprise'],
+      submittedBy: 'Sarah Tech',
+      estimatedEffort: '2-3 sprints',
+      businessValue: 'high',
+      linkedSprint: 'Sprint 24'
     },
     {
-      id: 'IMPR-004',
-      title: 'Enhanced search functionality with filters',
-      description: 'Improve search capabilities with advanced filters, sorting options, and real-time suggestions.',
-      customer: 'Community',
+      id: 'FB-002',
+      title: 'Mobile app crashes on startup',
+      description: 'The mobile app is consistently crashing on startup for our iOS users. This is preventing them from accessing critical features and impacting their overall experience.',
+      customer: 'MobileFirst Innovations',
+      customerId: 'mf-002',
+      priority: 'high',
+      status: 'in-progress',
+      category: 'bug',
+      created: '2024-06-12',
+      votes: 15,
+      comments: 5,
+      views: 92,
+      tags: ['mobile', 'ios', 'crash'],
+      submittedBy: 'John Mobile',
+      estimatedEffort: '1 sprint',
+      businessValue: 'high'
+    },
+    {
+      id: 'FB-003',
+      title: 'Dark mode toggle missing',
+      description: 'Many users have requested a dark mode option for the dashboard. This would improve usability in low-light environments and reduce eye strain.',
+      customer: 'Visionary Designs',
+      customerId: 'vd-003',
       priority: 'medium',
+      status: 'planned',
+      category: 'feature',
+      created: '2024-06-10',
+      votes: 8,
+      comments: 3,
+      views: 67,
+      tags: ['dark mode', 'ux', 'accessibility'],
+      submittedBy: 'Alice UX',
+      estimatedEffort: '0.5 sprint',
+      businessValue: 'medium'
+    },
+    {
+      id: 'FB-004',
+      title: 'Integrate with Slack for notifications',
+      description: 'Users want to receive real-time notifications in Slack for important events, such as new feedback submissions and status updates.',
+      customer: 'CommTech Solutions',
+      customerId: 'ct-004',
+      priority: 'medium',
+      status: 'planned',
+      category: 'integration',
+      created: '2024-06-08',
+      votes: 5,
+      comments: 2,
+      views: 41,
+      tags: ['slack', 'integration', 'notifications'],
+      submittedBy: 'Bob Integrations',
+      estimatedEffort: '1 sprint',
+      businessValue: 'medium'
+    },
+    {
+      id: 'FB-005',
+      title: 'Improve dashboard performance',
+      description: 'The dashboard is slow to load and respond to user interactions. This is impacting user productivity and causing frustration.',
+      customer: 'Speedy Solutions',
+      customerId: 'ss-005',
+      priority: 'high',
       status: 'open',
       category: 'improvement',
-      created: '2024-06-12',
-      boardId: 'public-main',
-      votes: 89,
-      comments: 15,
-      views: 445,
-      tags: ['search', 'filters', 'UX'],
-      submittedBy: 'community@example.com',
-      businessValue: 'medium'
+      created: '2024-06-06',
+      votes: 3,
+      comments: 1,
+      views: 28,
+      tags: ['performance', 'speed', 'ux'],
+      submittedBy: 'Charlie Speed',
+      estimatedEffort: '2 sprints',
+      businessValue: 'high'
     }
   ];
 
-  const getCurrentBoard = () => {
-    if (!selectedBoard) return null;
-    return mockBoards.find(board => board.id === selectedBoard) || null;
+  const handleAITaskCreation = (insight: any) => {
+    console.log('Creating task from AI insight:', insight);
+    // In real implementation, this would create a new ticket based on AI suggestions
+    setIsCreateDialogOpen(true);
   };
 
-  const getFilteredTickets = () => {
-    let tickets = mockTickets;
-    
-    if (selectedBoard) {
-      tickets = tickets.filter(ticket => ticket.boardId === selectedBoard);
-    }
-    
-    if (searchTerm) {
-      tickets = tickets.filter(ticket => 
-        ticket.title.toLowerCase().includes(searchTerm.toLowerCase()) ||
-        ticket.description.toLowerCase().includes(searchTerm.toLowerCase()) ||
-        ticket.customer.toLowerCase().includes(searchTerm.toLowerCase())
-      );
-    }
-    
-    if (selectedFilter !== 'all') {
-      tickets = tickets.filter(ticket => ticket.status === selectedFilter);
-    }
-    
-    return tickets.sort((a, b) => b.votes - a.votes);
+  const handleSmartFeedbackProcess = (processed: any) => {
+    console.log('Processed feedback:', processed);
+    setShowAIProcessor(false);
+    setIsCreateDialogOpen(true);
   };
 
   const getPriorityColor = (priority: string) => {
@@ -211,49 +173,55 @@ const CustomerBoard = ({ selectedProductId, onNavigate }: CustomerBoardProps) =>
     }
   };
 
-  const getCategoryIcon = (category: string) => {
-    switch (category) {
-      case 'feature': return '✨';
-      case 'bug': return '🐛';
-      case 'improvement': return '🚀';
-      case 'integration': return '🔌';
-      default: return '📝';
-    }
-  };
+  const filteredTickets = mockTickets.filter(ticket => {
+    const matchesSearch = ticket.title.toLowerCase().includes(searchTerm.toLowerCase()) ||
+                         ticket.description.toLowerCase().includes(searchTerm.toLowerCase()) ||
+                         ticket.customer.toLowerCase().includes(searchTerm.toLowerCase());
+    const matchesStatus = filterStatus === 'all' || ticket.status === filterStatus;
+    const matchesPriority = filterPriority === 'all' || ticket.priority === filterPriority;
+    return matchesSearch && matchesStatus && matchesPriority;
+  });
 
   if (selectedTicket) {
     return (
-      <TicketDetail
+      <TicketDetail 
         ticket={selectedTicket}
         onBack={() => setSelectedTicket(null)}
-        onNavigate={onNavigate}
+        onNavigate={onNavigate || (() => {})}
       />
     );
   }
 
   return (
     <div className="space-y-6">
-      {/* Header */}
+      {/* Header with AI Enhancement */}
       <div className="flex flex-col sm:flex-row justify-between items-start sm:items-center gap-4">
         <div>
           <h2 className="text-2xl sm:text-3xl font-bold bg-gradient-to-r from-purple-600 to-pink-600 bg-clip-text text-transparent mb-2">
-            Customer Feedback Hub
+            Customer Feedback Board
           </h2>
-          <p className="text-slate-600">
-            {selectedBoard 
-              ? `Viewing ${getCurrentBoard()?.name || 'Board'}`
-              : 'Manage public and enterprise customer feedback boards'
-            }
-          </p>
+          <div className="flex items-center space-x-4 text-sm text-slate-600">
+            <span className="flex items-center">
+              <MessageSquare className="w-4 h-4 mr-1" />
+              {filteredTickets.length} feedback items
+            </span>
+            <span className="flex items-center">
+              <Brain className="w-4 h-4 mr-1 text-purple-600" />
+              AI-powered insights
+            </span>
+          </div>
         </div>
         <div className="flex space-x-2">
-          {selectedBoard && (
-            <Button variant="outline" onClick={() => setSelectedBoard(null)}>
-              ← All Boards
-            </Button>
-          )}
           <Button 
-            onClick={() => setShowCreateDialog(true)}
+            variant="outline"
+            onClick={() => setShowAIProcessor(true)}
+            className="bg-gradient-to-r from-purple-50 to-pink-50 border-purple-200"
+          >
+            <Zap className="w-4 h-4 mr-2" />
+            Smart Process
+          </Button>
+          <Button 
+            onClick={() => setIsCreateDialogOpen(true)}
             className="bg-gradient-to-r from-purple-600 to-pink-600 hover:from-purple-700 hover:to-pink-700"
           >
             <Plus className="w-4 h-4 mr-2" />
@@ -262,239 +230,189 @@ const CustomerBoard = ({ selectedProductId, onNavigate }: CustomerBoardProps) =>
         </div>
       </div>
 
-      <Tabs value={activeTab} onValueChange={setActiveTab}>
-        <TabsList className="grid w-full grid-cols-3">
-          <TabsTrigger value="all-boards">All Boards</TabsTrigger>
-          <TabsTrigger value="public">Public Boards</TabsTrigger>
-          <TabsTrigger value="enterprise">Enterprise Boards</TabsTrigger>
-        </TabsList>
+      <div className="grid grid-cols-1 lg:grid-cols-4 gap-6">
+        {/* Main Content */}
+        <div className="lg:col-span-3">
+          <Tabs value={activeView} onValueChange={setActiveView}>
+            <div className="flex flex-col sm:flex-row justify-between items-start sm:items-center gap-4 mb-6">
+              <TabsList>
+                <TabsTrigger value="board">Board View</TabsTrigger>
+                <TabsTrigger value="insights">AI Insights</TabsTrigger>
+              </TabsList>
 
-        <TabsContent value="all-boards" className="space-y-6">
-          {!selectedBoard ? (
-            // Board Overview
-            <div className="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-3 gap-6">
-              {mockBoards.map((board) => (
-                <Card key={board.id} className="hover:shadow-lg transition-shadow cursor-pointer" onClick={() => setSelectedBoard(board.id)}>
-                  <CardHeader>
-                    <div className="flex items-center justify-between">
-                      <CardTitle className="flex items-center text-lg">
-                        {board.type === 'public' ? <Globe className="w-5 h-5 mr-2 text-blue-500" /> : <Lock className="w-5 h-5 mr-2 text-orange-500" />}
-                        {board.name}
-                      </CardTitle>
-                      <Badge variant={board.type === 'public' ? 'default' : 'secondary'}>
-                        {board.type}
+              {/* Filters */}
+              <div className="flex space-x-2">
+                <div className="relative">
+                  <Search className="absolute left-3 top-1/2 transform -translate-y-1/2 text-slate-400 w-4 h-4" />
+                  <Input
+                    placeholder="Search feedback..."
+                    value={searchTerm}
+                    onChange={(e) => setSearchTerm(e.target.value)}
+                    className="pl-10 w-64"
+                  />
+                </div>
+                <Select value={filterStatus} onValueChange={setFilterStatus}>
+                  <SelectTrigger className="w-32">
+                    <SelectValue />
+                  </SelectTrigger>
+                  <SelectContent>
+                    <SelectItem value="all">All Status</SelectItem>
+                    <SelectItem value="open">Open</SelectItem>
+                    <SelectItem value="in-progress">In Progress</SelectItem>
+                    <SelectItem value="planned">Planned</SelectItem>
+                    <SelectItem value="resolved">Resolved</SelectItem>
+                  </SelectContent>
+                </Select>
+                <Select value={filterPriority} onValueChange={setFilterPriority}>
+                  <SelectTrigger className="w-32">
+                    <SelectValue />
+                  </SelectTrigger>
+                  <SelectContent>
+                    <SelectItem value="all">All Priority</SelectItem>
+                    <SelectItem value="critical">Critical</SelectItem>
+                    <SelectItem value="high">High</SelectItem>
+                    <SelectItem value="medium">Medium</SelectItem>
+                    <SelectItem value="low">Low</SelectItem>
+                  </SelectContent>
+                </Select>
+              </div>
+            </div>
+
+            <TabsContent value="board" className="space-y-4">
+              {filteredTickets.map((ticket) => (
+                <Card key={ticket.id} className="hover:shadow-md transition-shadow cursor-pointer" onClick={() => setSelectedTicket(ticket)}>
+                  <CardContent className="p-4">
+                    <div className="flex items-start justify-between">
+                      <div className="space-y-1">
+                        <CardTitle className="text-lg font-semibold">{ticket.title}</CardTitle>
+                        <p className="text-sm text-slate-600">{ticket.description.substring(0, 100)}...</p>
+                      </div>
+                      <Badge className={getPriorityColor(ticket.priority)}>
+                        {ticket.priority}
                       </Badge>
                     </div>
-                  </CardHeader>
-                  <CardContent>
-                    <p className="text-slate-600 text-sm mb-4">{board.description}</p>
-                    <div className="flex items-center justify-between">
-                      <span className="text-sm text-slate-500">{board.ticketCount} tickets</span>
-                      <ArrowRight className="w-4 h-4 text-slate-400" />
+                    <div className="flex items-center space-x-2 mt-2 text-slate-500">
+                      <span className="flex items-center">
+                        <User className="w-4 h-4 mr-1" />
+                        {ticket.customer}
+                      </span>
+                      <span className="flex items-center">
+                        <Clock className="w-4 h-4 mr-1" />
+                        {ticket.created}
+                      </span>
                     </div>
                   </CardContent>
                 </Card>
               ))}
-            </div>
-          ) : (
-            // Board Detail View
-            <div className="space-y-6">
-              {/* Board Header */}
-              <Card>
-                <CardContent className="pt-6">
-                  <div className="flex items-center justify-between">
-                    <div className="flex items-center space-x-4">
-                      {getCurrentBoard()?.type === 'public' ? 
-                        <Globe className="w-8 h-8 text-blue-500" /> : 
-                        <Building2 className="w-8 h-8 text-orange-500" />
-                      }
-                      <div>
-                        <h3 className="text-xl font-semibold">{getCurrentBoard()?.name}</h3>
-                        <p className="text-slate-600">{getCurrentBoard()?.description}</p>
-                      </div>
-                    </div>
-                    <Badge variant={getCurrentBoard()?.type === 'public' ? 'default' : 'secondary'} className="text-sm">
-                      {getCurrentBoard()?.type}
-                    </Badge>
-                  </div>
-                </CardContent>
-              </Card>
+            </TabsContent>
 
-              {/* Filters and Search */}
-              <div className="flex flex-col sm:flex-row gap-4">
-                <div className="flex-1">
-                  <div className="relative">
-                    <Search className="absolute left-3 top-1/2 transform -translate-y-1/2 text-slate-400 w-4 h-4" />
-                    <Input
-                      placeholder="Search feedback..."
-                      value={searchTerm}
-                      onChange={(e) => setSearchTerm(e.target.value)}
-                      className="pl-10"
-                    />
-                  </div>
-                </div>
-                <div className="flex space-x-2">
-                  {['all', 'open', 'in-progress', 'planned', 'resolved'].map((filter) => (
-                    <Button
-                      key={filter}
-                      variant={selectedFilter === filter ? 'default' : 'outline'}
-                      size="sm"
-                      onClick={() => setSelectedFilter(filter)}
-                      className="capitalize"
-                    >
-                      {filter === 'all' ? 'All' : filter.replace('-', ' ')}
-                    </Button>
-                  ))}
-                </div>
+            <TabsContent value="insights">
+              <AIInsightsPanel 
+                feedbackData={filteredTickets}
+                onCreateTask={handleAITaskCreation}
+              />
+            </TabsContent>
+          </Tabs>
+        </div>
+
+        {/* AI-Enhanced Sidebar */}
+        <div className="space-y-6">
+          {/* Quick Stats with AI Enhancement */}
+          <Card>
+            <CardHeader>
+              <CardTitle className="text-lg flex items-center">
+                <TrendingUp className="w-5 h-5 mr-2 text-green-600" />
+                AI-Powered Stats
+              </CardTitle>
+            </CardHeader>
+            <CardContent className="space-y-4">
+              <div className="flex justify-between items-center">
+                <span className="text-slate-600">Sentiment Score</span>
+                <Badge className="bg-green-100 text-green-800">+8.2</Badge>
               </div>
+              <div className="flex justify-between items-center">
+                <span className="text-slate-600">Priority Tickets</span>
+                <span className="font-semibold text-red-600">
+                  {filteredTickets.filter(t => t.priority === 'critical' || t.priority === 'high').length}
+                </span>
+              </div>
+              <div className="flex justify-between items-center">
+                <span className="text-slate-600">Auto-processed</span>
+                <Badge className="bg-purple-100 text-purple-800">67%</Badge>
+              </div>
+              <div className="flex justify-between items-center">
+                <span className="text-slate-600">Themes Detected</span>
+                <span className="font-semibold">12</span>
+              </div>
+            </CardContent>
+          </Card>
 
-              {/* Tickets List */}
+          <Card>
+            <CardHeader>
+              <CardTitle className="text-lg">
+                Quick Actions
+              </CardTitle>
+            </CardHeader>
+            <CardContent className="space-y-2">
+              <Button variant="outline" className="w-full justify-start">
+                <Plus className="w-4 h-4 mr-2" />
+                Add New Feedback
+              </Button>
+              <Button variant="outline" className="w-full justify-start">
+                <Filter className="w-4 h-4 mr-2" />
+                Filter Feedback
+              </Button>
+              <Button variant="outline" className="w-full justify-start">
+                <Star className="w-4 h-4 mr-2" />
+                View Prioritized
+              </Button>
+            </CardContent>
+          </Card>
+        </div>
+      </div>
+
+      {/* Smart Feedback Processor Modal */}
+      {showAIProcessor && (
+        <div className="fixed inset-0 bg-black/50 flex items-center justify-center z-50 p-4">
+          <div className="bg-white rounded-lg max-w-2xl w-full max-h-[80vh] overflow-auto">
+            <div className="p-6">
+              <h3 className="text-lg font-semibold mb-4">Smart Feedback Processing</h3>
               <div className="space-y-4">
-                {getFilteredTickets().map((ticket) => (
-                  <Card key={ticket.id} className="hover:shadow-md transition-shadow cursor-pointer" onClick={() => setSelectedTicket(ticket)}>
-                    <CardContent className="p-6">
-                      <div className="space-y-4">
-                        <div className="flex items-start justify-between">
-                          <div className="flex-1">
-                            <div className="flex items-center gap-2 mb-2">
-                              <span className="text-lg">{getCategoryIcon(ticket.category)}</span>
-                              <h3 className="font-semibold text-slate-900 hover:text-purple-600 transition-colors">
-                                {ticket.title}
-                              </h3>
-                              <Badge className={getPriorityColor(ticket.priority)}>
-                                {ticket.priority}
-                              </Badge>
-                              <Badge className={getStatusColor(ticket.status)}>
-                                {ticket.status.replace('-', ' ')}
-                              </Badge>
-                            </div>
-                            <p className="text-slate-600 text-sm mb-3 line-clamp-2">{ticket.description}</p>
-                            <div className="flex flex-wrap items-center gap-4 text-sm text-slate-500">
-                              <span className="flex items-center">
-                                <User className="w-4 h-4 mr-1" />
-                                {ticket.customer}
-                              </span>
-                              <span className="flex items-center">
-                                <Clock className="w-4 h-4 mr-1" />
-                                {ticket.created}
-                              </span>
-                              {ticket.estimatedEffort && (
-                                <span className="text-purple-600 font-medium">
-                                  Est: {ticket.estimatedEffort}
-                                </span>
-                              )}
-                            </div>
-                          </div>
-                        </div>
-                        
-                        <div className="flex items-center justify-between pt-2 border-t border-slate-100">
-                          <div className="flex items-center space-x-4">
-                            <Button variant="ghost" size="sm" className="flex items-center space-x-1 text-slate-600">
-                              <ThumbsUp className="w-4 h-4" />
-                              <span>{ticket.votes}</span>
-                            </Button>
-                            <Button variant="ghost" size="sm" className="flex items-center space-x-1 text-slate-600">
-                              <MessageCircle className="w-4 h-4" />
-                              <span>{ticket.comments}</span>
-                            </Button>
-                            <span className="flex items-center space-x-1 text-slate-500 text-sm">
-                              <Eye className="w-4 h-4" />
-                              <span>{ticket.views}</span>
-                            </span>
-                          </div>
-                          <div className="flex space-x-2">
-                            {ticket.tags.slice(0, 3).map(tag => (
-                              <Badge key={tag} variant="outline" className="text-xs">
-                                {tag}
-                              </Badge>
-                            ))}
-                          </div>
-                        </div>
-                      </div>
-                    </CardContent>
-                  </Card>
-                ))}
+                <div>
+                  <label className="block text-sm font-medium text-slate-700 mb-2">
+                    Raw Feedback Text
+                  </label>
+                  <textarea
+                    className="w-full p-3 border border-slate-300 rounded-md"
+                    rows={4}
+                    placeholder="Paste customer feedback here..."
+                    value={rawFeedbackText}
+                    onChange={(e) => setRawFeedbackText(e.target.value)}
+                  />
+                </div>
+                {rawFeedbackText && (
+                  <SmartFeedbackProcessor
+                    rawFeedback={rawFeedbackText}
+                    onProcessComplete={handleSmartFeedbackProcess}
+                    customerInfo={{ tier: 'enterprise', value: 50000 }}
+                  />
+                )}
               </div>
-
-              {getFilteredTickets().length === 0 && (
-                <Card>
-                  <CardContent className="p-12 text-center">
-                    <MessageSquare className="w-12 h-12 text-slate-400 mx-auto mb-4" />
-                    <h3 className="text-lg font-medium text-slate-900 mb-2">No feedback found</h3>
-                    <p className="text-slate-600 mb-4">
-                      {searchTerm || selectedFilter !== 'all' 
-                        ? 'Try adjusting your search or filters'
-                        : 'Be the first to add feedback to this board'
-                      }
-                    </p>
-                    <Button 
-                      onClick={() => setShowCreateDialog(true)}
-                      className="bg-gradient-to-r from-purple-600 to-pink-600 hover:from-purple-700 hover:to-pink-700"
-                    >
-                      <Plus className="w-4 h-4 mr-2" />
-                      Add Feedback
-                    </Button>
-                  </CardContent>
-                </Card>
-              )}
+              <div className="flex justify-end space-x-2 mt-6">
+                <Button variant="outline" onClick={() => setShowAIProcessor(false)}>
+                  Cancel
+                </Button>
+              </div>
             </div>
-          )}
-        </TabsContent>
-
-        <TabsContent value="public">
-          {/* Public boards content */}
-          <div className="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-3 gap-6">
-            {mockBoards.filter(board => board.type === 'public').map((board) => (
-              <Card key={board.id} className="hover:shadow-lg transition-shadow cursor-pointer" onClick={() => setSelectedBoard(board.id)}>
-                <CardHeader>
-                  <CardTitle className="flex items-center text-lg">
-                    <Globe className="w-5 h-5 mr-2 text-blue-500" />
-                    {board.name}
-                  </CardTitle>
-                </CardHeader>
-                <CardContent>
-                  <p className="text-slate-600 text-sm mb-4">{board.description}</p>
-                  <div className="flex items-center justify-between">
-                    <span className="text-sm text-slate-500">{board.ticketCount} tickets</span>
-                    <ArrowRight className="w-4 h-4 text-slate-400" />
-                  </div>
-                </CardContent>
-              </Card>
-            ))}
           </div>
-        </TabsContent>
-
-        <TabsContent value="enterprise">
-          {/* Enterprise boards content */}
-          <div className="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-3 gap-6">
-            {mockBoards.filter(board => board.type === 'enterprise').map((board) => (
-              <Card key={board.id} className="hover:shadow-lg transition-shadow cursor-pointer" onClick={() => setSelectedBoard(board.id)}>
-                <CardHeader>
-                  <CardTitle className="flex items-center text-lg">
-                    <Building2 className="w-5 h-5 mr-2 text-orange-500" />
-                    {board.name}
-                  </CardTitle>
-                </CardHeader>
-                <CardContent>
-                  <p className="text-slate-600 text-sm mb-4">{board.description}</p>
-                  <div className="flex items-center justify-between">
-                    <span className="text-sm text-slate-500">{board.ticketCount} tickets</span>
-                    <ArrowRight className="w-4 h-4 text-slate-400" />
-                  </div>
-                </CardContent>
-              </Card>
-            ))}
-          </div>
-        </TabsContent>
-      </Tabs>
-
-      {showCreateDialog && (
-        <CreateTicketDialog
-          onClose={() => setShowCreateDialog(false)}
-          boardId={selectedBoard}
-          boards={mockBoards}
-        />
+        </div>
       )}
+
+      <CreateTicketDialog 
+        isOpen={isCreateDialogOpen}
+        onClose={() => setIsCreateDialogOpen(false)}
+        selectedProductId={selectedProductId}
+      />
     </div>
   );
 };
