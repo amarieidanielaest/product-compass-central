@@ -6,6 +6,7 @@ export * from './AIService';
 export * from './SprintService';
 export * from './RoadmapService';
 export * from './StrategyService';
+export * from './FeatureFlagsService';
 
 // Export service instances
 export { feedbackService } from './FeedbackService';
@@ -14,3 +15,4 @@ export { aiService } from './AIService';
 export { sprintService } from './SprintService';
 export { roadmapService } from './RoadmapService';
 export { strategyService } from './StrategyService';
+export { featureFlagsService } from './FeatureFlagsService';
