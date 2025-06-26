@@ -234,7 +234,7 @@ const Strategy = ({ selectedProductId, onNavigate }: StrategyProps) => {
                     Activation
                   </h4>
                   <p className="text-blue-700 text-sm mb-2">Guide users to core value within first session</p>
-                  <div className="text-xs text-blue-600">Target: <60s time-to-value</div>
+                  <div className="text-xs text-blue-600">Target: less than 60s time-to-value</div>
                 </div>
                 <div className="bg-purple-50 p-4 rounded-lg border border-purple-200">
                   <h4 className="font-semibold text-purple-900 mb-2 flex items-center">
