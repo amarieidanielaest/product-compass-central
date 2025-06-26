@@ -38,7 +38,7 @@ export interface FeedbackFilters {
 class FeedbackApiService extends BaseApiService {
   constructor() {
     // This will be the Feedback & Insights Engine microservice URL
-    super(process.env.REACT_APP_FEEDBACK_SERVICE_URL || '/api/feedback');
+    super('/api/feedback');
   }
 
   async getFeedback(

@@ -30,7 +30,7 @@ export interface ProductHealthMetrics {
 class AnalyticsApiService extends BaseApiService {
   constructor() {
     // This will be the Data & Analytics Suite microservice URL
-    super(process.env.REACT_APP_ANALYTICS_SERVICE_URL || '/api/analytics');
+    super('/api/analytics');
   }
 
   async getUserMetrics(timeRange: '7d' | '30d' | '90d' = '30d'): Promise<ApiResponse<UserMetrics>> {

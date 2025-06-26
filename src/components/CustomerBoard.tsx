@@ -97,7 +97,6 @@ const CustomerBoard = ({ selectedProductId, onNavigate }: CustomerBoardProps) =>
     }
   ];
 
-  // ... keep existing code (mockTickets array and helper functions)
   const mockTickets: Ticket[] = [
     {
       id: 'FB-001',
@@ -246,6 +245,19 @@ const CustomerBoard = ({ selectedProductId, onNavigate }: CustomerBoardProps) =>
     }
   };
 
+  // Helper function to map feedback status to ticket status
+  const mapFeedbackStatusToTicketStatus = (feedbackStatus: string): Ticket['status'] => {
+    switch (feedbackStatus) {
+      case 'new': return 'open';
+      case 'in-review': return 'in-progress';
+      case 'planned': return 'planned';
+      case 'in-progress': return 'in-progress';
+      case 'completed': return 'resolved';
+      case 'rejected': return 'closed';
+      default: return 'open';
+    }
+  };
+
   // Use real feedback data if available, otherwise fall back to mock data
   const displayTickets = feedbackData?.data ? 
     feedbackData.data.map(item => ({
@@ -255,9 +267,7 @@ const CustomerBoard = ({ selectedProductId, onNavigate }: CustomerBoardProps) =>
       customer: item.customerInfo.name,
       customerId: item.customerInfo.id,
       priority: item.priority,
-      status: item.status === 'new' ? 'open' : 
-             item.status === 'in-review' ? 'in-progress' :
-             item.status === 'completed' ? 'resolved' : item.status,
+      status: mapFeedbackStatusToTicketStatus(item.status),
       category: 'feature' as const,
       created: new Date(item.createdAt).toLocaleDateString(),
       votes: 0,

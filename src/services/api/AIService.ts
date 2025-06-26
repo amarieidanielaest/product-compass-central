@@ -27,7 +27,7 @@ export interface AIInsight {
 class AIApiService extends BaseApiService {
   constructor() {
     // This will be the AI Co-pilot & Generative AI Service microservice URL
-    super(process.env.REACT_APP_AI_SERVICE_URL || '/api/ai');
+    super('/api/ai');
   }
 
   async generateContent(request: AIGenerationRequest): Promise<ApiResponse<AIGenerationResponse>> {
