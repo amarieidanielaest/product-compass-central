@@ -10,6 +10,9 @@ import CreateTicketDialog from './CreateTicketDialog';
 import TicketDetail from './TicketDetail';
 import AIInsightsPanel from './AIInsightsPanel';
 import SmartFeedbackProcessor from './SmartFeedbackProcessor';
+import { useServiceCall, useAsyncServiceCall } from '@/hooks/useServiceIntegration';
+import { feedbackService, aiService } from '@/services/api';
+import type { FeedbackItem, FeedbackFilters } from '@/services/api/FeedbackService';
 
 interface Ticket {
   id: string;
@@ -46,6 +49,33 @@ const CustomerBoard = ({ selectedProductId, onNavigate }: CustomerBoardProps) =>
   const [showAIProcessor, setShowAIProcessor] = useState(false);
   const [rawFeedbackText, setRawFeedbackText] = useState('');
 
+  // Integrate Feedback Service
+  const feedbackFilters: FeedbackFilters = {
+    ...(filterStatus !== 'all' && { status: [filterStatus] }),
+    ...(filterPriority !== 'all' && { priority: [filterPriority] }),
+  };
+
+  const { data: feedbackData, loading: feedbackLoading, error: feedbackError, refetch } = useServiceCall(
+    () => feedbackService.getFeedback(feedbackFilters, { page: 1, limit: 20 }),
+    [filterStatus, filterPriority]
+  );
+
+  const { data: feedbackInsights, loading: insightsLoading } = useServiceCall(
+    () => feedbackService.getFeedbackInsights(),
+    []
+  );
+
+  // AI Service Integration
+  const { data: aiInsights } = useServiceCall(
+    () => aiService.getInsights('feedback', { 
+      filters: feedbackFilters, 
+      productId: selectedProductId 
+    }),
+    [feedbackFilters, selectedProductId]
+  );
+
+  const { execute: processWithAI, loading: aiProcessing } = useAsyncServiceCall<FeedbackItem>();
+
   // Mock boards data for the CreateTicketDialog
   const mockBoards = [
     {
@@ -67,6 +97,7 @@ const CustomerBoard = ({ selectedProductId, onNavigate }: CustomerBoardProps) =>
     }
   ];
 
+  // ... keep existing code (mockTickets array and helper functions)
   const mockTickets: Ticket[] = [
     {
       id: 'FB-001',
@@ -163,14 +194,35 @@ const CustomerBoard = ({ selectedProductId, onNavigate }: CustomerBoardProps) =>
 
   const handleAITaskCreation = (insight: any) => {
     console.log('Creating task from AI insight:', insight);
-    // In real implementation, this would create a new ticket based on AI suggestions
     setIsCreateDialogOpen(true);
   };
 
-  const handleSmartFeedbackProcess = (processed: any) => {
+  const handleSmartFeedbackProcess = async (processed: any) => {
     console.log('Processed feedback:', processed);
-    setShowAIProcessor(false);
-    setIsCreateDialogOpen(true);
+    
+    // Create feedback item using service
+    const newFeedback = await processWithAI(() => 
+      feedbackService.createFeedback({
+        title: processed.originalText.substring(0, 50) + '...',
+        description: processed.originalText,
+        source: 'customer-portal',
+        status: 'new',
+        priority: processed.priorityScore > 80 ? 'critical' : 
+                 processed.priorityScore > 60 ? 'high' : 'medium',
+        customerInfo: {
+          id: 'proc-' + Date.now(),
+          name: 'AI Processed Customer',
+          tier: processed.customerSegment,
+          value: 10000
+        }
+      })
+    );
+
+    if (newFeedback) {
+      refetch(); // Refresh the feedback list
+      setShowAIProcessor(false);
+      setRawFeedbackText('');
+    }
   };
 
   const getPriorityColor = (priority: string) => {
@@ -194,7 +246,30 @@ const CustomerBoard = ({ selectedProductId, onNavigate }: CustomerBoardProps) =>
     }
   };
 
-  const filteredTickets = mockTickets.filter(ticket => {
+  // Use real feedback data if available, otherwise fall back to mock data
+  const displayTickets = feedbackData?.data ? 
+    feedbackData.data.map(item => ({
+      id: item.id,
+      title: item.title,
+      description: item.description,
+      customer: item.customerInfo.name,
+      customerId: item.customerInfo.id,
+      priority: item.priority,
+      status: item.status === 'new' ? 'open' : 
+             item.status === 'in-review' ? 'in-progress' :
+             item.status === 'completed' ? 'resolved' : item.status,
+      category: 'feature' as const,
+      created: new Date(item.createdAt).toLocaleDateString(),
+      votes: 0,
+      comments: 0,
+      views: 0,
+      tags: item.aiAnalysis?.themes || [],
+      submittedBy: item.customerInfo.name,
+      estimatedEffort: '1 sprint',
+      businessValue: 'medium' as const
+    })) : mockTickets;
+
+  const filteredTickets = displayTickets.filter(ticket => {
     const matchesSearch = ticket.title.toLowerCase().includes(searchTerm.toLowerCase()) ||
                          ticket.description.toLowerCase().includes(searchTerm.toLowerCase()) ||
                          ticket.customer.toLowerCase().includes(searchTerm.toLowerCase());
@@ -224,7 +299,7 @@ const CustomerBoard = ({ selectedProductId, onNavigate }: CustomerBoardProps) =>
           <div className="flex items-center space-x-4 text-sm text-slate-600">
             <span className="flex items-center">
               <MessageSquare className="w-4 h-4 mr-1" />
-              {filteredTickets.length} feedback items
+              {feedbackLoading ? '...' : filteredTickets.length} feedback items
             </span>
             <span className="flex items-center">
               <Brain className="w-4 h-4 mr-1 text-purple-600" />
@@ -300,6 +375,26 @@ const CustomerBoard = ({ selectedProductId, onNavigate }: CustomerBoardProps) =>
             </div>
 
             <TabsContent value="board" className="space-y-4">
+              {feedbackLoading && (
+                <div className="flex items-center justify-center p-8">
+                  <div className="flex items-center space-x-2">
+                    <div className="w-6 h-6 border-2 border-purple-600 border-t-transparent rounded-full animate-spin"></div>
+                    <span className="text-slate-600">Loading feedback...</span>
+                  </div>
+                </div>
+              )}
+              
+              {feedbackError && (
+                <Card className="border-red-200">
+                  <CardContent className="p-4">
+                    <p className="text-red-600">Error loading feedback: {feedbackError}</p>
+                    <Button onClick={refetch} variant="outline" className="mt-2">
+                      Retry
+                    </Button>
+                  </CardContent>
+                </Card>
+              )}
+              
               {filteredTickets.map((ticket) => (
                 <Card key={ticket.id} className="hover:shadow-md transition-shadow cursor-pointer" onClick={() => setSelectedTicket(ticket)}>
                   <CardContent className="p-4">
@@ -349,12 +444,16 @@ const CustomerBoard = ({ selectedProductId, onNavigate }: CustomerBoardProps) =>
             <CardContent className="space-y-4">
               <div className="flex justify-between items-center">
                 <span className="text-slate-600">Sentiment Score</span>
-                <Badge className="bg-green-100 text-green-800">+8.2</Badge>
+                <Badge className="bg-green-100 text-green-800">
+                  {insightsLoading ? '...' : '+8.2'}
+                </Badge>
               </div>
               <div className="flex justify-between items-center">
                 <span className="text-slate-600">Priority Tickets</span>
                 <span className="font-semibold text-red-600">
-                  {filteredTickets.filter(t => t.priority === 'critical' || t.priority === 'high').length}
+                  {insightsLoading ? '...' : 
+                   feedbackInsights?.byPriority?.critical + feedbackInsights?.byPriority?.high || 
+                   filteredTickets.filter(t => t.priority === 'critical' || t.priority === 'high').length}
                 </span>
               </div>
               <div className="flex justify-between items-center">
@@ -363,7 +462,9 @@ const CustomerBoard = ({ selectedProductId, onNavigate }: CustomerBoardProps) =>
               </div>
               <div className="flex justify-between items-center">
                 <span className="text-slate-600">Themes Detected</span>
-                <span className="font-semibold">12</span>
+                <span className="font-semibold">
+                  {insightsLoading ? '...' : feedbackInsights?.topThemes?.length || 12}
+                </span>
               </div>
             </CardContent>
           </Card>
