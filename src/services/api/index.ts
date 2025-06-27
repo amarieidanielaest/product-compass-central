@@ -17,6 +17,9 @@ export { roadmapService } from './RoadmapService';
 export { strategyService } from './StrategyService';
 export { featureFlagsService } from './FeatureFlagsService';
 
+// Export AI Co-pilot service
+export { aiCopilotService } from '../ai/AICopilotService';
+
 // Export analytics event tracker
 export { eventTracker } from '../analytics/EventTracker';
 export type { AnalyticsEvent } from '../analytics/EventTracker';
