@@ -30,35 +30,35 @@ export class PLGExperimentManager {
   }
 
   // Onboarding Flow Experiments
-  getOnboardingVariant(experimentKey: string = 'onboarding_flow'): 'control' | 'progressive' | 'gamified' => {
+  getOnboardingVariant(experimentKey: string = 'onboarding_flow'): 'control' | 'progressive' | 'gamified' {
     const variant = this.featureFlags.getValue(experimentKey, 'control');
     this.trackExperimentExposure(experimentKey, variant);
     return variant;
   }
 
   // Activation Experiments
-  getActivationFlow(experimentKey: string = 'activation_flow'): 'standard' | 'guided' | 'self_serve' => {
+  getActivationFlow(experimentKey: string = 'activation_flow'): 'standard' | 'guided' | 'self_serve' {
     const variant = this.featureFlags.getValue(experimentKey, 'standard');
     this.trackExperimentExposure(experimentKey, variant);
     return variant;
   }
 
   // Pricing Page Experiments
-  getPricingVariant(experimentKey: string = 'pricing_display'): 'table' | 'cards' | 'comparison' => {
+  getPricingVariant(experimentKey: string = 'pricing_display'): 'table' | 'cards' | 'comparison' {
     const variant = this.featureFlags.getValue(experimentKey, 'table');
     this.trackExperimentExposure(experimentKey, variant);
     return variant;
   }
 
   // Feature Discovery Experiments
-  getFeatureDiscoveryMethod(experimentKey: string = 'feature_discovery'): 'tooltips' | 'highlights' | 'tour' => {
+  getFeatureDiscoveryMethod(experimentKey: string = 'feature_discovery'): 'tooltips' | 'highlights' | 'tour' {
     const variant = this.featureFlags.getValue(experimentKey, 'tooltips');
     this.trackExperimentExposure(experimentKey, variant);
     return variant;
   }
 
   // Upgrade Prompt Experiments
-  getUpgradePromptTiming(experimentKey: string = 'upgrade_timing'): 'immediate' | 'after_value' | 'limit_reached' => {
+  getUpgradePromptTiming(experimentKey: string = 'upgrade_timing'): 'immediate' | 'after_value' | 'limit_reached' {
     const variant = this.featureFlags.getValue(experimentKey, 'limit_reached');
     this.trackExperimentExposure(experimentKey, variant);
     return variant;
@@ -69,7 +69,7 @@ export class PLGExperimentManager {
     text: string;
     color: string;
     size: string;
-  } => {
+  } {
     const variant = this.featureFlags.getValue(experimentKey, 'control');
     this.trackExperimentExposure(experimentKey, variant);
     
