@@ -16,3 +16,7 @@ export { sprintService } from './SprintService';
 export { roadmapService } from './RoadmapService';
 export { strategyService } from './StrategyService';
 export { featureFlagsService } from './FeatureFlagsService';
+
+// Export analytics event tracker
+export { eventTracker } from '../analytics/EventTracker';
+export type { AnalyticsEvent } from '../analytics/EventTracker';
