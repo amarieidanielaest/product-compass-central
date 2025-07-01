@@ -82,12 +82,18 @@ class AICopilotService {
           confidence: insight.confidence,
           priority: this.determinePriority(insight.confidence, insight.actionable),
           actionable: insight.actionable,
-          suggestedActions: insight.suggestedActions?.map(action => ({
-            action: action.action || action,
-            description: action.description || `Execute ${action}`,
-            impact: 'medium' as const,
-            effort: 'medium' as const
-          })) || [],
+          suggestedActions: Array.isArray(insight.suggestedActions) 
+            ? insight.suggestedActions.map(action => 
+                typeof action === 'string' 
+                  ? { action, description: `Execute ${action}`, impact: 'medium' as const, effort: 'medium' as const }
+                  : {
+                      action: action.action || action,
+                      description: action.description || `Execute ${action.action || action}`,
+                      impact: 'medium' as const,
+                      effort: 'medium' as const
+                    }
+              )
+            : [],
           data: insight.data || {},
           timestamp: new Date().toISOString()
         }));
