@@ -1,10 +1,9 @@
-
 import React, { useEffect } from 'react';
 import { Card, CardContent, CardHeader, CardTitle } from '@/components/ui/card';
 import { Button } from '@/components/ui/button';
 import { Badge } from '@/components/ui/badge';
 import { Target, Zap, TrendingUp, Users } from 'lucide-react';
-import { usePLGExperiments } from '@/services/PLGExperimentManager';
+import { usePLGExperiments } from '@/hooks/usePLGExperiments';
 
 const PLGExperimentDemo = () => {
   const { experimentManager, loading } = usePLGExperiments();
