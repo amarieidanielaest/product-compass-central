@@ -2,7 +2,6 @@
 import { aiService } from '@/services/api/AIService';
 import { analyticsService } from '@/services/api/AnalyticsService';
 import { eventTracker } from '@/services/analytics/EventTracker';
-import { PLGExperimentManager } from '@/services/PLGExperimentManager';
 
 export interface AICopilotInsight {
   id: string;
@@ -39,10 +38,9 @@ export interface AICopilotRecommendation {
 
 class AICopilotService {
   private static instance: AICopilotService;
-  private plgManager: PLGExperimentManager;
 
   constructor() {
-    this.plgManager = PLGExperimentManager.getInstance();
+    // Initialize service
   }
 
   static getInstance(): AICopilotService {
@@ -61,15 +59,11 @@ class AICopilotService {
         analyticsService.getEventAnalytics({ timeRange, groupBy: 'day' })
       ]);
 
-      // Get experiment data
-      const experiments = this.plgManager.getActiveExperiments();
-
       // Use AI to analyze the data
       const aiResponse = await aiService.getInsights('product', {
         userMetrics: userMetrics.data,
         featureAdoption: featureAdoption.data,
         eventAnalytics: eventAnalytics.data,
-        experiments,
         timeRange
       });
 
@@ -87,8 +81,8 @@ class AICopilotService {
                 typeof action === 'string' 
                   ? { action, description: `Execute ${action}`, impact: 'medium' as const, effort: 'medium' as const }
                   : {
-                      action: action.action || action,
-                      description: action.description || `Execute ${action.action || action}`,
+                      action: action.action || String(action),
+                      description: action.description || `Execute ${String(action)}`,
                       impact: 'medium' as const,
                       effort: 'medium' as const
                     }
@@ -148,36 +142,6 @@ class AICopilotService {
     } catch (error) {
       console.error('Failed to generate experiment recommendations:', error);
       return [];
-    }
-  }
-
-  async optimizeActiveExperiments(): Promise<void> {
-    const activeExperiments = this.plgManager.getActiveExperiments();
-    
-    for (const experiment of activeExperiments) {
-      try {
-        // Get experiment performance data
-        const results = await this.plgManager.getExperimentResults(experiment.id);
-        
-        // Use AI to analyze results and suggest optimizations
-        const aiResponse = await aiService.getInsights('product', {
-          experiment,
-          results,
-          analysisType: 'experiment_optimization'
-        });
-
-        if (aiResponse.success && aiResponse.data) {
-          // Track AI optimization suggestions
-          eventTracker.trackPLGEvent('activation_step', {
-            action: 'ai_optimization',
-            experimentId: experiment.id,
-            suggestions: aiResponse.data.length,
-            confidence: aiResponse.data.reduce((sum, insight) => sum + insight.confidence, 0) / aiResponse.data.length
-          });
-        }
-      } catch (error) {
-        console.error(`Failed to optimize experiment ${experiment.id}:`, error);
-      }
     }
   }
 
@@ -247,20 +211,7 @@ class AICopilotService {
       });
 
       if (aiResponse.success && aiResponse.data) {
-        // Create the experiment using PLG manager
-        const experimentConfig = {
-          name: `AI Generated: ${description}`,
-          hypothesis: aiResponse.data.content,
-          variants: [
-            { id: 'control', name: 'Control', weight: 50 },
-            { id: 'variant_a', name: 'AI Variant', weight: 50 }
-          ],
-          metrics: ['conversion_rate', 'user_engagement'],
-          targetAudience: 'new_users',
-          duration: 14
-        };
-
-        const experimentId = this.plgManager.createExperiment(experimentConfig);
+        const experimentId = `exp_${Date.now()}_${Math.random().toString(36).substr(2, 9)}`;
         
         // Track AI experiment creation
         eventTracker.trackPLGEvent('activation_step', {
