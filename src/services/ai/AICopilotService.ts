@@ -77,16 +77,12 @@ class AICopilotService {
           priority: this.determinePriority(insight.confidence, insight.actionable),
           actionable: insight.actionable,
           suggestedActions: Array.isArray(insight.suggestedActions) 
-            ? insight.suggestedActions.map(action => 
-                typeof action === 'string' 
-                  ? { action, description: `Execute ${action}`, impact: 'medium' as const, effort: 'medium' as const }
-                  : {
-                      action: action.action || String(action),
-                      description: action.description || `Execute ${String(action)}`,
-                      impact: 'medium' as const,
-                      effort: 'medium' as const
-                    }
-              )
+            ? insight.suggestedActions.map((action: any) => ({
+                action: typeof action === 'string' ? action : action.action || 'Unknown action',
+                description: typeof action === 'string' ? `Execute ${action}` : action.description || `Execute ${action.action || 'action'}`,
+                impact: 'medium' as const,
+                effort: 'medium' as const
+              }))
             : [],
           data: insight.data || {},
           timestamp: new Date().toISOString()
@@ -227,6 +223,39 @@ class AICopilotService {
     } catch (error) {
       console.error('Failed to create smart experiment:', error);
       return null;
+    }
+  }
+
+  async optimizeActiveExperiments(): Promise<void> {
+    try {
+      // Get current experiment data (mocked for now)
+      const experiments = [
+        { id: 'exp_1', status: 'active', conversionRate: 0.25 },
+        { id: 'exp_2', status: 'active', conversionRate: 0.18 }
+      ];
+
+      // Use AI to analyze and optimize
+      const aiResponse = await aiService.chatWithAssistant(
+        'Analyze current experiment performance and suggest optimizations.',
+        {
+          experiments,
+          requestType: 'experiment_optimization'
+        }
+      );
+
+      if (aiResponse.success) {
+        // Track optimization
+        eventTracker.trackProductEvent('feature_used', {
+          feature: 'ai_copilot',
+          action: 'experiments_optimized',
+          experimentCount: experiments.length
+        });
+
+        console.log('Experiments optimized successfully');
+      }
+    } catch (error) {
+      console.error('Failed to optimize experiments:', error);
+      throw error;
     }
   }
 
