@@ -1,4 +1,3 @@
-
 export * from './BaseApiService';
 export * from './FeedbackService';
 export * from './AnalyticsService';
@@ -34,3 +33,7 @@ export type { AnalyticsEvent } from '../analytics/EventTracker';
 
 // Export service registry
 export { serviceRegistry } from '../ServiceRegistry';
+
+// Export enterprise services
+export * from '../enterprise';
+export { enterpriseSecurityService, multiProductService, configurationService } from '../enterprise';

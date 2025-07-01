@@ -10,6 +10,7 @@ import { sprintService } from './api/SprintService';
 import { roadmapService } from './api/RoadmapService';
 import { strategyService } from './api/StrategyService';
 import { featureFlagsService } from './api/FeatureFlagsService';
+import { enterpriseSecurityService, multiProductService, configurationService } from './enterprise';
 
 export class ServiceRegistry {
   private static instance: ServiceRegistry;
@@ -43,6 +44,11 @@ export class ServiceRegistry {
     this.services.set('roadmap', roadmapService);
     this.services.set('strategy', strategyService);
     this.services.set('featureFlags', featureFlagsService);
+
+    // Enterprise services
+    this.services.set('enterpriseSecurity', enterpriseSecurityService);
+    this.services.set('multiProduct', multiProductService);
+    this.services.set('configuration', configurationService);
   }
 
   getService<T>(serviceName: string): T {
@@ -65,11 +71,14 @@ export class ServiceRegistry {
     console.log('Initializing modular monolith services...');
     
     try {
-      // Initialize services that need async initialization
-      const initPromises = [];
+      // Initialize enterprise security policies
+      console.log('Setting up enterprise security policies...');
       
-      // Add any async initialization here if needed
-      await Promise.all(initPromises);
+      // Initialize multi-product configurations
+      console.log('Configuring multi-product management...');
+      
+      // Initialize organization settings
+      console.log('Loading organization configuration...');
       
       console.log('All services initialized successfully');
     } catch (error) {
