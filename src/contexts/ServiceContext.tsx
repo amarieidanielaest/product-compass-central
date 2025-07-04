@@ -18,8 +18,14 @@ export const ServiceProvider: React.FC<{ children: React.ReactNode }> = ({ child
   useEffect(() => {
     const initializeServices = async () => {
       try {
-        await serviceRegistry.initializeAllServices();
-        setServices(serviceRegistry.getAllServices());
+        // Convert Map to Record for easier access
+        const servicesMap = serviceRegistry.getAllServices();
+        const servicesRecord: Record<string, any> = {};
+        servicesMap.forEach((service, key) => {
+          servicesRecord[key] = service;
+        });
+        
+        setServices(servicesRecord);
         setInitialized(true);
       } catch (err) {
         setError(err instanceof Error ? err.message : 'Failed to initialize services');
