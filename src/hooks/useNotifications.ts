@@ -1,5 +1,5 @@
 
-import { useState, useEffect } from 'react';
+import { useState, useEffect, useCallback } from 'react';
 import { notificationService } from '../services/notifications/NotificationService';
 import { Notification, NotificationFilters } from '../types/notifications';
 
@@ -9,24 +9,24 @@ export const useNotifications = (filters?: NotificationFilters) => {
   const [error, setError] = useState<string | null>(null);
   const [unreadCount, setUnreadCount] = useState(0);
 
-  useEffect(() => {
-    const loadNotifications = async () => {
-      try {
-        setLoading(true);
-        const response = await notificationService.getNotifications(filters);
-        if (response.success && response.data) {
-          setNotifications(response.data);
-          setUnreadCount(notificationService.getUnreadCount());
-        } else {
-          setError(response.message || 'Failed to load notifications');
-        }
-      } catch (err) {
-        setError(err instanceof Error ? err.message : 'An error occurred');
-      } finally {
-        setLoading(false);
+  const loadNotifications = useCallback(async () => {
+    try {
+      setLoading(true);
+      const response = await notificationService.getNotifications(filters);
+      if (response.success && response.data) {
+        setNotifications(response.data);
+        setUnreadCount(notificationService.getUnreadCount());
+      } else {
+        setError(response.message || 'Failed to load notifications');
       }
-    };
+    } catch (err) {
+      setError(err instanceof Error ? err.message : 'An error occurred');
+    } finally {
+      setLoading(false);
+    }
+  }, [filters]);
 
+  useEffect(() => {
     loadNotifications();
 
     // Subscribe to real-time updates
@@ -36,7 +36,7 @@ export const useNotifications = (filters?: NotificationFilters) => {
     });
 
     return unsubscribe;
-  }, [filters]);
+  }, [loadNotifications]);
 
   const markAsRead = async (notificationId: string) => {
     try {
@@ -79,6 +79,6 @@ export const useNotifications = (filters?: NotificationFilters) => {
     markAllAsRead,
     deleteNotification,
     createNotification,
-    refresh: () => loadNotifications()
+    refresh: loadNotifications
   };
 };
