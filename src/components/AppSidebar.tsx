@@ -27,6 +27,7 @@ import {
   DropdownMenuTrigger,
 } from '@/components/ui/dropdown-menu';
 import { Avatar, AvatarFallback } from '@/components/ui/avatar';
+import NotificationBell from './notifications/NotificationBell';
 
 interface AppSidebarProps {
   activeModule: string;
@@ -63,10 +64,15 @@ const AppSidebar = ({ activeModule, setActiveModule, selectedProductId, onProduc
     <Sidebar className="border-r border-slate-200">
       <SidebarHeader className="border-b border-slate-200 p-4">
         <div className="flex items-center justify-between">
-          <h1 className="text-xl font-bold bg-gradient-to-r from-purple-600 to-pink-600 bg-clip-text text-transparent">
-            ProductHub
-          </h1>
-          <SidebarTrigger />
+          <div className="flex items-center space-x-2">
+            <h1 className="text-xl font-bold bg-gradient-to-r from-purple-600 to-pink-600 bg-clip-text text-transparent">
+              ProductHub
+            </h1>
+          </div>
+          <div className="flex items-center space-x-2">
+            <NotificationBell />
+            <SidebarTrigger />
+          </div>
         </div>
         
         {/* Product Selector */}
@@ -119,10 +125,6 @@ const AppSidebar = ({ activeModule, setActiveModule, selectedProductId, onProduc
           <SidebarGroupLabel>Quick Actions</SidebarGroupLabel>
           <SidebarGroupContent>
             <div className="grid grid-cols-2 gap-2 p-2">
-              <Button size="sm" variant="outline" className="h-8 text-xs">
-                <Bell className="w-3 h-3 mr-1" />
-                Alerts
-              </Button>
               <Button size="sm" variant="outline" className="h-8 text-xs">
                 <Search className="w-3 h-3 mr-1" />
                 Search

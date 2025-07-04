@@ -1,3 +1,4 @@
+
 export * from './BaseApiService';
 export * from './FeedbackService';
 export * from './AnalyticsService';
@@ -41,3 +42,6 @@ export { enterpriseSecurityService, multiProductService, configurationService } 
 // Export advanced analytics services
 export * from '../analytics';
 export { portfolioAnalyticsService } from '../analytics/PortfolioAnalyticsService';
+
+// Export notification service
+export { notificationService } from '../notifications/NotificationService';

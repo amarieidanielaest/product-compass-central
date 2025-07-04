@@ -1,3 +1,4 @@
+
 import { authenticationService } from './core/AuthenticationService';
 import { dataManagementService } from './core/DataManagementService';
 import { apiOrchestrationService } from './core/APIOrchestrationService';
@@ -10,6 +11,7 @@ import { roadmapService } from './api/RoadmapService';
 import { strategyService } from './api/StrategyService';
 import { featureFlagsService } from './api/FeatureFlagsService';
 import { enterpriseSecurityService, multiProductService, configurationService } from './enterprise';
+import { notificationService } from './notifications/NotificationService';
 
 export class ServiceRegistry {
   private static instance: ServiceRegistry;
@@ -51,6 +53,9 @@ export class ServiceRegistry {
 
     // Advanced Analytics services
     this.services.set('portfolioAnalytics', require('./analytics/PortfolioAnalyticsService').portfolioAnalyticsService);
+
+    // Notification service
+    this.services.set('notifications', notificationService);
   }
 
   getService<T>(serviceName: string): T {
@@ -81,6 +86,9 @@ export class ServiceRegistry {
       
       // Initialize organization settings
       console.log('Loading organization configuration...');
+      
+      // Initialize notification system
+      console.log('Setting up notification system...');
       
       console.log('All services initialized successfully');
     } catch (error) {
