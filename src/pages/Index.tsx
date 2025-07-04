@@ -9,6 +9,7 @@ import SprintBoard from '../components/SprintBoard';
 import PRDGenerator from '../components/PRDGenerator';
 import CustomerBoard from '../components/CustomerBoard';
 import ProductManager from '../components/ProductManager';
+import UserManagement from '../components/UserManagement';
 import BreadcrumbNav from '../components/BreadcrumbNav';
 import QuickActions from '../components/QuickActions';
 
@@ -25,6 +26,7 @@ const Index = () => {
       sprints: 'Sprint Board',
       prd: 'PRD Generator',
       customer: 'Customer Board',
+      users: 'User Management',
     };
     return moduleNames[moduleId] || moduleId;
   };
@@ -55,6 +57,8 @@ const Index = () => {
         return <PRDGenerator />;
       case 'customer':
         return <CustomerBoard selectedProductId={selectedProductId} onNavigate={setActiveModule} />;
+      case 'users':
+        return <UserManagement />;
       default:
         return <Dashboard selectedProductId={selectedProductId} onNavigate={setActiveModule} />;
     }

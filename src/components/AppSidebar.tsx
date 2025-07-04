@@ -1,8 +1,7 @@
-
 import { useState } from 'react';
 import { 
   BarChart3, Target, Map, MessageSquare, Home, FileText, Kanban, Package, 
-  ChevronDown, Settings, User, LogOut, Bell, Search
+  ChevronDown, Settings, User, LogOut, Bell, Search, Users
 } from 'lucide-react';
 import {
   Sidebar,
@@ -29,6 +28,7 @@ import {
 } from '@/components/ui/dropdown-menu';
 import { Avatar, AvatarFallback } from '@/components/ui/avatar';
 import NotificationBell from './notifications/NotificationBell';
+import { useAuth } from '@/contexts/AuthContext';
 
 interface AppSidebarProps {
   activeModule: string;
@@ -40,6 +40,7 @@ interface AppSidebarProps {
 const AppSidebar = ({ activeModule, setActiveModule, selectedProductId, onProductChange }: AppSidebarProps) => {
   const [isProductMenuOpen, setIsProductMenuOpen] = useState(false);
   const { state } = useSidebar();
+  const { profile, hasRole, signOut } = useAuth();
   const isCollapsed = state === 'collapsed';
 
   const modules = [
@@ -50,6 +51,7 @@ const AppSidebar = ({ activeModule, setActiveModule, selectedProductId, onProduc
     { id: 'customer', name: 'Customer Board', icon: MessageSquare, badge: '5' },
     { id: 'prd', name: 'PRD Generator', icon: FileText, badge: null },
     { id: 'products', name: 'Products', icon: Package, badge: null },
+    ...(hasRole('admin') ? [{ id: 'users', name: 'User Management', icon: Users, badge: null }] : []),
   ];
 
   const mockProducts = [
@@ -61,6 +63,10 @@ const AppSidebar = ({ activeModule, setActiveModule, selectedProductId, onProduc
     if (selectedProductId === 'main') return 'Main Product';
     if (selectedProductId === 'beta') return 'Beta Product';
     return 'All Products';
+  };
+
+  const handleSignOut = async () => {
+    await signOut();
   };
 
   return (
@@ -204,13 +210,20 @@ const AppSidebar = ({ activeModule, setActiveModule, selectedProductId, onProduc
             <Button variant="ghost" className="w-full justify-start">
               <Avatar className="w-6 h-6 mr-2">
                 <AvatarFallback className="text-xs bg-gradient-to-r from-purple-600 to-pink-600 text-white">
-                  JD
+                  {profile?.first_name?.[0] || profile?.email?.[0]?.toUpperCase() || 'U'}
                 </AvatarFallback>
               </Avatar>
               {!isCollapsed && (
                 <div className="flex flex-col items-start">
-                  <span className="text-sm font-medium">John Doe</span>
-                  <span className="text-xs text-slate-500">Product Manager</span>
+                  <span className="text-sm font-medium">
+                    {profile?.first_name || profile?.last_name 
+                      ? `${profile.first_name || ''} ${profile.last_name || ''}`.trim()
+                      : profile?.email || 'User'
+                    }
+                  </span>
+                  <span className="text-xs text-slate-500">
+                    {profile?.email}
+                  </span>
                 </div>
               )}
             </Button>
@@ -225,7 +238,7 @@ const AppSidebar = ({ activeModule, setActiveModule, selectedProductId, onProduc
               Settings
             </DropdownMenuItem>
             <DropdownMenuSeparator />
-            <DropdownMenuItem className="text-red-600">
+            <DropdownMenuItem className="text-red-600" onClick={handleSignOut}>
               <LogOut className="w-4 h-4 mr-2" />
               Log out
             </DropdownMenuItem>

@@ -1,5 +1,7 @@
+
 // Import notification service
 import { notificationService } from './notifications/NotificationService';
+import { authenticationService } from './core/AuthenticationService';
 
 class ServiceRegistry {
   private services = new Map<string, any>();
@@ -10,6 +12,7 @@ class ServiceRegistry {
     this.registerEnterpriseServices();
     this.registerAnalyticsServices();
     this.registerNotificationServices();
+    this.registerAuthServices();
   }
 
   private registerCoreServices() {
@@ -30,6 +33,10 @@ class ServiceRegistry {
 
   private registerNotificationServices() {
     this.services.set('notifications', notificationService);
+  }
+
+  private registerAuthServices() {
+    this.services.set('authentication', authenticationService);
   }
 
   getService<T>(name: string): T {
