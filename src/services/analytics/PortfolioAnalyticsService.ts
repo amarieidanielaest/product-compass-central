@@ -145,7 +145,7 @@ class PortfolioAnalyticsService extends BaseApiService {
       const aiResponse = await aiService.generateContent({
         prompt,
         context: { existingInsights },
-        type: 'analysis'
+        type: 'insights'
       });
 
       if (aiResponse.data) {
