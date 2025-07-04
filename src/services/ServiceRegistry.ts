@@ -1,4 +1,3 @@
-
 import { authenticationService } from './core/AuthenticationService';
 import { dataManagementService } from './core/DataManagementService';
 import { apiOrchestrationService } from './core/APIOrchestrationService';
@@ -49,6 +48,9 @@ export class ServiceRegistry {
     this.services.set('enterpriseSecurity', enterpriseSecurityService);
     this.services.set('multiProduct', multiProductService);
     this.services.set('configuration', configurationService);
+
+    // Advanced Analytics services
+    this.services.set('portfolioAnalytics', require('./analytics/PortfolioAnalyticsService').portfolioAnalyticsService);
   }
 
   getService<T>(serviceName: string): T {

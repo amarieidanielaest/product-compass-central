@@ -37,3 +37,7 @@ export { serviceRegistry } from '../ServiceRegistry';
 // Export enterprise services
 export * from '../enterprise';
 export { enterpriseSecurityService, multiProductService, configurationService } from '../enterprise';
+
+// Export advanced analytics services
+export * from '../analytics';
+export { portfolioAnalyticsService } from '../analytics/PortfolioAnalyticsService';
