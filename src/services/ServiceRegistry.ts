@@ -1,101 +1,52 @@
-
-import { authenticationService } from './core/AuthenticationService';
-import { dataManagementService } from './core/DataManagementService';
-import { apiOrchestrationService } from './core/APIOrchestrationService';
-import { aiCopilotService } from './ai/AICopilotService';
-import { feedbackService } from './api/FeedbackService';
-import { analyticsService } from './api/AnalyticsService';
-import { aiService } from './api/AIService';
-import { sprintService } from './api/SprintService';
-import { roadmapService } from './api/RoadmapService';
-import { strategyService } from './api/StrategyService';
-import { featureFlagsService } from './api/FeatureFlagsService';
-import { enterpriseSecurityService, multiProductService, configurationService } from './enterprise';
+// Import notification service
 import { notificationService } from './notifications/NotificationService';
 
-export class ServiceRegistry {
-  private static instance: ServiceRegistry;
-  private services: Map<string, any> = new Map();
+class ServiceRegistry {
+  private services = new Map<string, any>();
 
   constructor() {
-    this.initializeServices();
+    this.registerCoreServices();
+    this.registerAPIServices();
+    this.registerEnterpriseServices();
+    this.registerAnalyticsServices();
+    this.registerNotificationServices();
   }
 
-  static getInstance(): ServiceRegistry {
-    if (!ServiceRegistry.instance) {
-      ServiceRegistry.instance = new ServiceRegistry();
-    }
-    return ServiceRegistry.instance;
+  private registerCoreServices() {
+    // Register core services here
   }
 
-  private initializeServices() {
-    // Core services
-    this.services.set('authentication', authenticationService);
-    this.services.set('dataManagement', dataManagementService);
-    this.services.set('apiOrchestration', apiOrchestrationService);
-    
-    // AI services
-    this.services.set('aiCopilot', aiCopilotService);
-    this.services.set('ai', aiService);
-    
-    // API services
-    this.services.set('feedback', feedbackService);
-    this.services.set('analytics', analyticsService);
-    this.services.set('sprint', sprintService);
-    this.services.set('roadmap', roadmapService);
-    this.services.set('strategy', strategyService);
-    this.services.set('featureFlags', featureFlagsService);
+  private registerAPIServices() {
+    // Register API services here
+  }
 
-    // Enterprise services
-    this.services.set('enterpriseSecurity', enterpriseSecurityService);
-    this.services.set('multiProduct', multiProductService);
-    this.services.set('configuration', configurationService);
+  private registerEnterpriseServices() {
+    // Register enterprise services here
+  }
 
-    // Advanced Analytics services
-    this.services.set('portfolioAnalytics', require('./analytics/PortfolioAnalyticsService').portfolioAnalyticsService);
+  private registerAnalyticsServices() {
+    // Register analytics services here
+  }
 
-    // Notification service
+  private registerNotificationServices() {
     this.services.set('notifications', notificationService);
   }
 
-  getService<T>(serviceName: string): T {
-    const service = this.services.get(serviceName);
-    if (!service) {
-      throw new Error(`Service ${serviceName} not found`);
-    }
-    return service as T;
+  getService<T>(name: string): T {
+    return this.services.get(name);
   }
 
-  getAllServices(): Record<string, any> {
-    const result: Record<string, any> = {};
-    this.services.forEach((service, name) => {
-      result[name] = service;
-    });
-    return result;
+  registerService(name: string, service: any): void {
+    this.services.set(name, service);
   }
 
-  async initializeAllServices(): Promise<void> {
-    console.log('Initializing modular monolith services...');
-    
-    try {
-      // Initialize enterprise security policies
-      console.log('Setting up enterprise security policies...');
-      
-      // Initialize multi-product configurations
-      console.log('Configuring multi-product management...');
-      
-      // Initialize organization settings
-      console.log('Loading organization configuration...');
-      
-      // Initialize notification system
-      console.log('Setting up notification system...');
-      
-      console.log('All services initialized successfully');
-    } catch (error) {
-      console.error('Failed to initialize services:', error);
-      throw error;
-    }
+  hasService(name: string): boolean {
+    return this.services.has(name);
+  }
+
+  getAllServices(): Map<string, any> {
+    return new Map(this.services);
   }
 }
 
-export const serviceRegistry = ServiceRegistry.getInstance();
+export const serviceRegistry = new ServiceRegistry();

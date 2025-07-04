@@ -1,3 +1,4 @@
+
 import { useState } from 'react';
 import { SidebarProvider } from '@/components/ui/sidebar';
 import AppSidebar from '../components/AppSidebar';
@@ -70,16 +71,28 @@ const Index = () => {
         />
         <main className="flex-1 transition-all duration-300 overflow-hidden">
           <div className="h-full overflow-auto">
-            <div className="max-w-7xl mx-auto px-4 sm:px-6 lg:px-8 py-4 sm:py-8">
-              <BreadcrumbNav 
-                items={getBreadcrumbItems()}
-                currentProduct={getCurrentProduct()}
-              />
-              <QuickActions 
-                currentModule={activeModule}
-                onNavigate={setActiveModule}
-              />
-              {renderModule()}
+            <div className="max-w-7xl mx-auto px-2 sm:px-4 lg:px-8 py-2 sm:py-4 lg:py-8">
+              <div className="space-y-4 sm:space-y-6">
+                <BreadcrumbNav 
+                  items={getBreadcrumbItems()}
+                  currentProduct={getCurrentProduct()}
+                />
+                <div className="block sm:hidden">
+                  <QuickActions 
+                    currentModule={activeModule}
+                    onNavigate={setActiveModule}
+                  />
+                </div>
+                <div className="hidden sm:block">
+                  <QuickActions 
+                    currentModule={activeModule}
+                    onNavigate={setActiveModule}
+                  />
+                </div>
+                <div className="w-full">
+                  {renderModule()}
+                </div>
+              </div>
             </div>
           </div>
         </main>

@@ -26,24 +26,22 @@ const NotificationBell = () => {
           className="relative hover:bg-slate-100 transition-colors"
           aria-label={`Notifications${unreadCount > 0 ? ` (${unreadCount} unread)` : ''}`}
         >
-          <Bell className="h-5 w-5" />
+          <Bell className="h-4 w-4 sm:h-5 sm:w-5" />
           {unreadCount > 0 && (
             <>
-              {/* Badge for count */}
               <Badge 
                 variant="destructive" 
-                className="absolute -top-1 -right-1 h-5 w-5 flex items-center justify-center p-0 text-xs font-medium"
+                className="absolute -top-1 -right-1 h-4 w-4 sm:h-5 sm:w-5 flex items-center justify-center p-0 text-xs font-medium min-w-[16px] sm:min-w-[20px]"
               >
                 {unreadCount > 99 ? '99+' : unreadCount}
               </Badge>
-              {/* Pulsing dot for visual attention */}
-              <Dot className="absolute top-0 right-0 h-3 w-3 text-red-500 animate-pulse" />
+              <Dot className="absolute top-0 right-0 h-2 w-2 sm:h-3 sm:w-3 text-red-500 animate-pulse" />
             </>
           )}
         </Button>
       </PopoverTrigger>
       <PopoverContent 
-        className="w-96 p-0 mr-4 bg-white border shadow-lg rounded-lg"
+        className="w-80 sm:w-96 p-0 mr-2 sm:mr-4 bg-white border shadow-lg rounded-lg z-50"
         align="end"
         sideOffset={8}
       >
