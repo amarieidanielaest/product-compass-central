@@ -11,6 +11,8 @@ import Auth from "./pages/Auth";
 import UserManagement from "./components/UserManagement";
 import ProtectedRoute from "./components/ProtectedRoute";
 import NotFound from "./pages/NotFound";
+import HelpCenter from "./pages/HelpCenter";
+import HelpCenterAdmin from "./components/HelpCenterAdmin";
 
 const queryClient = new QueryClient();
 
@@ -24,6 +26,14 @@ const App = () => (
           <BrowserRouter>
             <Routes>
               <Route path="/auth" element={<Auth />} />
+              <Route path="/help" element={<HelpCenter />} />
+              <Route path="/help/category/:categoryId" element={<HelpCenter />} />
+              <Route path="/help/article/:articleId" element={<HelpCenter />} />
+              <Route path="/admin/help" element={
+                <ProtectedRoute requiredRole="admin">
+                  <HelpCenterAdmin />
+                </ProtectedRoute>
+              } />
               <Route path="/users" element={
                 <ProtectedRoute requiredRole="admin">
                   <UserManagement />

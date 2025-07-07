@@ -220,7 +220,12 @@ const Settings = ({ currentTeamId }: SettingsProps) => {
       case 'users':
         return <UserManagement />;
       case 'help':
-        return <KnowledgeCenter />;
+        // Open external help center
+        window.open('/help', '_blank');
+        return <ComingSoonSection 
+          title="Help Center" 
+          description="Opening help center in a new tab..." 
+        />;
       case 'integrations':
         return <IntegrationsSection />;
       default:
