@@ -14,6 +14,206 @@ export type Database = {
   }
   public: {
     Tables: {
+      changelog_entries: {
+        Row: {
+          author_id: string | null
+          board_id: string | null
+          content: string | null
+          created_at: string | null
+          description: string | null
+          id: string
+          is_published: boolean | null
+          organization_id: string | null
+          published_at: string | null
+          title: string
+          type: string | null
+          updated_at: string | null
+          version: string | null
+          visibility: string | null
+        }
+        Insert: {
+          author_id?: string | null
+          board_id?: string | null
+          content?: string | null
+          created_at?: string | null
+          description?: string | null
+          id?: string
+          is_published?: boolean | null
+          organization_id?: string | null
+          published_at?: string | null
+          title: string
+          type?: string | null
+          updated_at?: string | null
+          version?: string | null
+          visibility?: string | null
+        }
+        Update: {
+          author_id?: string | null
+          board_id?: string | null
+          content?: string | null
+          created_at?: string | null
+          description?: string | null
+          id?: string
+          is_published?: boolean | null
+          organization_id?: string | null
+          published_at?: string | null
+          title?: string
+          type?: string | null
+          updated_at?: string | null
+          version?: string | null
+          visibility?: string | null
+        }
+        Relationships: [
+          {
+            foreignKeyName: "changelog_entries_author_id_fkey"
+            columns: ["author_id"]
+            isOneToOne: false
+            referencedRelation: "profiles"
+            referencedColumns: ["id"]
+          },
+          {
+            foreignKeyName: "changelog_entries_board_id_fkey"
+            columns: ["board_id"]
+            isOneToOne: false
+            referencedRelation: "customer_boards"
+            referencedColumns: ["id"]
+          },
+          {
+            foreignKeyName: "changelog_entries_organization_id_fkey"
+            columns: ["organization_id"]
+            isOneToOne: false
+            referencedRelation: "organizations"
+            referencedColumns: ["id"]
+          },
+        ]
+      }
+      customer_boards: {
+        Row: {
+          branding_config: Json | null
+          created_at: string | null
+          description: string | null
+          features_enabled: Json | null
+          id: string
+          is_active: boolean | null
+          is_public: boolean | null
+          name: string
+          organization_id: string | null
+          slug: string
+          updated_at: string | null
+        }
+        Insert: {
+          branding_config?: Json | null
+          created_at?: string | null
+          description?: string | null
+          features_enabled?: Json | null
+          id?: string
+          is_active?: boolean | null
+          is_public?: boolean | null
+          name: string
+          organization_id?: string | null
+          slug: string
+          updated_at?: string | null
+        }
+        Update: {
+          branding_config?: Json | null
+          created_at?: string | null
+          description?: string | null
+          features_enabled?: Json | null
+          id?: string
+          is_active?: boolean | null
+          is_public?: boolean | null
+          name?: string
+          organization_id?: string | null
+          slug?: string
+          updated_at?: string | null
+        }
+        Relationships: [
+          {
+            foreignKeyName: "customer_boards_organization_id_fkey"
+            columns: ["organization_id"]
+            isOneToOne: false
+            referencedRelation: "organizations"
+            referencedColumns: ["id"]
+          },
+        ]
+      }
+      feedback_items: {
+        Row: {
+          assigned_to: string | null
+          board_id: string | null
+          category: string | null
+          created_at: string | null
+          description: string | null
+          id: string
+          organization_id: string | null
+          priority: string | null
+          status: string | null
+          submitted_by: string | null
+          title: string
+          updated_at: string | null
+          upvotes_count: number | null
+        }
+        Insert: {
+          assigned_to?: string | null
+          board_id?: string | null
+          category?: string | null
+          created_at?: string | null
+          description?: string | null
+          id?: string
+          organization_id?: string | null
+          priority?: string | null
+          status?: string | null
+          submitted_by?: string | null
+          title: string
+          updated_at?: string | null
+          upvotes_count?: number | null
+        }
+        Update: {
+          assigned_to?: string | null
+          board_id?: string | null
+          category?: string | null
+          created_at?: string | null
+          description?: string | null
+          id?: string
+          organization_id?: string | null
+          priority?: string | null
+          status?: string | null
+          submitted_by?: string | null
+          title?: string
+          updated_at?: string | null
+          upvotes_count?: number | null
+        }
+        Relationships: [
+          {
+            foreignKeyName: "feedback_items_assigned_to_fkey"
+            columns: ["assigned_to"]
+            isOneToOne: false
+            referencedRelation: "profiles"
+            referencedColumns: ["id"]
+          },
+          {
+            foreignKeyName: "feedback_items_board_id_fkey"
+            columns: ["board_id"]
+            isOneToOne: false
+            referencedRelation: "customer_boards"
+            referencedColumns: ["id"]
+          },
+          {
+            foreignKeyName: "feedback_items_organization_id_fkey"
+            columns: ["organization_id"]
+            isOneToOne: false
+            referencedRelation: "organizations"
+            referencedColumns: ["id"]
+          },
+          {
+            foreignKeyName: "feedback_items_submitted_by_fkey"
+            columns: ["submitted_by"]
+            isOneToOne: false
+            referencedRelation: "profiles"
+            referencedColumns: ["id"]
+          },
+        ]
+      }
       help_article_tags: {
         Row: {
           article_id: string
@@ -47,6 +247,7 @@ export type Database = {
       help_articles: {
         Row: {
           author_id: string | null
+          board_id: string | null
           category_id: string | null
           content: string
           created_at: string | null
@@ -54,14 +255,17 @@ export type Database = {
           id: string
           is_featured: boolean | null
           is_published: boolean | null
+          organization_id: string | null
           read_time: number | null
           sort_order: number | null
           title: string
           updated_at: string | null
           views_count: number | null
+          visibility: string | null
         }
         Insert: {
           author_id?: string | null
+          board_id?: string | null
           category_id?: string | null
           content: string
           created_at?: string | null
@@ -69,14 +273,17 @@ export type Database = {
           id?: string
           is_featured?: boolean | null
           is_published?: boolean | null
+          organization_id?: string | null
           read_time?: number | null
           sort_order?: number | null
           title: string
           updated_at?: string | null
           views_count?: number | null
+          visibility?: string | null
         }
         Update: {
           author_id?: string | null
+          board_id?: string | null
           category_id?: string | null
           content?: string
           created_at?: string | null
@@ -84,11 +291,13 @@ export type Database = {
           id?: string
           is_featured?: boolean | null
           is_published?: boolean | null
+          organization_id?: string | null
           read_time?: number | null
           sort_order?: number | null
           title?: string
           updated_at?: string | null
           views_count?: number | null
+          visibility?: string | null
         }
         Relationships: [
           {
@@ -99,16 +308,31 @@ export type Database = {
             referencedColumns: ["id"]
           },
           {
+            foreignKeyName: "help_articles_board_id_fkey"
+            columns: ["board_id"]
+            isOneToOne: false
+            referencedRelation: "customer_boards"
+            referencedColumns: ["id"]
+          },
+          {
             foreignKeyName: "help_articles_category_id_fkey"
             columns: ["category_id"]
             isOneToOne: false
             referencedRelation: "help_categories"
             referencedColumns: ["id"]
           },
+          {
+            foreignKeyName: "help_articles_organization_id_fkey"
+            columns: ["organization_id"]
+            isOneToOne: false
+            referencedRelation: "organizations"
+            referencedColumns: ["id"]
+          },
         ]
       }
       help_categories: {
         Row: {
+          board_id: string | null
           color: string
           created_at: string | null
           description: string | null
@@ -116,10 +340,13 @@ export type Database = {
           id: string
           is_active: boolean | null
           name: string
+          organization_id: string | null
           sort_order: number | null
           updated_at: string | null
+          visibility: string | null
         }
         Insert: {
+          board_id?: string | null
           color: string
           created_at?: string | null
           description?: string | null
@@ -127,10 +354,13 @@ export type Database = {
           id?: string
           is_active?: boolean | null
           name: string
+          organization_id?: string | null
           sort_order?: number | null
           updated_at?: string | null
+          visibility?: string | null
         }
         Update: {
+          board_id?: string | null
           color?: string
           created_at?: string | null
           description?: string | null
@@ -138,10 +368,27 @@ export type Database = {
           id?: string
           is_active?: boolean | null
           name?: string
+          organization_id?: string | null
           sort_order?: number | null
           updated_at?: string | null
+          visibility?: string | null
         }
-        Relationships: []
+        Relationships: [
+          {
+            foreignKeyName: "help_categories_board_id_fkey"
+            columns: ["board_id"]
+            isOneToOne: false
+            referencedRelation: "customer_boards"
+            referencedColumns: ["id"]
+          },
+          {
+            foreignKeyName: "help_categories_organization_id_fkey"
+            columns: ["organization_id"]
+            isOneToOne: false
+            referencedRelation: "organizations"
+            referencedColumns: ["id"]
+          },
+        ]
       }
       help_tags: {
         Row: {
@@ -158,6 +405,100 @@ export type Database = {
           created_at?: string | null
           id?: string
           name?: string
+        }
+        Relationships: []
+      }
+      organization_memberships: {
+        Row: {
+          created_at: string | null
+          id: string
+          invited_by: string | null
+          joined_at: string | null
+          organization_id: string | null
+          role: string
+          status: string | null
+          user_id: string | null
+        }
+        Insert: {
+          created_at?: string | null
+          id?: string
+          invited_by?: string | null
+          joined_at?: string | null
+          organization_id?: string | null
+          role?: string
+          status?: string | null
+          user_id?: string | null
+        }
+        Update: {
+          created_at?: string | null
+          id?: string
+          invited_by?: string | null
+          joined_at?: string | null
+          organization_id?: string | null
+          role?: string
+          status?: string | null
+          user_id?: string | null
+        }
+        Relationships: [
+          {
+            foreignKeyName: "organization_memberships_invited_by_fkey"
+            columns: ["invited_by"]
+            isOneToOne: false
+            referencedRelation: "profiles"
+            referencedColumns: ["id"]
+          },
+          {
+            foreignKeyName: "organization_memberships_organization_id_fkey"
+            columns: ["organization_id"]
+            isOneToOne: false
+            referencedRelation: "organizations"
+            referencedColumns: ["id"]
+          },
+          {
+            foreignKeyName: "organization_memberships_user_id_fkey"
+            columns: ["user_id"]
+            isOneToOne: false
+            referencedRelation: "profiles"
+            referencedColumns: ["id"]
+          },
+        ]
+      }
+      organizations: {
+        Row: {
+          branding_config: Json | null
+          created_at: string | null
+          custom_domain: string | null
+          description: string | null
+          id: string
+          is_active: boolean | null
+          logo_url: string | null
+          name: string
+          slug: string
+          updated_at: string | null
+        }
+        Insert: {
+          branding_config?: Json | null
+          created_at?: string | null
+          custom_domain?: string | null
+          description?: string | null
+          id?: string
+          is_active?: boolean | null
+          logo_url?: string | null
+          name: string
+          slug: string
+          updated_at?: string | null
+        }
+        Update: {
+          branding_config?: Json | null
+          created_at?: string | null
+          custom_domain?: string | null
+          description?: string | null
+          id?: string
+          is_active?: boolean | null
+          logo_url?: string | null
+          name?: string
+          slug?: string
+          updated_at?: string | null
         }
         Relationships: []
       }
@@ -306,6 +647,85 @@ export type Database = {
             columns: ["current_team_id"]
             isOneToOne: false
             referencedRelation: "teams"
+            referencedColumns: ["id"]
+          },
+        ]
+      }
+      roadmap_items: {
+        Row: {
+          author_id: string | null
+          board_id: string | null
+          category: string | null
+          completion_date: string | null
+          created_at: string | null
+          description: string | null
+          estimated_date: string | null
+          id: string
+          organization_id: string | null
+          priority: string | null
+          sort_order: number | null
+          status: string
+          title: string
+          updated_at: string | null
+          upvotes_count: number | null
+          visibility: string | null
+        }
+        Insert: {
+          author_id?: string | null
+          board_id?: string | null
+          category?: string | null
+          completion_date?: string | null
+          created_at?: string | null
+          description?: string | null
+          estimated_date?: string | null
+          id?: string
+          organization_id?: string | null
+          priority?: string | null
+          sort_order?: number | null
+          status?: string
+          title: string
+          updated_at?: string | null
+          upvotes_count?: number | null
+          visibility?: string | null
+        }
+        Update: {
+          author_id?: string | null
+          board_id?: string | null
+          category?: string | null
+          completion_date?: string | null
+          created_at?: string | null
+          description?: string | null
+          estimated_date?: string | null
+          id?: string
+          organization_id?: string | null
+          priority?: string | null
+          sort_order?: number | null
+          status?: string
+          title?: string
+          updated_at?: string | null
+          upvotes_count?: number | null
+          visibility?: string | null
+        }
+        Relationships: [
+          {
+            foreignKeyName: "roadmap_items_author_id_fkey"
+            columns: ["author_id"]
+            isOneToOne: false
+            referencedRelation: "profiles"
+            referencedColumns: ["id"]
+          },
+          {
+            foreignKeyName: "roadmap_items_board_id_fkey"
+            columns: ["board_id"]
+            isOneToOne: false
+            referencedRelation: "customer_boards"
+            referencedColumns: ["id"]
+          },
+          {
+            foreignKeyName: "roadmap_items_organization_id_fkey"
+            columns: ["organization_id"]
+            isOneToOne: false
+            referencedRelation: "organizations"
             referencedColumns: ["id"]
           },
         ]

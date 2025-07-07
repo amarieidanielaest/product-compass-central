@@ -9,6 +9,8 @@ import { AuthProvider } from "@/contexts/AuthContext";
 import Index from "./pages/Index";
 import Auth from "./pages/Auth";
 import UserManagement from "./components/UserManagement";
+import OrganizationManagement from "./components/OrganizationManagement";
+import CustomerPortal from "./components/CustomerPortal";
 import ProtectedRoute from "./components/ProtectedRoute";
 import NotFound from "./pages/NotFound";
 import HelpCenter from "./pages/HelpCenter";
@@ -39,6 +41,14 @@ const App = () => (
                   <UserManagement />
                 </ProtectedRoute>
               } />
+              <Route path="/organizations" element={
+                <ProtectedRoute requiredRole="admin">
+                  <OrganizationManagement />
+                </ProtectedRoute>
+              } />
+              {/* Public customer portal routes */}
+              <Route path="/portal/:organizationSlug/:boardSlug" element={<CustomerPortal />} />
+              <Route path="/portal/:organizationSlug" element={<CustomerPortal />} />
               <Route path="/" element={
                 <ProtectedRoute>
                   <Index />
