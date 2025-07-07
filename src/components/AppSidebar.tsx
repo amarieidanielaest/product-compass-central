@@ -1,4 +1,4 @@
-import { useState } from 'react';
+import { useState, useEffect } from 'react';
 import { 
   BarChart3, Target, Map, MessageSquare, Home, FileText, Kanban, Package, 
   ChevronDown, Settings, User, LogOut, Bell, Search, Users, DollarSign, CreditCard, Crown
@@ -40,12 +40,20 @@ interface AppSidebarProps {
 
 const AppSidebar = ({ activeModule, setActiveModule, selectedProductId, onProductChange }: AppSidebarProps) => {
   const [isProductMenuOpen, setIsProductMenuOpen] = useState(false);
-  const { state, setOpenMobile } = useSidebar();
+  const { state, setOpen } = useSidebar();
   const { profile, hasRole, signOut } = useAuth();
   
   // Auto-collapse when in settings
-  const shouldAutoCollapse = activeModule === 'settings';
-  const isCollapsed = state === 'collapsed' || shouldAutoCollapse;
+  useEffect(() => {
+    console.log('AppSidebar effect:', { activeModule, state });
+    if (activeModule === 'settings' && state === 'expanded') {
+      console.log('Auto-collapsing sidebar for settings');
+      setOpen(false);
+    }
+  }, [activeModule, state, setOpen]);
+  
+  const isCollapsed = state === 'collapsed';
+  console.log('AppSidebar render:', { isCollapsed, state, activeModule });
 
   const modules = [
     // Core Product Features
