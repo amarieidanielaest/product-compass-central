@@ -3,6 +3,8 @@ import { useAuth } from '@/contexts/AuthContext';
 import { Card, CardContent, CardHeader, CardTitle } from '@/components/ui/card';
 import { Button } from '@/components/ui/button';
 import { Separator } from '@/components/ui/separator';
+import { Tabs, TabsContent, TabsList, TabsTrigger } from '@/components/ui/tabs';
+import { useIsMobile } from '@/hooks/use-mobile';
 import { 
   Settings as SettingsIcon, 
   CreditCard, 
@@ -11,8 +13,6 @@ import {
   Shield, 
   Crown,
   Zap,
-  Palette,
-  Globe,
   Bell
 } from 'lucide-react';
 import PricingPlans from './PricingPlans';
@@ -37,170 +37,153 @@ interface SettingsProps {
 
 const Settings = ({ currentTeamId }: SettingsProps) => {
   const { user, hasRole, profile } = useAuth();
-  const [activeSection, setActiveSection] = useState<SettingsSection>('overview');
+  const [activeTab, setActiveTab] = useState<SettingsSection>('overview');
+  const isMobile = useIsMobile();
 
-  const settingSections = [
-    {
-      id: 'overview',
-      title: 'Overview',
-      description: 'Account overview and quick actions',
-      icon: SettingsIcon,
-      category: 'account'
-    },
-    {
-      id: 'billing',
-      title: 'Billing & Subscription',
-      description: 'Manage your subscription and billing',
-      icon: CreditCard,
-      category: 'account'
-    },
-    {
-      id: 'pricing',
-      title: 'Pricing Plans',
-      description: 'View and change your plan',
-      icon: DollarSign,
-      category: 'account'
-    },
-    {
-      id: 'teams',
-      title: 'Team Management',
-      description: 'Manage team members and permissions',
-      icon: Users,
-      category: 'collaboration'
-    },
-    {
-      id: 'integrations',
-      title: 'Integrations',
-      description: 'Connect external tools and services',
-      icon: Zap,
-      category: 'configuration',
-      comingSoon: true
-    },
-    {
-      id: 'notifications',
-      title: 'Notifications',
-      description: 'Configure notification preferences',
-      icon: Bell,
-      category: 'configuration',
-      comingSoon: true
-    },
-    ...(hasRole('admin') ? [
-      {
-        id: 'admin' as const,
-        title: 'Admin Dashboard',
-        description: 'System administration and analytics',
-        icon: Crown,
-        category: 'admin' as const
-      },
-      {
-        id: 'users' as const,
-        title: 'User Management',
-        description: 'Manage all users and roles',
-        icon: Shield,
-        category: 'admin' as const
-      }
-    ] : [])
+  // Group tabs by categories for better organization
+  const accountTabs = [
+    { id: 'overview', title: 'Overview', icon: SettingsIcon },
+    { id: 'billing', title: 'Billing', icon: CreditCard },
+    { id: 'pricing', title: 'Plans', icon: DollarSign },
   ];
 
-  const categories = {
-    account: 'Account & Billing',
-    collaboration: 'Team & Collaboration',
-    configuration: 'Configuration',
-    admin: 'Administration'
-  };
+  const teamTabs = [
+    { id: 'teams', title: 'Team', icon: Users },
+  ];
 
-  const renderSettingsContent = () => {
-    switch (activeSection) {
-      case 'overview':
-        return <SettingsOverview user={user} profile={profile} currentTeamId={currentTeamId} />;
-      case 'billing':
-        return <BillingManagement teamId={currentTeamId} />;
-      case 'pricing':
-        return <PricingPlans currentTeamId={currentTeamId} />;
-      case 'teams':
-        return currentTeamId ? <TeamManagement teamId={currentTeamId} /> : <NoTeamSelected />;
-      case 'admin':
-        return <AdminDashboard />;
-      case 'users':
-        return <UserManagement />;
-      case 'integrations':
-        return <ComingSoonSection title="Integrations" description="Connect your favorite tools and automate workflows" />;
-      case 'notifications':
-        return <ComingSoonSection title="Notifications" description="Customize how and when you receive notifications" />;
-      default:
-        return <SettingsOverview user={user} profile={profile} currentTeamId={currentTeamId} />;
-    }
-  };
+  const configTabs = [
+    { id: 'integrations', title: 'Integrations', icon: Zap, comingSoon: true },
+    { id: 'notifications', title: 'Notifications', icon: Bell, comingSoon: true },
+  ];
 
-  const getCurrentSectionTitle = () => {
-    const section = settingSections.find(s => s.id === activeSection);
-    return section?.title || 'Settings';
-  };
+  const adminTabs = hasRole('admin') ? [
+    { id: 'admin', title: 'Admin', icon: Crown },
+    { id: 'users', title: 'Users', icon: Shield },
+  ] : [];
+
+  const allTabs = [...accountTabs, ...teamTabs, ...configTabs, ...adminTabs];
 
   return (
-    <div className="flex h-full">
-      {/* Settings Navigation */}
-      <div className="w-80 border-r bg-muted/30 p-6 overflow-y-auto">
-        <div className="space-y-6">
-          <div>
-            <h2 className="text-lg font-semibold">Settings</h2>
-            <p className="text-sm text-muted-foreground">
-              Manage your account, team, and preferences
-            </p>
-          </div>
+    <div className="w-full max-w-7xl mx-auto p-4 sm:p-6">
+      <div className="mb-6">
+        <h1 className="text-2xl sm:text-3xl font-bold">Settings</h1>
+        <p className="text-muted-foreground mt-2">
+          Manage your account, team, and preferences
+        </p>
+      </div>
 
-          {Object.entries(categories).map(([categoryKey, categoryTitle]) => {
-            const sectionsInCategory = settingSections.filter(s => s.category === categoryKey);
-            
-            if (sectionsInCategory.length === 0) return null;
+      <Tabs value={activeTab} onValueChange={(value) => setActiveTab(value as SettingsSection)} className="w-full">
+        <div className="mb-6 overflow-x-auto">
+          <TabsList className={`grid w-full ${isMobile ? 'grid-cols-2' : 'grid-cols-4'} gap-1 h-auto p-1 bg-muted`}>
+            {/* Account & Billing Group */}
+            <div className={`${isMobile ? 'col-span-1' : 'col-span-1'} space-y-1`}>
+              <div className="text-xs font-medium text-muted-foreground px-3 py-1">Account</div>
+              {accountTabs.map((tab) => (
+                <TabsTrigger
+                  key={tab.id}
+                  value={tab.id}
+                  className="w-full flex items-center justify-start gap-2 p-2 text-sm"
+                >
+                  <tab.icon className="h-4 w-4" />
+                  <span className={isMobile ? 'hidden sm:inline' : ''}>{tab.title}</span>
+                </TabsTrigger>
+              ))}
+            </div>
 
-            return (
-              <div key={categoryKey} className="space-y-2">
-                <h3 className="text-sm font-medium text-muted-foreground uppercase tracking-wide">
-                  {categoryTitle}
-                </h3>
-                <div className="space-y-1">
-                  {sectionsInCategory.map((section) => (
-                    <Button
-                      key={section.id}
-                      variant={activeSection === section.id ? 'secondary' : 'ghost'}
-                      className="w-full justify-start h-auto p-3"
-                      onClick={() => setActiveSection(section.id as SettingsSection)}
-                    >
-                      <div className="flex items-start space-x-3">
-                        <section.icon className="h-4 w-4 mt-0.5 flex-shrink-0" />
-                        <div className="text-left">
-                          <div className="flex items-center space-x-2">
-                            <span className="text-sm font-medium">{section.title}</span>
-                            {section.comingSoon && (
-                              <span className="text-xs bg-blue-100 text-blue-700 px-2 py-0.5 rounded-full">
-                                Soon
-                              </span>
-                            )}
-                          </div>
-                          <p className="text-xs text-muted-foreground">
-                            {section.description}
-                          </p>
-                        </div>
-                      </div>
-                    </Button>
-                  ))}
-                </div>
+            {/* Team Group */}
+            <div className={`${isMobile ? 'col-span-1' : 'col-span-1'} space-y-1`}>
+              <div className="text-xs font-medium text-muted-foreground px-3 py-1">Team</div>
+              {teamTabs.map((tab) => (
+                <TabsTrigger
+                  key={tab.id}
+                  value={tab.id}
+                  className="w-full flex items-center justify-start gap-2 p-2 text-sm"
+                >
+                  <tab.icon className="h-4 w-4" />
+                  <span className={isMobile ? 'hidden sm:inline' : ''}>{tab.title}</span>
+                </TabsTrigger>
+              ))}
+            </div>
+
+            {/* Configuration Group */}
+            <div className={`${isMobile ? 'col-span-1' : 'col-span-1'} space-y-1`}>
+              <div className="text-xs font-medium text-muted-foreground px-3 py-1">Config</div>
+              {configTabs.map((tab) => (
+                <TabsTrigger
+                  key={tab.id}
+                  value={tab.id}
+                  className="w-full flex items-center justify-start gap-2 p-2 text-sm relative"
+                  disabled={tab.comingSoon}
+                >
+                  <tab.icon className="h-4 w-4" />
+                  <span className={isMobile ? 'hidden sm:inline' : ''}>{tab.title}</span>
+                  {tab.comingSoon && (
+                    <span className="text-xs bg-primary/10 text-primary px-1.5 py-0.5 rounded-full ml-auto">
+                      Soon
+                    </span>
+                  )}
+                </TabsTrigger>
+              ))}
+            </div>
+
+            {/* Admin Group */}
+            {adminTabs.length > 0 && (
+              <div className={`${isMobile ? 'col-span-1' : 'col-span-1'} space-y-1`}>
+                <div className="text-xs font-medium text-muted-foreground px-3 py-1">Admin</div>
+                {adminTabs.map((tab) => (
+                  <TabsTrigger
+                    key={tab.id}
+                    value={tab.id}
+                    className="w-full flex items-center justify-start gap-2 p-2 text-sm"
+                  >
+                    <tab.icon className="h-4 w-4" />
+                    <span className={isMobile ? 'hidden sm:inline' : ''}>{tab.title}</span>
+                  </TabsTrigger>
+                ))}
               </div>
-            );
-          })}
+            )}
+          </TabsList>
         </div>
-      </div>
 
-      {/* Settings Content */}
-      <div className="flex-1 overflow-y-auto">
-        <div className="p-6">
-          <div className="mb-6">
-            <h1 className="text-2xl font-bold">{getCurrentSectionTitle()}</h1>
-          </div>
-          {renderSettingsContent()}
+        {/* Tab Content */}
+        <div className="mt-6">
+          <TabsContent value="overview" className="mt-0">
+            <SettingsOverview user={user} profile={profile} currentTeamId={currentTeamId} />
+          </TabsContent>
+
+          <TabsContent value="billing" className="mt-0">
+            <BillingManagement teamId={currentTeamId} />
+          </TabsContent>
+
+          <TabsContent value="pricing" className="mt-0">
+            <PricingPlans currentTeamId={currentTeamId} />
+          </TabsContent>
+
+          <TabsContent value="teams" className="mt-0">
+            {currentTeamId ? <TeamManagement teamId={currentTeamId} /> : <NoTeamSelected />}
+          </TabsContent>
+
+          <TabsContent value="integrations" className="mt-0">
+            <ComingSoonSection title="Integrations" description="Connect your favorite tools and automate workflows" />
+          </TabsContent>
+
+          <TabsContent value="notifications" className="mt-0">
+            <ComingSoonSection title="Notifications" description="Customize how and when you receive notifications" />
+          </TabsContent>
+
+          {hasRole('admin') && (
+            <>
+              <TabsContent value="admin" className="mt-0">
+                <AdminDashboard />
+              </TabsContent>
+
+              <TabsContent value="users" className="mt-0">
+                <UserManagement />
+              </TabsContent>
+            </>
+          )}
         </div>
-      </div>
+      </Tabs>
     </div>
   );
 };
