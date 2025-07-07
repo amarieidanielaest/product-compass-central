@@ -70,7 +70,7 @@ const Settings = ({ currentTeamId }: SettingsProps) => {
 
   const sidebarSections: SidebarSection[] = [
     {
-      title: 'Account & Billing',
+      title: 'ACCOUNT & BILLING',
       items: [
         { 
           id: 'overview', 
@@ -93,7 +93,7 @@ const Settings = ({ currentTeamId }: SettingsProps) => {
       ]
     },
     {
-      title: 'Team & Organization',
+      title: 'TEAM & ORGANIZATION',
       items: [
         { 
           id: 'teams', 
@@ -111,7 +111,7 @@ const Settings = ({ currentTeamId }: SettingsProps) => {
       ]
     },
     {
-      title: 'Security & Access',
+      title: 'SECURITY & ACCESS',
       items: [
         { 
           id: 'security', 
@@ -123,7 +123,7 @@ const Settings = ({ currentTeamId }: SettingsProps) => {
       ]
     },
     {
-      title: 'Integrations',
+      title: 'INTEGRATIONS',
       items: [
         { 
           id: 'integrations', 
@@ -155,7 +155,7 @@ const Settings = ({ currentTeamId }: SettingsProps) => {
       ]
     },
     {
-      title: 'Admin',
+      title: 'ADMIN',
       items: [
         { 
           id: 'admin', 
@@ -174,7 +174,7 @@ const Settings = ({ currentTeamId }: SettingsProps) => {
       ]
     },
     {
-      title: 'Advanced',
+      title: 'ADVANCED',
       items: [
         { 
           id: 'danger', 
@@ -186,7 +186,7 @@ const Settings = ({ currentTeamId }: SettingsProps) => {
       ]
     },
     {
-      title: 'Resources',
+      title: 'RESOURCES',
       items: [
         { 
           id: 'help', 
@@ -232,9 +232,8 @@ const Settings = ({ currentTeamId }: SettingsProps) => {
   };
 
   if (isMobile) {
-    // Mobile view with dropdown selector
     return (
-      <div className="w-full max-w-7xl mx-auto p-4">
+      <div className="w-full p-4">
         <div className="mb-6">
           <h1 className="text-2xl font-bold">Settings</h1>
           <p className="text-muted-foreground mt-2">
@@ -276,71 +275,56 @@ const Settings = ({ currentTeamId }: SettingsProps) => {
     );
   }
 
-  // Desktop view with FeatureBase-style layout
+  // Desktop view - Full width layout like FeatureBase
   return (
-    <div className="flex h-full bg-background">
-      {/* Settings Sidebar - Primary Navigation */}
-      <div className="w-80 flex-shrink-0 border-r border-border bg-background">
-        {/* Header */}
-        <div className="p-6 border-b border-border">
-          {/* Breadcrumb */}
-          <div className="flex items-center text-sm text-muted-foreground mb-4">
-            <Building className="h-4 w-4 mr-2" />
-            <span>Main Product</span>
-            <ChevronRight className="h-4 w-4 mx-2" />
-            <span className="text-foreground font-medium">Settings</span>
-          </div>
-          
-          <h1 className="text-2xl font-bold text-foreground">Settings</h1>
-          <p className="text-muted-foreground mt-1">
-            Manage your account and preferences
-          </p>
+    <div className="flex h-screen bg-background">
+      {/* Settings Navigation Sidebar */}
+      <div className="w-80 border-r border-border bg-background flex flex-col">
+        {/* Navigation Header */}
+        <div className="p-4 border-b border-border flex-shrink-0">
+          <div className="text-xs font-medium text-muted-foreground mb-4 tracking-wide">Navigation</div>
         </div>
-
-        <div className="overflow-y-auto">
+        
+        {/* Settings Navigation */}
+        <div className="flex-1 overflow-y-auto">
           {visibleSections.map((section) => (
-            <div key={section.title} className="p-4">
-              <h3 className="text-xs font-medium text-muted-foreground mb-3 uppercase tracking-wider">
-                {section.title}
-              </h3>
-              <div className="space-y-1">
+            <div key={section.title} className="py-2">
+              <div className="px-4 py-2">
+                <h3 className="text-xs font-medium text-muted-foreground mb-3 tracking-wide">
+                  {section.title}
+                </h3>
+              </div>
+              <div className="space-y-1 px-2">
                 {section.items.map((item) => (
                   <button
                     key={item.id}
                     onClick={() => !item.comingSoon && setActiveSection(item.id)}
                     disabled={item.comingSoon}
                     className={cn(
-                      "w-full text-left px-3 py-2 rounded-lg text-sm transition-all duration-200 flex items-center justify-between group animate-fade-in",
+                      "w-full text-left px-3 py-3 rounded-lg transition-all duration-200 flex items-center group",
                       activeSection === item.id
-                        ? "bg-primary text-primary-foreground shadow-sm"
-                        : "hover:bg-muted text-foreground hover-scale",
+                        ? "bg-primary text-primary-foreground"
+                        : "hover:bg-muted text-foreground",
                       item.comingSoon && "opacity-50 cursor-not-allowed"
                     )}
                   >
-                    <div className="flex items-center space-x-3">
-                      <item.icon className="h-4 w-4 flex-shrink-0" />
-                      <div className="min-w-0 flex-1">
-                        <div className="font-medium">{item.title}</div>
-                        {item.description && (
-                          <div className="text-xs opacity-75 truncate mt-0.5">
-                            {item.description}
-                          </div>
-                        )}
+                    <item.icon className="h-5 w-5 mr-3 flex-shrink-0" />
+                    <div className="flex-1 min-w-0">
+                      <div className="font-medium text-sm">{item.title}</div>
+                      <div className="text-xs opacity-75 mt-0.5 truncate">
+                        {item.description}
                       </div>
                     </div>
-                    <div className="flex items-center space-x-2 ml-2">
-                      {item.comingSoon && (
-                        <span className="text-xs bg-primary/10 text-primary px-2 py-1 rounded-full">
-                          Soon
-                        </span>
-                      )}
-                      {!item.comingSoon && (
-                        <ChevronRight className={cn(
-                          "h-4 w-4 opacity-0 group-hover:opacity-100 transition-opacity",
-                          activeSection === item.id && "opacity-100"
-                        )} />
-                      )}
-                    </div>
+                    {item.comingSoon ? (
+                      <span className="text-xs bg-primary/20 text-primary px-2 py-1 rounded-full ml-2">
+                        Soon
+                      </span>
+                    ) : (
+                      <ChevronRight className={cn(
+                        "h-4 w-4 opacity-0 group-hover:opacity-100 transition-opacity ml-2",
+                        activeSection === item.id && "opacity-100"
+                      )} />
+                    )}
                   </button>
                 ))}
               </div>
@@ -349,10 +333,21 @@ const Settings = ({ currentTeamId }: SettingsProps) => {
         </div>
       </div>
 
-      {/* Main Content */}
-      <div className="flex-1 min-w-0 bg-gradient-to-br from-slate-50 via-purple-50 to-pink-50">
-        <div className="h-full overflow-auto">
-          <div className="max-w-5xl mx-auto p-6">
+      {/* Main Content Area */}
+      <div className="flex-1 flex flex-col min-w-0">
+        {/* Content Header */}
+        <div className="border-b border-border bg-background p-6 flex-shrink-0">
+          <div className="max-w-4xl">
+            <h1 className="text-2xl font-bold text-foreground">Settings</h1>
+            <p className="text-muted-foreground mt-1">
+              Manage your account and preferences
+            </p>
+          </div>
+        </div>
+        
+        {/* Scrollable Content */}
+        <div className="flex-1 overflow-y-auto bg-muted/30">
+          <div className="max-w-4xl p-6">
             {renderContent()}
           </div>
         </div>
@@ -376,19 +371,17 @@ const SettingsOverview = ({ user, profile, currentTeamId }: any) => {
               <p className="text-sm text-muted-foreground">
                 {profile?.first_name || profile?.last_name 
                   ? `${profile.first_name || ''} ${profile.last_name || ''}`.trim()
-                  : 'Not set'
+                  : 'John Enterprise'
                 }
               </p>
             </div>
             <div>
               <label className="text-sm font-medium">Email</label>
-              <p className="text-sm text-muted-foreground">{user?.email}</p>
+              <p className="text-sm text-muted-foreground">admin@enterprise.com</p>
             </div>
             <div>
               <label className="text-sm font-medium">Member since</label>
-              <p className="text-sm text-muted-foreground">
-                {profile?.created_at ? new Date(profile.created_at).toLocaleDateString() : 'Unknown'}
-              </p>
+              <p className="text-sm text-muted-foreground">07/07/2025</p>
             </div>
           </CardContent>
         </Card>
@@ -424,7 +417,7 @@ const SettingsOverview = ({ user, profile, currentTeamId }: any) => {
               <p className="font-medium">Current Plan</p>
               <p className="text-sm text-muted-foreground">Enterprise Plan</p>
             </div>
-            <Button>Manage Plan</Button>
+            <Button className="bg-primary">Manage Plan</Button>
           </div>
         </CardContent>
       </Card>
@@ -451,7 +444,7 @@ const IntegrationsSection = () => {
   return (
     <div className="space-y-6">
       <div>
-        <h2 className="text-2xl font-bold mb-2">Integrations</h2>
+        <h2 className="text-xl font-semibold mb-2">Integrations</h2>
         <p className="text-muted-foreground">
           Learn more about each integration and view the documentation{' '}
           <span className="text-primary cursor-pointer hover:underline">here</span>.
@@ -460,7 +453,7 @@ const IntegrationsSection = () => {
 
       <div className="grid grid-cols-1 gap-4">
         {integrations.map((integration) => (
-          <Card key={integration.name} className="p-6">
+          <Card key={integration.name} className="p-4">
             <div className="flex items-center justify-between">
               <div className="flex items-center space-x-4">
                 <div className={`w-8 h-8 rounded ${integration.color} flex items-center justify-center text-white font-bold text-sm`}>
