@@ -4,6 +4,8 @@ import { Input } from '@/components/ui/input';
 import { Button } from '@/components/ui/button';
 import { Badge } from '@/components/ui/badge';
 import { Separator } from '@/components/ui/separator';
+import { Avatar, AvatarFallback } from '@/components/ui/avatar';
+import { cn } from '@/lib/utils';
 import { 
   Search, 
   BookOpen, 
@@ -18,7 +20,11 @@ import {
   ExternalLink,
   ArrowRight,
   Star,
-  Clock
+  Clock,
+  MessageSquare,
+  Sparkles,
+  Home,
+  Send
 } from 'lucide-react';
 
 interface Article {
@@ -29,6 +35,7 @@ interface Article {
   readTime: string;
   popularity: 'high' | 'medium' | 'low';
   lastUpdated: string;
+  author?: string;
 }
 
 interface Category {
@@ -37,6 +44,7 @@ interface Category {
   description: string;
   icon: any;
   color: string;
+  articleCount: number;
   articles: Article[];
 }
 
@@ -48,9 +56,10 @@ const KnowledgeCenter = () => {
     {
       id: 'getting-started',
       title: 'Getting Started',
-      description: 'Learn the basics of our unified product management platform',
-      icon: BookOpen,
-      color: 'bg-blue-500',
+      description: 'Best steps on getting started with our unified product management platform.',
+      icon: Home,
+      color: 'text-blue-500',
+      articleCount: 11,
       articles: [
         {
           id: 'welcome',
@@ -59,7 +68,8 @@ const KnowledgeCenter = () => {
           category: 'getting-started',
           readTime: '5 min',
           popularity: 'high',
-          lastUpdated: '2025-01-07'
+          lastUpdated: '2025-01-07',
+          author: 'PM'
         },
         {
           id: 'first-setup',
@@ -68,252 +78,95 @@ const KnowledgeCenter = () => {
           category: 'getting-started',
           readTime: '8 min',
           popularity: 'high',
-          lastUpdated: '2025-01-06'
-        },
-        {
-          id: 'navigation',
-          title: 'Platform Navigation Guide',
-          description: 'Understanding the main modules: Dashboard, Strategy, Roadmap, Sprints, and Customer Board',
-          category: 'getting-started',
-          readTime: '6 min',
-          popularity: 'medium',
-          lastUpdated: '2025-01-05'
+          lastUpdated: '2025-01-06',
+          author: 'JS'
         }
       ]
     },
     {
-      id: 'ai-features',
-      title: 'AI & Automation',
-      description: 'Leverage AI-powered features for intelligent product management',
-      icon: Zap,
-      color: 'bg-purple-500',
-      articles: [
-        {
-          id: 'ai-copilot',
-          title: 'AI CoPilot Overview',
-          description: 'How AI assists in drafting documentation, summarizing content, and providing insights',
-          category: 'ai-features',
-          readTime: '7 min',
-          popularity: 'high',
-          lastUpdated: '2025-01-07'
-        },
-        {
-          id: 'smart-feedback',
-          title: 'Smart Feedback Processing',
-          description: 'Automated sentiment analysis, duplicate detection, and theme surfacing from customer feedback',
-          category: 'ai-features',
-          readTime: '9 min',
-          popularity: 'high',
-          lastUpdated: '2025-01-06'
-        },
-        {
-          id: 'predictive-analytics',
-          title: 'Predictive Analytics',
-          description: 'AI-driven insights for user behavior patterns, product performance trends, and market opportunities',
-          category: 'ai-features',
-          readTime: '10 min',
-          popularity: 'medium',
-          lastUpdated: '2025-01-04'
-        }
-      ]
-    },
-    {
-      id: 'strategy',
-      title: 'Strategy & Planning',
-      description: 'Strategic roadmapping and OKR alignment tools',
-      icon: Target,
-      color: 'bg-green-500',
-      articles: [
-        {
-          id: 'okr-alignment',
-          title: 'OKR Integration & Tracking',
-          description: 'Link Objectives and Key Results to roadmap initiatives with AI-driven progress tracking',
-          category: 'strategy',
-          readTime: '12 min',
-          popularity: 'high',
-          lastUpdated: '2025-01-07'
-        },
-        {
-          id: 'strategic-roadmaps',
-          title: 'Strategic vs Delivery Roadmaps',
-          description: 'Understanding the separation and linkage between high-level strategic and detailed execution roadmaps',
-          category: 'strategy',
-          readTime: '8 min',
-          popularity: 'medium',
-          lastUpdated: '2025-01-05'
-        },
-        {
-          id: 'prd-generator',
-          title: 'PRD Generator with AI',
-          description: 'Creating living Product Requirements Documents with AI assistance and version control',
-          category: 'strategy',
-          readTime: '15 min',
-          popularity: 'high',
-          lastUpdated: '2025-01-06'
-        }
-      ]
-    },
-    {
-      id: 'roadmaps',
-      title: 'Roadmaps',
-      description: 'Dynamic roadmapping with multiple views and stakeholder alignment',
+      id: 'feedback-roadmaps',
+      title: 'Feedback & Roadmaps',
+      description: 'Set up your Feedback Portal & Roadmaps to collect feedback and show users what you\'re working on.',
       icon: Map,
-      color: 'bg-orange-500',
-      articles: [
-        {
-          id: 'roadmap-views',
-          title: 'Multiple Roadmap Views',
-          description: 'Timeline, Kanban, Now/Next/Later, and theme-based views for different audiences',
-          category: 'roadmaps',
-          readTime: '10 min',
-          popularity: 'high',
-          lastUpdated: '2025-01-07'
-        },
-        {
-          id: 'roadmap-linking',
-          title: 'Bidirectional Roadmap Linking',
-          description: 'Connecting strategic initiatives to granular delivery tasks for complete alignment',
-          category: 'roadmaps',
-          readTime: '8 min',
-          popularity: 'medium',
-          lastUpdated: '2025-01-04'
-        }
-      ]
-    },
-    {
-      id: 'feedback',
-      title: 'Customer Feedback',
-      description: 'Multi-channel feedback capture and intelligent analysis',
-      icon: Users,
-      color: 'bg-pink-500',
+      color: 'text-purple-500',
+      articleCount: 72,
       articles: [
         {
           id: 'feedback-capture',
           title: 'Multi-Channel Feedback Collection',
           description: 'Capturing feedback from public boards, in-app widgets, support tickets, and CRM systems',
-          category: 'feedback',
+          category: 'feedback-roadmaps',
           readTime: '11 min',
           popularity: 'high',
-          lastUpdated: '2025-01-07'
-        },
+          lastUpdated: '2025-01-07',
+          author: 'SB'
+        }
+      ]
+    },
+    {
+      id: 'ai-platform',
+      title: 'AI & Automation',
+      description: 'Leverage AI-powered features for intelligent product management and automation.',
+      icon: Sparkles,
+      color: 'text-emerald-500',
+      articleCount: 25,
+      articles: [
         {
-          id: 'feedback-prioritization',
-          title: 'Data-Driven Prioritization',
-          description: 'Scoring and ranking feature requests based on impact, effort, and strategic alignment',
-          category: 'feedback',
-          readTime: '9 min',
+          id: 'ai-copilot',
+          title: 'AI CoPilot Overview',
+          description: 'How AI assists in drafting documentation, summarizing content, and providing insights',
+          category: 'ai-platform',
+          readTime: '7 min',
           popularity: 'high',
-          lastUpdated: '2025-01-06'
-        },
-        {
-          id: 'closed-loop',
-          title: 'Closed-Loop Communication',
-          description: 'Automated notifications and updates to users who provided feedback',
-          category: 'feedback',
-          readTime: '6 min',
-          popularity: 'medium',
-          lastUpdated: '2025-01-05'
+          lastUpdated: '2025-01-07',
+          author: 'AI'
         }
       ]
     },
     {
       id: 'analytics',
       title: 'Analytics & Insights',
-      description: 'Comprehensive data visualization and reporting capabilities',
+      description: 'Learn how to customize your analytics dashboard, create reports, and analyze user behavior.',
       icon: BarChart3,
-      color: 'bg-indigo-500',
-      articles: [
-        {
-          id: 'dashboard-overview',
-          title: 'Advanced Analytics Dashboard',
-          description: 'Real-time data visualization with customizable widgets and KPI tracking',
-          category: 'analytics',
-          readTime: '12 min',
-          popularity: 'high',
-          lastUpdated: '2025-01-07'
-        },
-        {
-          id: 'custom-reports',
-          title: 'Custom Reporting',
-          description: 'Generate on-demand reports spanning the entire product lifecycle',
-          category: 'analytics',
-          readTime: '10 min',
-          popularity: 'medium',
-          lastUpdated: '2025-01-05'
-        },
-        {
-          id: 'plg-metrics',
-          title: 'PLG Metrics & Experiments',
-          description: 'Product-Led Growth analytics and A/B testing capabilities',
-          category: 'analytics',
-          readTime: '14 min',
-          popularity: 'high',
-          lastUpdated: '2025-01-06'
-        }
-      ]
+      color: 'text-indigo-500',
+      articleCount: 18,
+      articles: []
+    },
+    {
+      id: 'strategy',
+      title: 'Strategy & Planning',
+      description: 'Learn to manage your strategy, OKRs and different ways of planning product development.',
+      icon: Target,
+      color: 'text-orange-500',
+      articleCount: 12,
+      articles: []
     },
     {
       id: 'enterprise',
       title: 'Enterprise Features',
-      description: 'Advanced security, compliance, and multi-product management',
+      description: 'Learn how to set up, customize, and manage enterprise security and multi-product features.',
       icon: Shield,
-      color: 'bg-red-500',
-      articles: [
-        {
-          id: 'security-compliance',
-          title: 'Enterprise Security & Compliance',
-          description: 'SSO, IP whitelisting, data residency, and comprehensive audit trails',
-          category: 'enterprise',
-          readTime: '15 min',
-          popularity: 'medium',
-          lastUpdated: '2025-01-07'
-        },
-        {
-          id: 'multi-product',
-          title: 'Multi-Product Portfolio Management',
-          description: 'Managing complex product portfolios with strategic views and resource allocation',
-          category: 'enterprise',
-          readTime: '18 min',
-          popularity: 'medium',
-          lastUpdated: '2025-01-05'
-        },
-        {
-          id: 'custom-workflows',
-          title: 'Custom Workflow Templates',
-          description: 'Creating and managing automated workflows for enterprise and PLG environments',
-          category: 'enterprise',
-          readTime: '12 min',
-          popularity: 'low',
-          lastUpdated: '2025-01-04'
-        }
-      ]
+      color: 'text-red-500',
+      articleCount: 9,
+      articles: []
+    },
+    {
+      id: 'users',
+      title: 'Users',
+      description: 'Learn how to manage your users, create segments, and define user roles.',
+      icon: Users,
+      color: 'text-pink-500',
+      articleCount: 12,
+      articles: []
     },
     {
       id: 'integrations',
-      title: 'Integrations & API',
-      description: 'Connect with external tools and leverage our API',
+      title: 'Integrations',
+      description: 'Learn to integrate with your favorite tools to help you get the most out of your product data.',
       icon: Settings,
-      color: 'bg-gray-500',
-      articles: [
-        {
-          id: 'api-overview',
-          title: 'API Documentation',
-          description: 'Complete guide to our REST API endpoints and authentication',
-          category: 'integrations',
-          readTime: '20 min',
-          popularity: 'medium',
-          lastUpdated: '2025-01-06'
-        },
-        {
-          id: 'webhooks',
-          title: 'Webhooks & Notifications',
-          description: 'Setting up real-time notifications and webhook integrations',
-          category: 'integrations',
-          readTime: '8 min',
-          popularity: 'medium',
-          lastUpdated: '2025-01-05'
-        }
-      ]
+      color: 'text-teal-500',
+      articleCount: 15,
+      articles: []
     }
   ];
 
@@ -333,71 +186,33 @@ const KnowledgeCenter = () => {
     .slice(0, 5);
 
   return (
-    <div className="min-h-screen bg-gradient-to-br from-slate-50 via-purple-50 to-pink-50">
-      <div className="w-full max-w-7xl mx-auto p-6">
-        {/* Header */}
+    <div className="min-h-screen bg-background">
+      <div className="w-full max-w-6xl mx-auto p-6">
+        {/* Header matching FeatureBase style */}
         <div className="text-center mb-12">
-          <h1 className="text-4xl font-bold mb-4 bg-gradient-to-r from-primary to-purple-600 bg-clip-text text-transparent">
-            Knowledge Center
+          <h1 className="text-4xl font-bold mb-4 text-foreground">
+            How can we help you?
           </h1>
-          <p className="text-xl text-muted-foreground mb-8 max-w-2xl mx-auto">
-            Everything you need to know about our unified product management ecosystem
+          <p className="text-lg text-muted-foreground mb-8 max-w-2xl mx-auto">
+            Get answers in seconds with our AI search or find them in our detailed articles.
           </p>
           
-          {/* Search */}
-          <div className="relative max-w-md mx-auto">
-            <Search className="absolute left-3 top-1/2 transform -translate-y-1/2 h-4 w-4 text-muted-foreground" />
+          {/* Search matching FeatureBase */}
+          <div className="relative max-w-lg mx-auto">
+            <Search className="absolute left-4 top-1/2 transform -translate-y-1/2 h-5 w-5 text-muted-foreground" />
             <Input
-              placeholder="Search documentation..."
+              placeholder="Ask AI or search for articles"
               value={searchQuery}
               onChange={(e) => setSearchQuery(e.target.value)}
-              className="pl-10"
+              className="pl-12 py-3 text-base bg-card border-border rounded-xl"
             />
           </div>
         </div>
 
-        {/* Quick Links */}
-        {!searchQuery && !selectedCategory && (
-          <div className="mb-12">
-            <h2 className="text-2xl font-bold mb-6">Popular Articles</h2>
-            <div className="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-3 gap-4">
-              {popularArticles.map((article) => (
-                <Card key={article.id} className="hover:shadow-lg transition-shadow cursor-pointer group">
-                  <CardHeader className="pb-3">
-                    <div className="flex items-start justify-between">
-                      <div className="flex-1">
-                        <CardTitle className="text-lg group-hover:text-primary transition-colors">
-                          {article.title}
-                        </CardTitle>
-                        <p className="text-sm text-muted-foreground mt-2">
-                          {article.description}
-                        </p>
-                      </div>
-                      <ArrowRight className="h-4 w-4 text-muted-foreground group-hover:text-primary transition-colors ml-2 flex-shrink-0" />
-                    </div>
-                  </CardHeader>
-                  <CardContent className="pt-0">
-                    <div className="flex items-center justify-between text-xs text-muted-foreground">
-                      <div className="flex items-center space-x-2">
-                        <Clock className="h-3 w-3" />
-                        <span>{article.readTime}</span>
-                      </div>
-                      <div className="flex items-center space-x-1">
-                        <Star className="h-3 w-3 fill-current text-yellow-500" />
-                        <span className="capitalize">{article.popularity}</span>
-                      </div>
-                    </div>
-                  </CardContent>
-                </Card>
-              ))}
-            </div>
-          </div>
-        )}
-
         {/* Search Results */}
         {searchQuery && (
           <div className="mb-8">
-            <h2 className="text-2xl font-bold mb-4">
+            <h2 className="text-2xl font-bold mb-6">
               Search Results ({filteredArticles.length})
             </h2>
             <div className="space-y-4">
@@ -417,7 +232,6 @@ const KnowledgeCenter = () => {
                             {article.category.replace('-', ' ')}
                           </Badge>
                           <span>{article.readTime}</span>
-                          <span>Updated {article.lastUpdated}</span>
                         </div>
                       </div>
                       <ArrowRight className="h-4 w-4 text-muted-foreground ml-4 flex-shrink-0" />
@@ -429,102 +243,84 @@ const KnowledgeCenter = () => {
           </div>
         )}
 
-        {/* Categories */}
+        {/* Categories Grid - FeatureBase Style */}
         {!searchQuery && (
-          <div>
-            <div className="flex items-center justify-between mb-6">
-              <h2 className="text-2xl font-bold">Documentation Categories</h2>
-              {selectedCategory && (
-                <Button 
-                  variant="outline" 
-                  onClick={() => setSelectedCategory(null)}
-                  className="text-sm"
-                >
-                  View All Categories
-                </Button>
-              )}
-            </div>
-            
-            <div className="grid grid-cols-1 lg:grid-cols-2 gap-8">
-              {displayedCategories.map((category) => (
-                <Card key={category.id} className="overflow-hidden">
-                  <CardHeader 
-                    className="cursor-pointer group"
-                    onClick={() => setSelectedCategory(selectedCategory === category.id ? null : category.id)}
-                  >
-                    <div className="flex items-center space-x-3">
-                      <div className={`p-2 rounded-lg ${category.color} text-white`}>
-                        <category.icon className="h-5 w-5" />
-                      </div>
-                      <div className="flex-1">
-                        <CardTitle className="group-hover:text-primary transition-colors">
-                          {category.title}
-                        </CardTitle>
-                        <p className="text-sm text-muted-foreground mt-1">
-                          {category.description}
-                        </p>
-                      </div>
-                      <Badge variant="secondary">
-                        {category.articles.length} articles
-                      </Badge>
-                    </div>
-                  </CardHeader>
+          <div className="grid grid-cols-1 md:grid-cols-2 gap-6">
+            {categories.map((category) => (
+              <Card 
+                key={category.id} 
+                className="p-6 hover:shadow-lg transition-all cursor-pointer group border-border"
+                onClick={() => setSelectedCategory(selectedCategory === category.id ? null : category.id)}
+              >
+                <div className="flex items-start space-x-4">
+                  {/* Icon */}
+                  <div className={cn("p-3 rounded-lg bg-gradient-to-br", 
+                    category.color === 'text-blue-500' ? 'from-blue-500 to-blue-600' :
+                    category.color === 'text-purple-500' ? 'from-purple-500 to-purple-600' :
+                    category.color === 'text-emerald-500' ? 'from-emerald-500 to-emerald-600' :
+                    category.color === 'text-indigo-500' ? 'from-indigo-500 to-indigo-600' :
+                    category.color === 'text-orange-500' ? 'from-orange-500 to-orange-600' :
+                    category.color === 'text-red-500' ? 'from-red-500 to-red-600' :
+                    category.color === 'text-pink-500' ? 'from-pink-500 to-pink-600' :
+                    'from-teal-500 to-teal-600'
+                  )}>
+                    <category.icon className="h-6 w-6 text-white" />
+                  </div>
                   
-                  <CardContent className="pt-0">
-                    <Separator className="mb-4" />
-                    <div className="space-y-3">
-                      {category.articles.map((article) => (
-                        <div 
-                          key={article.id} 
-                          className="flex items-center justify-between p-3 rounded-lg hover:bg-muted/50 cursor-pointer group"
-                        >
-                          <div className="flex-1">
-                            <h4 className="font-medium group-hover:text-primary transition-colors">
-                              {article.title}
-                            </h4>
-                            <p className="text-sm text-muted-foreground mt-1">
-                              {article.description}
-                            </p>
-                            <div className="flex items-center space-x-3 mt-2 text-xs text-muted-foreground">
-                              <span>{article.readTime}</span>
-                              <span>•</span>
-                              <span className="capitalize">{article.popularity} popularity</span>
-                            </div>
-                          </div>
-                          <ArrowRight className="h-4 w-4 text-muted-foreground group-hover:text-primary transition-colors ml-3 flex-shrink-0" />
+                  {/* Content */}
+                  <div className="flex-1 min-w-0">
+                    <h3 className="text-lg font-semibold mb-2 group-hover:text-primary transition-colors">
+                      {category.title}
+                    </h3>
+                    <p className="text-sm text-muted-foreground mb-4 line-clamp-2">
+                      {category.description}
+                    </p>
+                    
+                    {/* Article count and authors */}
+                    <div className="flex items-center justify-between">
+                      <div className="flex items-center space-x-2">
+                        {/* Author avatars */}
+                        <div className="flex -space-x-2">
+                          {category.articles.slice(0, 3).map((article, index) => (
+                            <Avatar key={index} className="h-6 w-6 border-2 border-background">
+                              <AvatarFallback className="text-xs bg-primary text-primary-foreground">
+                                {article.author || 'PM'}
+                              </AvatarFallback>
+                            </Avatar>
+                          ))}
                         </div>
-                      ))}
+                        <span className="text-sm text-muted-foreground">
+                          {category.articleCount} articles
+                        </span>
+                      </div>
+                      <ArrowRight className="h-4 w-4 text-muted-foreground group-hover:text-primary transition-colors" />
                     </div>
-                  </CardContent>
-                </Card>
-              ))}
-            </div>
+                  </div>
+                </div>
+              </Card>
+            ))}
           </div>
         )}
 
-        {/* Help Footer */}
-        <div className="mt-16 text-center">
-          <Card className="bg-gradient-to-r from-primary/5 to-purple-600/5 border-primary/20">
-            <CardContent className="p-8">
-              <HelpCircle className="h-12 w-12 text-primary mx-auto mb-4" />
-              <h3 className="text-xl font-semibold mb-2">Still need help?</h3>
-              <p className="text-muted-foreground mb-6">
-                Can't find what you're looking for? Our support team is here to help.
-              </p>
-              <div className="flex flex-wrap justify-center gap-4">
-                <Button>
-                  Contact Support
-                </Button>
-                <Button variant="outline">
-                  <ExternalLink className="h-4 w-4 mr-2" />
-                  API Documentation
-                </Button>
-                <Button variant="outline">
-                  Community Forum
-                </Button>
-              </div>
-            </CardContent>
-          </Card>
+        {/* Footer with support links */}
+        <div className="mt-16 pt-8 border-t border-border">
+          <div className="grid grid-cols-1 md:grid-cols-3 gap-6 text-center">
+            <div className="space-y-2">
+              <MessageSquare className="h-8 w-8 mx-auto text-primary" />
+              <h4 className="font-medium">Send us a message</h4>
+              <p className="text-sm text-muted-foreground">Get direct help from our team</p>
+            </div>
+            <div className="space-y-2">
+              <Send className="h-8 w-8 mx-auto text-primary" />
+              <h4 className="font-medium">Leave us feedback</h4>
+              <p className="text-sm text-muted-foreground">Help us improve our platform</p>
+            </div>
+            <div className="space-y-2">
+              <ExternalLink className="h-8 w-8 mx-auto text-primary" />
+              <h4 className="font-medium">API Documentation</h4>
+              <p className="text-sm text-muted-foreground">Technical reference guides</p>
+            </div>
+          </div>
         </div>
       </div>
     </div>
