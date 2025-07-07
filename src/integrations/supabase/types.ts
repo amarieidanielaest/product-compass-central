@@ -14,10 +14,59 @@ export type Database = {
   }
   public: {
     Tables: {
+      pricing_plans: {
+        Row: {
+          created_at: string | null
+          description: string | null
+          features: Json | null
+          id: string
+          is_active: boolean | null
+          max_projects: number | null
+          max_team_members: number | null
+          name: string
+          price_monthly: number
+          price_yearly: number | null
+          stripe_price_id_monthly: string | null
+          stripe_price_id_yearly: string | null
+          updated_at: string | null
+        }
+        Insert: {
+          created_at?: string | null
+          description?: string | null
+          features?: Json | null
+          id?: string
+          is_active?: boolean | null
+          max_projects?: number | null
+          max_team_members?: number | null
+          name: string
+          price_monthly: number
+          price_yearly?: number | null
+          stripe_price_id_monthly?: string | null
+          stripe_price_id_yearly?: string | null
+          updated_at?: string | null
+        }
+        Update: {
+          created_at?: string | null
+          description?: string | null
+          features?: Json | null
+          id?: string
+          is_active?: boolean | null
+          max_projects?: number | null
+          max_team_members?: number | null
+          name?: string
+          price_monthly?: number
+          price_yearly?: number | null
+          stripe_price_id_monthly?: string | null
+          stripe_price_id_yearly?: string | null
+          updated_at?: string | null
+        }
+        Relationships: []
+      }
       profiles: {
         Row: {
           avatar_url: string | null
           created_at: string | null
+          current_team_id: string | null
           email: string
           first_name: string | null
           id: string
@@ -27,6 +76,7 @@ export type Database = {
         Insert: {
           avatar_url?: string | null
           created_at?: string | null
+          current_team_id?: string | null
           email: string
           first_name?: string | null
           id: string
@@ -36,13 +86,185 @@ export type Database = {
         Update: {
           avatar_url?: string | null
           created_at?: string | null
+          current_team_id?: string | null
           email?: string
           first_name?: string | null
           id?: string
           last_name?: string | null
           updated_at?: string | null
         }
-        Relationships: []
+        Relationships: [
+          {
+            foreignKeyName: "profiles_current_team_id_fkey"
+            columns: ["current_team_id"]
+            isOneToOne: false
+            referencedRelation: "teams"
+            referencedColumns: ["id"]
+          },
+        ]
+      }
+      team_invitations: {
+        Row: {
+          accepted_at: string | null
+          created_at: string | null
+          email: string
+          expires_at: string
+          id: string
+          invited_by: string
+          role: string | null
+          team_id: string
+          token: string
+        }
+        Insert: {
+          accepted_at?: string | null
+          created_at?: string | null
+          email: string
+          expires_at: string
+          id?: string
+          invited_by: string
+          role?: string | null
+          team_id: string
+          token: string
+        }
+        Update: {
+          accepted_at?: string | null
+          created_at?: string | null
+          email?: string
+          expires_at?: string
+          id?: string
+          invited_by?: string
+          role?: string | null
+          team_id?: string
+          token?: string
+        }
+        Relationships: [
+          {
+            foreignKeyName: "team_invitations_invited_by_fkey"
+            columns: ["invited_by"]
+            isOneToOne: false
+            referencedRelation: "profiles"
+            referencedColumns: ["id"]
+          },
+          {
+            foreignKeyName: "team_invitations_team_id_fkey"
+            columns: ["team_id"]
+            isOneToOne: false
+            referencedRelation: "teams"
+            referencedColumns: ["id"]
+          },
+        ]
+      }
+      team_memberships: {
+        Row: {
+          id: string
+          invited_at: string | null
+          invited_by: string | null
+          joined_at: string | null
+          role: string | null
+          status: string | null
+          team_id: string
+          user_id: string
+        }
+        Insert: {
+          id?: string
+          invited_at?: string | null
+          invited_by?: string | null
+          joined_at?: string | null
+          role?: string | null
+          status?: string | null
+          team_id: string
+          user_id: string
+        }
+        Update: {
+          id?: string
+          invited_at?: string | null
+          invited_by?: string | null
+          joined_at?: string | null
+          role?: string | null
+          status?: string | null
+          team_id?: string
+          user_id?: string
+        }
+        Relationships: [
+          {
+            foreignKeyName: "team_memberships_invited_by_fkey"
+            columns: ["invited_by"]
+            isOneToOne: false
+            referencedRelation: "profiles"
+            referencedColumns: ["id"]
+          },
+          {
+            foreignKeyName: "team_memberships_team_id_fkey"
+            columns: ["team_id"]
+            isOneToOne: false
+            referencedRelation: "teams"
+            referencedColumns: ["id"]
+          },
+          {
+            foreignKeyName: "team_memberships_user_id_fkey"
+            columns: ["user_id"]
+            isOneToOne: false
+            referencedRelation: "profiles"
+            referencedColumns: ["id"]
+          },
+        ]
+      }
+      teams: {
+        Row: {
+          created_at: string | null
+          description: string | null
+          id: string
+          name: string
+          owner_id: string
+          pricing_plan_id: string | null
+          slug: string
+          stripe_customer_id: string | null
+          subscription_end_date: string | null
+          subscription_status: string | null
+          updated_at: string | null
+        }
+        Insert: {
+          created_at?: string | null
+          description?: string | null
+          id?: string
+          name: string
+          owner_id: string
+          pricing_plan_id?: string | null
+          slug: string
+          stripe_customer_id?: string | null
+          subscription_end_date?: string | null
+          subscription_status?: string | null
+          updated_at?: string | null
+        }
+        Update: {
+          created_at?: string | null
+          description?: string | null
+          id?: string
+          name?: string
+          owner_id?: string
+          pricing_plan_id?: string | null
+          slug?: string
+          stripe_customer_id?: string | null
+          subscription_end_date?: string | null
+          subscription_status?: string | null
+          updated_at?: string | null
+        }
+        Relationships: [
+          {
+            foreignKeyName: "teams_owner_id_fkey"
+            columns: ["owner_id"]
+            isOneToOne: false
+            referencedRelation: "profiles"
+            referencedColumns: ["id"]
+          },
+          {
+            foreignKeyName: "teams_pricing_plan_id_fkey"
+            columns: ["pricing_plan_id"]
+            isOneToOne: false
+            referencedRelation: "pricing_plans"
+            referencedColumns: ["id"]
+          },
+        ]
       }
       user_roles: {
         Row: {
@@ -88,6 +310,19 @@ export type Database = {
       [_ in never]: never
     }
     Functions: {
+      accept_team_invitation: {
+        Args: { invitation_token: string }
+        Returns: boolean
+      }
+      create_team_with_owner: {
+        Args: {
+          team_name: string
+          team_slug: string
+          team_description?: string
+          plan_id?: string
+        }
+        Returns: string
+      }
       get_user_roles: {
         Args: { _user_id: string }
         Returns: Database["public"]["Enums"]["app_role"][]
