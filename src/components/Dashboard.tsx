@@ -58,23 +58,23 @@ const Dashboard = ({ selectedProductId, onNavigate }: DashboardProps) => {
   const chartConfig = {
     users: {
       label: "Users",
-      color: "#8b5cf6"
+      color: "hsl(var(--primary))"
     },
     retention: {
       label: "Retention", 
-      color: "#06b6d4"
+      color: "hsl(var(--accent))"
     },
     adoption: {
       label: "Adoption",
-      color: "#10b981"
+      color: "hsl(var(--coral))"
     },
     committed: {
       label: "Committed",
-      color: "#ef4444"
+      color: "hsl(var(--amber))"
     },
     completed: {
       label: "Completed", 
-      color: "#22c55e"
+      color: "hsl(var(--indigo))"
     }
   };
 
@@ -111,7 +111,13 @@ const Dashboard = ({ selectedProductId, onNavigate }: DashboardProps) => {
     { sprint: 'Sprint 24', committed: 24, completed: 16 },
   ];
 
-  const COLORS = ['#8b5cf6', '#06b6d4', '#10b981', '#f59e0b', '#ef4444'];
+  const COLORS = [
+    'hsl(var(--primary))', 
+    'hsl(var(--accent))', 
+    'hsl(var(--coral))', 
+    'hsl(var(--amber))', 
+    'hsl(var(--indigo))'
+  ];
 
   const alerts = [
     { id: 1, type: 'warning', message: 'Sprint 24 is behind schedule', action: 'View Sprint' },
@@ -121,17 +127,17 @@ const Dashboard = ({ selectedProductId, onNavigate }: DashboardProps) => {
 
   const getAlertIcon = (type: string) => {
     switch (type) {
-      case 'warning': return <AlertTriangle className="w-4 h-4 text-orange-500" />;
-      case 'info': return <Star className="w-4 h-4 text-blue-500" />;
-      case 'success': return <Target className="w-4 h-4 text-green-500" />;
-      default: return <AlertTriangle className="w-4 h-4 text-gray-500" />;
+      case 'warning': return <AlertTriangle className="w-4 h-4 text-amber" />;
+      case 'info': return <Star className="w-4 h-4 text-indigo" />;
+      case 'success': return <Target className="w-4 h-4 text-accent" />;
+      default: return <AlertTriangle className="w-4 h-4 text-muted-foreground" />;
     }
   };
 
   return (
     <div className="space-y-6 font-body">
       {/* Header with Loom Branding */}
-      <div className="flex flex-col sm:flex-row justify-between items-start sm:items-center gap-4 prism-bg p-6 rounded-lg">
+      <div className="flex flex-col sm:flex-row justify-between items-start sm:items-center gap-4 prism-bg p-6 loom-rounded-lg">
         <div className="flex items-center space-x-4">
           <img src={loomLogo} alt="Loom" className="w-12 h-12 hidden sm:block" />
           <div>
@@ -162,7 +168,7 @@ const Dashboard = ({ selectedProductId, onNavigate }: DashboardProps) => {
 
       {/* KPI Cards with Loom Brand Colors */}
       <div className="grid grid-cols-1 sm:grid-cols-2 lg:grid-cols-4 gap-4 sm:gap-6">
-        <Card className="border-l-4 border-l-primary hover:shadow-md transition-shadow">
+        <Card className="border-l-4 border-l-primary hover:loom-shadow-md transition-all duration-200">
           <CardContent className="pt-6">
             <div className="flex items-center justify-between">
               <div>
@@ -179,7 +185,7 @@ const Dashboard = ({ selectedProductId, onNavigate }: DashboardProps) => {
           </CardContent>
         </Card>
         
-        <Card className="border-l-4 border-l-accent hover:shadow-md transition-shadow">
+        <Card className="border-l-4 border-l-accent hover:loom-shadow-md transition-all duration-200">
           <CardContent className="pt-6">
             <div className="flex items-center justify-between">
               <div>
@@ -198,7 +204,7 @@ const Dashboard = ({ selectedProductId, onNavigate }: DashboardProps) => {
           </CardContent>
         </Card>
         
-        <Card className="border-l-4 border-l-coral hover:shadow-md transition-shadow">
+        <Card className="border-l-4 border-l-coral hover:loom-shadow-md transition-all duration-200">
           <CardContent className="pt-6">
             <div className="flex items-center justify-between">
               <div>
@@ -215,7 +221,7 @@ const Dashboard = ({ selectedProductId, onNavigate }: DashboardProps) => {
           </CardContent>
         </Card>
         
-        <Card className="border-l-4 border-l-indigo hover:shadow-md transition-shadow">
+        <Card className="border-l-4 border-l-indigo hover:loom-shadow-md transition-all duration-200">
           <CardContent className="pt-6">
             <div className="flex items-center justify-between">
               <div>
@@ -245,7 +251,7 @@ const Dashboard = ({ selectedProductId, onNavigate }: DashboardProps) => {
           <CardContent>
             <div className="space-y-3">
               {aiInsights.slice(0, 3).map((insight, index) => (
-                <div key={index} className="flex items-start justify-between p-4 bg-background/50 rounded-lg border border-border/50">
+                <div key={index} className="flex items-start justify-between p-4 bg-background/50 loom-rounded-lg border border-border/50">
                   <div className="flex-1">
                     <div className="flex items-center space-x-2 mb-2">
                       <Badge className={
@@ -283,17 +289,17 @@ const Dashboard = ({ selectedProductId, onNavigate }: DashboardProps) => {
       <Card>
         <CardHeader>
           <CardTitle className="flex items-center">
-            <AlertTriangle className="w-5 h-5 mr-2 text-orange-500" />
+            <AlertTriangle className="w-5 h-5 mr-2 text-amber" />
             Real-time Alerts
           </CardTitle>
         </CardHeader>
         <CardContent>
           <div className="space-y-3">
             {alerts.map((alert) => (
-              <div key={alert.id} className="flex items-center justify-between p-3 bg-slate-50 rounded-lg">
+              <div key={alert.id} className="flex items-center justify-between p-3 bg-secondary/50 loom-rounded-lg">
                 <div className="flex items-center space-x-3">
                   {getAlertIcon(alert.type)}
-                  <span className="text-sm text-slate-700">{alert.message}</span>
+                  <span className="text-sm text-foreground font-body">{alert.message}</span>
                 </div>
                 <Button 
                   size="sm" 
@@ -312,7 +318,7 @@ const Dashboard = ({ selectedProductId, onNavigate }: DashboardProps) => {
       <div className="grid grid-cols-1 sm:grid-cols-2 lg:grid-cols-4 gap-4">
         <Button 
           variant="outline" 
-          className="h-16 flex-col space-y-1"
+          className="h-16 flex-col space-y-1 loom-rounded-lg"
           onClick={() => onNavigate?.('sprints')}
         >
           <BarChart3 className="w-5 h-5" />
@@ -320,7 +326,7 @@ const Dashboard = ({ selectedProductId, onNavigate }: DashboardProps) => {
         </Button>
         <Button 
           variant="outline" 
-          className="h-16 flex-col space-y-1"
+          className="h-16 flex-col space-y-1 loom-rounded-lg"
           onClick={() => onNavigate?.('customer')}
         >
           <Users className="w-5 h-5" />
@@ -328,7 +334,7 @@ const Dashboard = ({ selectedProductId, onNavigate }: DashboardProps) => {
         </Button>
         <Button 
           variant="outline" 
-          className="h-16 flex-col space-y-1"
+          className="h-16 flex-col space-y-1 loom-rounded-lg"
           onClick={() => onNavigate?.('roadmap')}
         >
           <Calendar className="w-5 h-5" />
@@ -336,7 +342,7 @@ const Dashboard = ({ selectedProductId, onNavigate }: DashboardProps) => {
         </Button>
         <Button 
           variant="outline" 
-          className="h-16 flex-col space-y-1"
+          className="h-16 flex-col space-y-1 loom-rounded-lg"
           onClick={() => onNavigate?.('strategy')}
         >
           <Target className="w-5 h-5" />
@@ -350,7 +356,7 @@ const Dashboard = ({ selectedProductId, onNavigate }: DashboardProps) => {
         <Card>
           <CardHeader>
             <CardTitle className="flex items-center">
-              <TrendingUp className="w-5 h-5 mr-2 text-purple-600" />
+              <TrendingUp className="w-5 h-5 mr-2 text-primary" />
               User Growth & Retention
             </CardTitle>
           </CardHeader>
@@ -361,8 +367,8 @@ const Dashboard = ({ selectedProductId, onNavigate }: DashboardProps) => {
                 <YAxis yAxisId="left" />
                 <YAxis yAxisId="right" orientation="right" />
                 <ChartTooltip content={<ChartTooltipContent />} />
-                <Area yAxisId="left" type="monotone" dataKey="users" stackId="1" stroke="#8b5cf6" fill="#8b5cf6" fillOpacity={0.3} />
-                <Line yAxisId="right" type="monotone" dataKey="retention" stroke="#06b6d4" strokeWidth={3} />
+                <Area yAxisId="left" type="monotone" dataKey="users" stackId="1" stroke="hsl(var(--primary))" fill="hsl(var(--primary))" fillOpacity={0.3} />
+                <Line yAxisId="right" type="monotone" dataKey="retention" stroke="hsl(var(--accent))" strokeWidth={3} />
               </AreaChart>
             </ChartContainer>
           </CardContent>
@@ -372,7 +378,7 @@ const Dashboard = ({ selectedProductId, onNavigate }: DashboardProps) => {
         <Card>
           <CardHeader>
             <CardTitle className="flex items-center">
-              <BarChart3 className="w-5 h-5 mr-2 text-green-600" />
+              <BarChart3 className="w-5 h-5 mr-2 text-coral" />
               Feature Adoption Rates
             </CardTitle>
           </CardHeader>
@@ -382,7 +388,7 @@ const Dashboard = ({ selectedProductId, onNavigate }: DashboardProps) => {
                 <XAxis dataKey="feature" />
                 <YAxis />
                 <ChartTooltip content={<ChartTooltipContent />} />
-                <Bar dataKey="adoption" fill="#10b981" />
+                <Bar dataKey="adoption" fill="hsl(var(--coral))" />
               </BarChart>
             </ChartContainer>
           </CardContent>
@@ -392,7 +398,7 @@ const Dashboard = ({ selectedProductId, onNavigate }: DashboardProps) => {
         <Card>
           <CardHeader>
             <CardTitle className="flex items-center">
-              <Star className="w-5 h-5 mr-2 text-yellow-600" />
+              <Star className="w-5 h-5 mr-2 text-amber" />
               Customer Satisfaction
             </CardTitle>
           </CardHeader>
@@ -422,7 +428,7 @@ const Dashboard = ({ selectedProductId, onNavigate }: DashboardProps) => {
         <Card>
           <CardHeader>
             <CardTitle className="flex items-center">
-              <Target className="w-5 h-5 mr-2 text-blue-600" />
+              <Target className="w-5 h-5 mr-2 text-indigo" />
               Sprint Performance
             </CardTitle>
           </CardHeader>
@@ -432,8 +438,8 @@ const Dashboard = ({ selectedProductId, onNavigate }: DashboardProps) => {
                 <XAxis dataKey="sprint" />
                 <YAxis />
                 <ChartTooltip content={<ChartTooltipContent />} />
-                <Bar dataKey="committed" fill="#ef4444" />
-                <Bar dataKey="completed" fill="#22c55e" />
+                <Bar dataKey="committed" fill="hsl(var(--amber))" />
+                <Bar dataKey="completed" fill="hsl(var(--indigo))" />
               </BarChart>
             </ChartContainer>
           </CardContent>
