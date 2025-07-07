@@ -16,45 +16,63 @@ export type Database = {
     Tables: {
       pricing_plans: {
         Row: {
+          billing_cycle: string | null
           created_at: string | null
           description: string | null
           features: Json | null
           id: string
           is_active: boolean | null
+          is_custom_pricing: boolean | null
           max_projects: number | null
           max_team_members: number | null
+          max_users: number | null
+          min_users: number | null
           name: string
-          price_monthly: number
+          price_monthly: number | null
+          price_per_user_monthly: number | null
+          price_per_user_yearly: number | null
           price_yearly: number | null
           stripe_price_id_monthly: string | null
           stripe_price_id_yearly: string | null
           updated_at: string | null
         }
         Insert: {
+          billing_cycle?: string | null
           created_at?: string | null
           description?: string | null
           features?: Json | null
           id?: string
           is_active?: boolean | null
+          is_custom_pricing?: boolean | null
           max_projects?: number | null
           max_team_members?: number | null
+          max_users?: number | null
+          min_users?: number | null
           name: string
-          price_monthly: number
+          price_monthly?: number | null
+          price_per_user_monthly?: number | null
+          price_per_user_yearly?: number | null
           price_yearly?: number | null
           stripe_price_id_monthly?: string | null
           stripe_price_id_yearly?: string | null
           updated_at?: string | null
         }
         Update: {
+          billing_cycle?: string | null
           created_at?: string | null
           description?: string | null
           features?: Json | null
           id?: string
           is_active?: boolean | null
+          is_custom_pricing?: boolean | null
           max_projects?: number | null
           max_team_members?: number | null
+          max_users?: number | null
+          min_users?: number | null
           name?: string
-          price_monthly?: number
+          price_monthly?: number | null
+          price_per_user_monthly?: number | null
+          price_per_user_yearly?: number | null
           price_yearly?: number | null
           stripe_price_id_monthly?: string | null
           stripe_price_id_yearly?: string | null
