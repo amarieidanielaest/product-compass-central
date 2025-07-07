@@ -29,6 +29,7 @@ import BillingManagement from './BillingManagement';
 import TeamManagement from './TeamManagement';
 import AdminDashboard from './AdminDashboard';
 import UserManagement from './UserManagement';
+import OrganizationManagement from './OrganizationManagement';
 import KnowledgeCenter from './KnowledgeCenter';
 
 type SettingsSection = 
@@ -38,6 +39,7 @@ type SettingsSection =
   | 'teams' 
   | 'admin' 
   | 'users'
+  | 'organizations'
   | 'integrations'
   | 'notifications'
   | 'organization'
@@ -171,6 +173,13 @@ const Settings = ({ currentTeamId }: SettingsProps) => {
           description: 'Manage users and roles',
           requiresAdmin: true
         },
+        { 
+          id: 'organizations', 
+          title: 'Customer Portals', 
+          icon: Building,
+          description: 'Manage customer organizations and portals',
+          requiresAdmin: true
+        },
       ]
     },
     {
@@ -219,6 +228,8 @@ const Settings = ({ currentTeamId }: SettingsProps) => {
         return <AdminDashboard />;
       case 'users':
         return <UserManagement />;
+      case 'organizations':
+        return <OrganizationManagement />;
       case 'help':
         // Open external help center
         window.open('/help', '_blank');

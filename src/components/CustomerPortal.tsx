@@ -1,9 +1,16 @@
 import { useState, useEffect } from 'react';
-import { useParams, useNavigate } from 'react-router-dom';
+import { useParams, useNavigate, Link } from 'react-router-dom';
 import { Card, CardContent, CardDescription, CardHeader, CardTitle } from '@/components/ui/card';
 import { Button } from '@/components/ui/button';
 import { Badge } from '@/components/ui/badge';
 import { Tabs, TabsContent, TabsList, TabsTrigger } from '@/components/ui/tabs';
+import { 
+  Select,
+  SelectContent,
+  SelectItem,
+  SelectTrigger,
+  SelectValue,
+} from '@/components/ui/select';
 import { supabase } from '@/integrations/supabase/client';
 import { useToast } from '@/hooks/use-toast';
 import {
@@ -18,7 +25,20 @@ import {
   ExternalLink,
   Search,
   Filter,
-  Plus
+  Plus,
+  ChevronRight,
+  Home,
+  Settings,
+  Eye,
+  Clock,
+  User,
+  ArrowUp,
+  MessageCircle,
+  BarChart3,
+  Building,
+  ChevronDown,
+  Users,
+  Circle
 } from 'lucide-react';
 import { Input } from '@/components/ui/input';
 
@@ -86,13 +106,16 @@ const CustomerPortal = () => {
   const { toast } = useToast();
   
   const [board, setBoard] = useState<CustomerBoard | null>(null);
+  const [availableBoards, setAvailableBoards] = useState<{ id: string; name: string; slug: string; is_public: boolean; }[]>([]);
   const [articles, setArticles] = useState<HelpArticle[]>([]);
   const [roadmapItems, setRoadmapItems] = useState<RoadmapItem[]>([]);
   const [changelog, setChangelog] = useState<ChangelogEntry[]>([]);
   const [feedback, setFeedback] = useState<FeedbackItem[]>([]);
   const [loading, setLoading] = useState(true);
   const [searchQuery, setSearchQuery] = useState('');
-  const [activeTab, setActiveTab] = useState('knowledge');
+  const [activeTab, setActiveTab] = useState('feedback');
+  const [filterStatus, setFilterStatus] = useState('all');
+  const [selectedFeedback, setSelectedFeedback] = useState<FeedbackItem | null>(null);
 
   useEffect(() => {
     loadBoardData();
@@ -119,6 +142,16 @@ const CustomerPortal = () => {
       }
 
       setBoard(boardData);
+
+      // Load all boards for this organization
+      const { data: boardsData } = await supabase
+        .from('customer_boards')
+        .select('*')
+        .eq('organization_id', boardData.organization.id)
+        .eq('is_active', true)
+        .order('name');
+
+      setAvailableBoards(boardsData || []);
 
       // Load content in parallel
       const [articlesData, roadmapData, changelogData, feedbackData] = await Promise.all([
@@ -192,7 +225,7 @@ const CustomerPortal = () => {
       .select('*')
       .eq('organization_id', orgId)
       .order('upvotes_count', { ascending: false })
-      .limit(8);
+      .limit(20);
 
     if (error) throw error;
     return data || [];
@@ -200,10 +233,12 @@ const CustomerPortal = () => {
 
   const getStatusColor = (status: string) => {
     switch (status) {
-      case 'completed': return 'bg-green-100 text-green-800';
-      case 'in_progress': return 'bg-blue-100 text-blue-800';
-      case 'planned': return 'bg-yellow-100 text-yellow-800';
-      default: return 'bg-gray-100 text-gray-800';
+      case 'completed': return 'bg-green-100 text-green-800 border-green-200';
+      case 'in_progress': return 'bg-blue-100 text-blue-800 border-blue-200';
+      case 'planned': return 'bg-purple-100 text-purple-800 border-purple-200';
+      case 'under_review': return 'bg-yellow-100 text-yellow-800 border-yellow-200';
+      case 'submitted': return 'bg-gray-100 text-gray-800 border-gray-200';
+      default: return 'bg-gray-100 text-gray-800 border-gray-200';
     }
   };
 
@@ -216,6 +251,23 @@ const CustomerPortal = () => {
       default: return 'bg-gray-100 text-gray-800';
     }
   };
+
+  const getPriorityColor = (priority: string) => {
+    switch (priority) {
+      case 'critical': return 'text-red-600';
+      case 'high': return 'text-orange-600';
+      case 'medium': return 'text-yellow-600';
+      case 'low': return 'text-green-600';
+      default: return 'text-gray-600';
+    }
+  };
+
+  const filteredFeedback = feedback.filter(item => {
+    const matchesSearch = item.title.toLowerCase().includes(searchQuery.toLowerCase()) ||
+                         item.description.toLowerCase().includes(searchQuery.toLowerCase());
+    const matchesStatus = filterStatus === 'all' || item.status === filterStatus;
+    return matchesSearch && matchesStatus;
+  });
 
   if (loading) {
     return (
@@ -242,208 +294,390 @@ const CustomerPortal = () => {
   }
 
   return (
-    <div className="min-h-screen bg-background">
-      {/* Header */}
-      <div className="bg-gradient-to-r from-primary/10 to-primary/5 border-b">
-        <div className="max-w-7xl mx-auto px-6 py-8">
-          <div className="flex items-center justify-between">
-            <div className="flex items-center space-x-4">
-              {board.organization.logo_url && (
-                <img 
-                  src={board.organization.logo_url} 
-                  alt={board.organization.name}
-                  className="h-12 w-12 rounded-lg object-cover"
-                />
-              )}
-              <div>
-                <h1 className="text-3xl font-bold">{board.organization.name}</h1>
-                <p className="text-lg text-muted-foreground">{board.description}</p>
+    <div className="min-h-screen bg-background flex">
+      {/* Sidebar */}
+      <div className="w-64 bg-muted/50 border-r flex flex-col">
+        {/* Portal Header */}
+        <div className="p-4 border-b">
+          <div className="flex items-center space-x-3 mb-4">
+            {board.organization.logo_url && (
+              <img 
+                src={board.organization.logo_url} 
+                alt={board.organization.name}
+                className="h-8 w-8 rounded object-cover"
+              />
+            )}
+            <div>
+              <h3 className="font-semibold text-sm">{board.organization.name}</h3>
+              <p className="text-xs text-muted-foreground">{board.name}</p>
+            </div>
+          </div>
+          
+          {/* Admin Access */}
+          <div className="flex items-center space-x-2">
+            <Button variant="outline" size="sm" asChild className="flex-1">
+              <Link to="/">
+                <Home className="h-3 w-3 mr-1" />
+                Dashboard
+              </Link>
+            </Button>
+            <Button variant="outline" size="sm" asChild>
+              <Link to="/organizations">
+                <Settings className="h-3 w-3" />
+              </Link>
+            </Button>
+          </div>
+        </div>
+
+        {/* Navigation */}
+        <div className="flex-1 p-4">
+          <nav className="space-y-2">
+            <button
+              onClick={() => setActiveTab('feedback')}
+              className={`w-full flex items-center space-x-3 px-3 py-2 rounded-md text-sm transition-colors ${
+                activeTab === 'feedback' 
+                  ? 'bg-primary/10 text-primary font-medium' 
+                  : 'text-muted-foreground hover:text-foreground hover:bg-muted'
+              }`}
+            >
+              <MessageSquare className="h-4 w-4" />
+              <span>Send Feedback</span>
+              <ChevronDown className="h-3 w-3 ml-auto" />
+            </button>
+            
+            <button
+              onClick={() => setActiveTab('roadmap')}
+              className={`w-full flex items-center space-x-3 px-3 py-2 rounded-md text-sm transition-colors ${
+                activeTab === 'roadmap' 
+                  ? 'bg-primary/10 text-primary font-medium' 
+                  : 'text-muted-foreground hover:text-foreground hover:bg-muted'
+              }`}
+            >
+              <Map className="h-4 w-4" />
+              <span>Roadmap</span>
+              <ChevronDown className="h-3 w-3 ml-auto" />
+            </button>
+
+            <button
+              onClick={() => setActiveTab('changelog')}
+              className={`w-full flex items-center space-x-3 px-3 py-2 rounded-md text-sm transition-colors ${
+                activeTab === 'changelog' 
+                  ? 'bg-primary/10 text-primary font-medium' 
+                  : 'text-muted-foreground hover:text-foreground hover:bg-muted'
+              }`}
+            >
+              <Megaphone className="h-4 w-4" />
+              <span>Changelog</span>
+            </button>
+
+            <button
+              onClick={() => setActiveTab('knowledge')}
+              className={`w-full flex items-center space-x-3 px-3 py-2 rounded-md text-sm transition-colors ${
+                activeTab === 'knowledge' 
+                  ? 'bg-primary/10 text-primary font-medium' 
+                  : 'text-muted-foreground hover:text-foreground hover:bg-muted'
+              }`}
+            >
+              <BookOpen className="h-4 w-4" />
+              <span>Knowledge Center</span>
+            </button>
+          </nav>
+
+          {/* Boards Section */}
+          {availableBoards.length > 1 && (
+            <div className="mt-6">
+              <h4 className="text-xs font-medium text-muted-foreground uppercase tracking-wider mb-3">
+                Boards
+              </h4>
+              <div className="space-y-1">
+                {availableBoards.map((availableBoard) => (
+                  <Link
+                    key={availableBoard.id}
+                    to={`/portal/${organizationSlug}/${availableBoard.slug}`}
+                    className={`block px-3 py-2 rounded-md text-sm transition-colors ${
+                      availableBoard.id === board.id
+                        ? 'bg-primary/10 text-primary font-medium'
+                        : 'text-muted-foreground hover:text-foreground hover:bg-muted'
+                    }`}
+                  >
+                    <div className="flex items-center space-x-2">
+                      <Building className="h-3 w-3" />
+                      <span>{availableBoard.name}</span>
+                      {availableBoard.is_public && (
+                        <Eye className="h-3 w-3 ml-auto" />
+                      )}
+                    </div>
+                  </Link>
+                ))}
               </div>
             </div>
-            <Button variant="outline" asChild>
-              <a href="/auth" target="_blank" rel="noopener noreferrer">
-                <ExternalLink className="h-4 w-4 mr-2" />
-                Access Portal
-              </a>
-            </Button>
+          )}
+
+          {/* Quick Stats */}
+          <div className="mt-6 pt-4 border-t">
+            <h4 className="text-xs font-medium text-muted-foreground uppercase tracking-wider mb-3">
+              Quick Filters
+            </h4>
+            <div className="space-y-2">
+              <button className="w-full flex items-center justify-between px-3 py-2 rounded-md text-sm text-muted-foreground hover:text-foreground hover:bg-muted">
+                <span>All posts</span>
+                <span className="text-xs">{feedback.length}</span>
+              </button>
+              <button className="w-full flex items-center justify-between px-3 py-2 rounded-md text-sm text-muted-foreground hover:text-foreground hover:bg-muted">
+                <span>In Review</span>
+                <span className="text-xs">{feedback.filter(f => f.status === 'under_review').length}</span>
+              </button>
+              <button className="w-full flex items-center justify-between px-3 py-2 rounded-md text-sm text-muted-foreground hover:text-foreground hover:bg-muted">
+                <span>Planned</span>
+                <span className="text-xs">{feedback.filter(f => f.status === 'planned').length}</span>
+              </button>
+              <button className="w-full flex items-center justify-between px-3 py-2 rounded-md text-sm text-muted-foreground hover:text-foreground hover:bg-muted">
+                <span>In Progress</span>
+                <span className="text-xs">{feedback.filter(f => f.status === 'in_progress').length}</span>
+              </button>
+              <button className="w-full flex items-center justify-between px-3 py-2 rounded-md text-sm text-muted-foreground hover:text-foreground hover:bg-muted">
+                <span>Completed</span>
+                <span className="text-xs">{feedback.filter(f => f.status === 'completed').length}</span>
+              </button>
+            </div>
           </div>
         </div>
       </div>
 
-      {/* Content */}
-      <div className="max-w-7xl mx-auto px-6 py-8">
-        <Tabs value={activeTab} onValueChange={setActiveTab} className="space-y-6">
-          <TabsList className="grid w-full grid-cols-4">
-            <TabsTrigger value="knowledge" className="flex items-center space-x-2">
-              <BookOpen className="h-4 w-4" />
-              <span>Knowledge Center</span>
-            </TabsTrigger>
-            <TabsTrigger value="roadmap" className="flex items-center space-x-2">
-              <Map className="h-4 w-4" />
-              <span>Roadmap</span>
-            </TabsTrigger>
-            <TabsTrigger value="changelog" className="flex items-center space-x-2">
-              <Megaphone className="h-4 w-4" />
-              <span>Changelog</span>
-            </TabsTrigger>
-            <TabsTrigger value="feedback" className="flex items-center space-x-2">
-              <MessageSquare className="h-4 w-4" />
-              <span>Feedback</span>
-            </TabsTrigger>
-          </TabsList>
-
-          {/* Knowledge Center Tab */}
-          <TabsContent value="knowledge" className="space-y-6">
-            <div className="flex items-center justify-between">
-              <h2 className="text-2xl font-bold">Knowledge Center</h2>
-              <div className="flex items-center space-x-4">
-                <div className="relative">
-                  <Search className="absolute left-3 top-1/2 transform -translate-y-1/2 h-4 w-4 text-muted-foreground" />
-                  <Input
-                    placeholder="Search articles..."
-                    value={searchQuery}
-                    onChange={(e) => setSearchQuery(e.target.value)}
-                    className="pl-9 w-80"
-                  />
-                </div>
+      {/* Main Content */}
+      <div className="flex-1 flex flex-col">
+        {/* Top Navigation */}
+        <div className="border-b bg-background/95 backdrop-blur supports-[backdrop-filter]:bg-background/60">
+          <div className="flex items-center justify-between px-6 py-4">
+            <div className="flex items-center space-x-4">
+              <div className="flex items-center space-x-2">
+                <MessageSquare className="h-5 w-5 text-primary" />
+                <h1 className="text-xl font-semibold">
+                  {activeTab === 'feedback' && 'Feedback'}
+                  {activeTab === 'roadmap' && 'Roadmap'}
+                  {activeTab === 'changelog' && 'Changelog'}
+                  {activeTab === 'knowledge' && 'Knowledge Center'}
+                </h1>
               </div>
+              
+              {activeTab === 'feedback' && (
+                <div className="flex items-center space-x-2 text-sm text-muted-foreground">
+                  <span>Posts ({filteredFeedback.length})</span>
+                  <ExternalLink className="h-3 w-3" />
+                </div>
+              )}
             </div>
 
-            <div className="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-3 gap-6">
-              {articles.map((article) => (
-                <Card key={article.id} className="cursor-pointer hover:shadow-md transition-shadow">
-                  <CardContent className="p-6">
-                    <h3 className="text-lg font-semibold mb-2 line-clamp-2">{article.title}</h3>
-                    <p className="text-muted-foreground text-sm mb-4 line-clamp-3">{article.description}</p>
-                    <div className="flex items-center justify-between text-sm text-muted-foreground">
-                      <span>{article.category?.name}</span>
-                      <div className="flex items-center space-x-3">
-                        <span>{article.read_time} min read</span>
-                        <span>{article.views_count} views</span>
-                      </div>
-                    </div>
-                  </CardContent>
-                </Card>
-              ))}
-            </div>
-          </TabsContent>
-
-          {/* Roadmap Tab */}
-          <TabsContent value="roadmap" className="space-y-6">
-            <div className="flex items-center justify-between">
-              <h2 className="text-2xl font-bold">Product Roadmap</h2>
-              <Button variant="outline">
-                <Filter className="h-4 w-4 mr-2" />
-                Filter
+            <div className="flex items-center space-x-3">
+              {activeTab === 'feedback' && (
+                <>
+                  <div className="relative">
+                    <Search className="absolute left-3 top-1/2 transform -translate-y-1/2 h-4 w-4 text-muted-foreground" />
+                    <Input
+                      placeholder="Search feedback..."
+                      value={searchQuery}
+                      onChange={(e) => setSearchQuery(e.target.value)}
+                      className="pl-9 w-64"
+                    />
+                  </div>
+                  <Select value={filterStatus} onValueChange={setFilterStatus}>
+                    <SelectTrigger className="w-32">
+                      <SelectValue />
+                    </SelectTrigger>
+                    <SelectContent>
+                      <SelectItem value="all">All Status</SelectItem>
+                      <SelectItem value="submitted">New</SelectItem>
+                      <SelectItem value="under_review">Under Review</SelectItem>
+                      <SelectItem value="planned">Planned</SelectItem>
+                      <SelectItem value="in_progress">In Progress</SelectItem>
+                      <SelectItem value="completed">Completed</SelectItem>
+                    </SelectContent>
+                  </Select>
+                </>
+              )}
+              <Button className="bg-primary hover:bg-primary/90">
+                <Plus className="h-4 w-4 mr-2" />
+                Create Post
               </Button>
             </div>
+          </div>
+        </div>
 
-            <div className="space-y-4">
-              {roadmapItems.map((item) => (
-                <Card key={item.id}>
-                  <CardContent className="p-6">
-                    <div className="flex items-start justify-between">
-                      <div className="flex-1">
-                        <div className="flex items-center space-x-3 mb-2">
-                          <h3 className="text-lg font-semibold">{item.title}</h3>
-                          <Badge variant="secondary" className={getStatusColor(item.status)}>
-                            {item.status.replace('_', ' ')}
-                          </Badge>
-                          <Badge variant="outline">
-                            {item.priority}
-                          </Badge>
-                        </div>
-                        <p className="text-muted-foreground mb-3">{item.description}</p>
-                        <div className="flex items-center space-x-4 text-sm text-muted-foreground">
-                          {item.estimated_date && (
+        {/* Content Area */}
+        <div className="flex-1 overflow-auto">
+          {activeTab === 'feedback' && (
+            <div className="p-6">
+              {/* Featured Message */}
+              <Card className="mb-6 bg-gradient-to-r from-primary/5 to-primary/10 border-primary/20">
+                <CardContent className="p-6">
+                  <h3 className="font-semibold mb-2">Have something to say?</h3>
+                  <p className="text-muted-foreground mb-4">
+                    Tell us how we can make the product more useful to you.
+                  </p>
+                  <Button variant="outline" className="border-primary/20">
+                    <Plus className="h-4 w-4 mr-2" />
+                    Edit Message
+                  </Button>
+                </CardContent>
+              </Card>
+
+              {/* Feedback Filters */}
+              <div className="flex items-center space-x-4 mb-6">
+                <Button variant="outline" size="sm" className="bg-blue-50 border-blue-200 text-blue-700">
+                  <Circle className="h-3 w-3 mr-2 fill-current" />
+                  New
+                </Button>
+                <Button variant="ghost" size="sm">
+                  <TrendingUp className="h-3 w-3 mr-2" />
+                  Top
+                </Button>
+                <Button variant="ghost" size="sm">
+                  <Eye className="h-3 w-3 mr-2" />
+                  Trending
+                </Button>
+              </div>
+
+              {/* Feedback List */}
+              <div className="space-y-4">
+                {filteredFeedback.map((item) => (
+                  <Card key={item.id} className="cursor-pointer hover:shadow-md transition-shadow border-l-4 border-l-transparent hover:border-l-primary/50">
+                    <CardContent className="p-6">
+                      <div className="flex items-start justify-between">
+                        <div className="flex-1">
+                          <div className="flex items-center space-x-2 mb-2">
+                            <ArrowUp className="h-4 w-4 text-muted-foreground" />
+                            <span className="text-sm font-medium">{item.upvotes_count}</span>
+                            <h3 className="text-lg font-semibold">{item.title}</h3>
+                          </div>
+                          <p className="text-muted-foreground mb-3 text-sm">{item.description}</p>
+                          
+                          <div className="flex items-center space-x-4 text-sm">
                             <div className="flex items-center space-x-1">
-                              <Calendar className="h-4 w-4" />
-                              <span>{new Date(item.estimated_date).toLocaleDateString()}</span>
+                              <User className="h-3 w-3 text-muted-foreground" />
+                              <span className="text-muted-foreground">Customer User</span>
+                              <span className="text-muted-foreground">•</span>
+                              <span className="text-muted-foreground">About 1 hour ago</span>
                             </div>
-                          )}
-                          <div className="flex items-center space-x-1">
-                            <TrendingUp className="h-4 w-4" />
-                            <span>{item.upvotes_count} votes</span>
+                            <Badge variant="outline" className={getStatusColor(item.status)}>
+                              {item.status.replace('_', ' ')}
+                            </Badge>
+                            {item.priority && (
+                              <span className={`text-sm font-medium ${getPriorityColor(item.priority)}`}>
+                                {item.priority}
+                              </span>
+                            )}
+                            <span className="text-muted-foreground">{board.organization.name}</span>
+                          </div>
+                        </div>
+                        
+                        <div className="flex items-center space-x-2 ml-4">
+                          <div className="flex items-center space-x-1 text-sm text-muted-foreground">
+                            <MessageCircle className="h-3 w-3" />
+                            <span>0</span>
+                          </div>
+                          <div className="flex items-center space-x-1 text-sm text-muted-foreground">
+                            <Eye className="h-3 w-3" />
+                            <span>1</span>
                           </div>
                         </div>
                       </div>
-                    </div>
-                  </CardContent>
-                </Card>
-              ))}
+                    </CardContent>
+                  </Card>
+                ))}
+              </div>
             </div>
-          </TabsContent>
+          )}
 
-          {/* Changelog Tab */}
-          <TabsContent value="changelog" className="space-y-6">
-            <div className="flex items-center justify-between">
-              <h2 className="text-2xl font-bold">What's New</h2>
-            </div>
-
-            <div className="space-y-4">
-              {changelog.map((entry) => (
-                <Card key={entry.id}>
-                  <CardContent className="p-6">
-                    <div className="flex items-start justify-between mb-3">
-                      <div className="flex items-center space-x-3">
-                        <h3 className="text-lg font-semibold">{entry.title}</h3>
-                        {entry.version && (
-                          <Badge variant="outline">{entry.version}</Badge>
-                        )}
-                        <Badge variant="secondary" className={getTypeColor(entry.type)}>
-                          {entry.type}
-                        </Badge>
+          {/* Other tab contents remain the same but in this layout */}
+          {activeTab === 'roadmap' && (
+            <div className="p-6">
+              <div className="space-y-4">
+                {roadmapItems.map((item) => (
+                  <Card key={item.id}>
+                    <CardContent className="p-6">
+                      <div className="flex items-start justify-between">
+                        <div className="flex-1">
+                          <div className="flex items-center space-x-3 mb-2">
+                            <h3 className="text-lg font-semibold">{item.title}</h3>
+                            <Badge variant="secondary" className={getStatusColor(item.status)}>
+                              {item.status.replace('_', ' ')}
+                            </Badge>
+                            <Badge variant="outline">
+                              {item.priority}
+                            </Badge>
+                          </div>
+                          <p className="text-muted-foreground mb-3">{item.description}</p>
+                          <div className="flex items-center space-x-4 text-sm text-muted-foreground">
+                            {item.estimated_date && (
+                              <div className="flex items-center space-x-1">
+                                <Calendar className="h-4 w-4" />
+                                <span>{new Date(item.estimated_date).toLocaleDateString()}</span>
+                              </div>
+                            )}
+                            <div className="flex items-center space-x-1">
+                              <TrendingUp className="h-4 w-4" />
+                              <span>{item.upvotes_count} votes</span>
+                            </div>
+                          </div>
+                        </div>
                       </div>
-                      <span className="text-sm text-muted-foreground">
-                        {new Date(entry.published_at).toLocaleDateString()}
-                      </span>
-                    </div>
-                    <p className="text-muted-foreground">{entry.description}</p>
-                  </CardContent>
-                </Card>
-              ))}
+                    </CardContent>
+                  </Card>
+                ))}
+              </div>
             </div>
-          </TabsContent>
+          )}
 
-          {/* Feedback Tab */}
-          <TabsContent value="feedback" className="space-y-6">
-            <div className="flex items-center justify-between">
-              <h2 className="text-2xl font-bold">Feature Requests & Feedback</h2>
-              <Button>
-                <Plus className="h-4 w-4 mr-2" />
-                Submit Feedback
-              </Button>
+          {activeTab === 'changelog' && (
+            <div className="p-6">
+              <div className="space-y-4">
+                {changelog.map((entry) => (
+                  <Card key={entry.id}>
+                    <CardContent className="p-6">
+                      <div className="flex items-start justify-between mb-3">
+                        <div className="flex items-center space-x-3">
+                          <h3 className="text-lg font-semibold">{entry.title}</h3>
+                          {entry.version && (
+                            <Badge variant="outline">{entry.version}</Badge>
+                          )}
+                          <Badge variant="secondary" className={getTypeColor(entry.type)}>
+                            {entry.type}
+                          </Badge>
+                        </div>
+                        <span className="text-sm text-muted-foreground">
+                          {new Date(entry.published_at).toLocaleDateString()}
+                        </span>
+                      </div>
+                      <p className="text-muted-foreground">{entry.description}</p>
+                    </CardContent>
+                  </Card>
+                ))}
+              </div>
             </div>
+          )}
 
-            <div className="grid grid-cols-1 md:grid-cols-2 gap-6">
-              {feedback.map((item) => (
-                <Card key={item.id} className="cursor-pointer hover:shadow-md transition-shadow">
-                  <CardContent className="p-6">
-                    <div className="flex items-start justify-between mb-3">
-                      <h3 className="text-lg font-semibold flex-1">{item.title}</h3>
-                      <div className="flex items-center space-x-1 text-sm">
-                        <Star className="h-4 w-4 fill-current text-yellow-500" />
-                        <span>{item.upvotes_count}</span>
+          {activeTab === 'knowledge' && (
+            <div className="p-6">
+              <div className="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-3 gap-6">
+                {articles.map((article) => (
+                  <Card key={article.id} className="cursor-pointer hover:shadow-md transition-shadow">
+                    <CardContent className="p-6">
+                      <h3 className="text-lg font-semibold mb-2 line-clamp-2">{article.title}</h3>
+                      <p className="text-muted-foreground text-sm mb-4 line-clamp-3">{article.description}</p>
+                      <div className="flex items-center justify-between text-sm text-muted-foreground">
+                        <span>{article.category?.name}</span>
+                        <div className="flex items-center space-x-3">
+                          <span>{article.read_time} min read</span>
+                          <span>{article.views_count} views</span>
+                        </div>
                       </div>
-                    </div>
-                    <p className="text-muted-foreground text-sm mb-4 line-clamp-3">{item.description}</p>
-                    <div className="flex items-center justify-between">
-                      <div className="flex items-center space-x-2">
-                        <Badge variant="secondary" className={getStatusColor(item.status)}>
-                          {item.status.replace('_', ' ')}
-                        </Badge>
-                        {item.category && (
-                          <Badge variant="outline">{item.category}</Badge>
-                        )}
-                      </div>
-                      <Badge variant="outline">{item.priority}</Badge>
-                    </div>
-                  </CardContent>
-                </Card>
-              ))}
+                    </CardContent>
+                  </Card>
+                ))}
+              </div>
             </div>
-          </TabsContent>
-        </Tabs>
+          )}
+        </div>
       </div>
     </div>
   );
