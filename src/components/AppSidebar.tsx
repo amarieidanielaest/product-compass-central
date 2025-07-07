@@ -76,10 +76,10 @@ const AppSidebar = ({ activeModule, setActiveModule, selectedProductId, onProduc
   };
 
   return (
-    <Sidebar className={cn(
-      "border-r border-slate-200 transition-all duration-300",
-      isCollapsed ? "w-16" : "w-64"
-    )}>
+    <Sidebar 
+      collapsible="icon"
+      className="border-r border-slate-200"
+    >
       <SidebarHeader className="border-b border-slate-200 p-4">
         <div className="flex items-center justify-between">
           <div className="flex items-center space-x-2">
