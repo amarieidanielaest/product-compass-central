@@ -74,14 +74,30 @@ const PricingPlans = ({ currentTeamId, onPlanSelected }: PricingPlansProps) => {
       return;
     }
 
+    // Find the selected plan to check if it's free
+    const selectedPlan = plans.find(p => p.id === planId);
+    if (selectedPlan && selectedPlan.price_monthly === 0) {
+      toast({
+        title: "Free Plan Selected",
+        description: "You're all set with the free plan!",
+      });
+      return;
+    }
+
     setProcessingCheckout(planId);
 
     try {
+      // Only pass team_id if currentTeamId is a valid UUID (not "main" or "beta")
+      const isValidTeamId = currentTeamId && 
+        currentTeamId !== 'main' && 
+        currentTeamId !== 'beta' && 
+        currentTeamId.length === 36; // UUID length
+
       const { data, error } = await supabase.functions.invoke('create-checkout', {
         body: {
           plan_id: planId,
           billing_period: billingPeriod,
-          team_id: currentTeamId,
+          ...(isValidTeamId && { team_id: currentTeamId }),
         },
       });
 
