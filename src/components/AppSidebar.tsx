@@ -90,19 +90,36 @@ const AppSidebar = ({ activeModule, setActiveModule, selectedProductId, onProduc
       className="border-r border-slate-200"
     >
       <SidebarHeader className="border-b border-slate-200">
-        <div className="flex items-center justify-between p-4">
-          <div className="flex items-center space-x-2 min-w-0">
-            {!isCollapsed && (
+        <div className={cn(
+          "flex items-center p-4 transition-all duration-200",
+          isCollapsed ? "justify-center" : "justify-between"
+        )}>
+          {/* Logo - only show when expanded */}
+          {!isCollapsed && (
+            <div className="flex items-center space-x-2 min-w-0">
               <h1 className="text-xl font-bold bg-gradient-to-r from-purple-600 to-pink-600 bg-clip-text text-transparent truncate">
                 ProductHub
               </h1>
-            )}
-          </div>
-          <div className="flex items-center space-x-1 flex-shrink-0">
-            <div className="hidden sm:block">
-              <NotificationBell />
             </div>
-            <SidebarTrigger className="h-8 w-8" />
+          )}
+          
+          {/* Icons */}
+          <div className={cn(
+            "flex items-center flex-shrink-0",
+            isCollapsed ? "space-x-0" : "space-x-2"
+          )}>
+            {/* Notification - hide when collapsed or on mobile */}
+            {!isCollapsed && (
+              <div className="hidden sm:block">
+                <NotificationBell />
+              </div>
+            )}
+            
+            {/* Collapse trigger - always visible */}
+            <SidebarTrigger className={cn(
+              "transition-all duration-200",
+              isCollapsed ? "h-6 w-6" : "h-8 w-8"
+            )} />
           </div>
         </div>
         
