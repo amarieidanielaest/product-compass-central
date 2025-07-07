@@ -91,8 +91,8 @@ const AppSidebar = ({ activeModule, setActiveModule, selectedProductId, onProduc
     >
       <SidebarHeader className="border-b border-slate-200">
         <div className={cn(
-          "flex items-center p-4 transition-all duration-200",
-          isCollapsed ? "justify-center" : "justify-between"
+          "flex items-center p-2 transition-all duration-200 relative",
+          isCollapsed ? "justify-center px-1" : "justify-between px-4"
         )}>
           {/* Logo - only show when expanded */}
           {!isCollapsed && (
@@ -105,7 +105,7 @@ const AppSidebar = ({ activeModule, setActiveModule, selectedProductId, onProduc
           
           {/* Icons */}
           <div className={cn(
-            "flex items-center flex-shrink-0",
+            "flex items-center flex-shrink-0 relative z-10",
             isCollapsed ? "space-x-0" : "space-x-2"
           )}>
             {/* Notification - hide when collapsed or on mobile */}
@@ -115,11 +115,14 @@ const AppSidebar = ({ activeModule, setActiveModule, selectedProductId, onProduc
               </div>
             )}
             
-            {/* Collapse trigger - always visible */}
-            <SidebarTrigger className={cn(
-              "transition-all duration-200",
-              isCollapsed ? "h-6 w-6" : "h-8 w-8"
-            )} />
+            {/* Collapse trigger - always visible and clickable */}
+            <SidebarTrigger 
+              className={cn(
+                "transition-all duration-200 relative z-20 bg-background border border-border hover:bg-accent hover:text-accent-foreground",
+                isCollapsed ? "h-8 w-8 rounded-md shadow-sm" : "h-8 w-8"
+              )}
+              aria-label={isCollapsed ? "Expand sidebar" : "Collapse sidebar"}
+            />
           </div>
         </div>
         
