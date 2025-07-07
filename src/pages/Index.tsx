@@ -13,6 +13,7 @@ import UserManagement from '../components/UserManagement';
 import BreadcrumbNav from '../components/BreadcrumbNav';
 import QuickActions from '../components/QuickActions';
 import Settings from '../components/Settings';
+import KnowledgeCenter from '../components/KnowledgeCenter';
 
 const Index = () => {
   const [activeModule, setActiveModule] = useState('dashboard');
