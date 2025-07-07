@@ -288,7 +288,154 @@
   }
 }
 
-/* SaaS Trend: Advanced Animation Keyframes */
+/* 2025 UI/UX Principles: Claymorphism & Advanced Visual Effects */
+@layer utilities {
+  /* Claymorphism - Soft, clay-like 3D elements */
+  .clay-card {
+    background: linear-gradient(145deg, hsl(var(--background)), hsl(var(--secondary)));
+    box-shadow: 
+      8px 8px 16px hsl(var(--foreground) / 0.1),
+      -8px -8px 16px hsl(var(--background));
+    border-radius: calc(var(--radius) * 1.5);
+  }
+  
+  .clay-button {
+    background: linear-gradient(145deg, hsl(var(--primary)), hsl(var(--primary) / 0.8));
+    box-shadow: 
+      4px 4px 8px hsl(var(--primary) / 0.3),
+      -4px -4px 8px hsl(var(--primary) / 0.1);
+  }
+  
+  .clay-button:hover {
+    box-shadow: 
+      2px 2px 4px hsl(var(--primary) / 0.4),
+      -2px -2px 4px hsl(var(--primary) / 0.2);
+    transform: translateY(1px);
+  }
+  
+  .loom-shadow-clay {
+    box-shadow: 
+      6px 6px 12px hsl(var(--foreground) / 0.08),
+      -6px -6px 12px hsl(var(--background));
+  }
+
+  /* Enhanced Accessibility Utilities */
+  .accessibility-high-contrast {
+    --background: 0 0% 0%;
+    --foreground: 0 0% 100%;
+    --card: 0 0% 5%;
+    --border: 0 0% 25%;
+    --primary: 60 100% 50%;
+    --accent: 180 100% 50%;
+  }
+  
+  .accessibility-large-text {
+    font-size: 1.25em;
+    line-height: 1.6;
+  }
+  
+  .accessibility-reduced-motion * {
+    animation-duration: 0.01ms !important;
+    animation-iteration-count: 1 !important;
+    transition-duration: 0.01ms !important;
+  }
+  
+  .accessibility-focus-visible *:focus-visible {
+    outline: 3px solid hsl(var(--primary));
+    outline-offset: 2px;
+    box-shadow: 0 0 0 6px hsl(var(--primary) / 0.2);
+  }
+
+  /* Screen reader only content */
+  .sr-only {
+    position: absolute;
+    width: 1px;
+    height: 1px;
+    padding: 0;
+    margin: -1px;
+    overflow: hidden;
+    clip: rect(0, 0, 0, 0);
+    white-space: nowrap;
+    border: 0;
+  }
+
+  /* Enhanced Focus Management */
+  .focus-trap {
+    position: relative;
+  }
+  
+  .focus-trap::before,
+  .focus-trap::after {
+    content: '';
+    position: absolute;
+    width: 1px;
+    height: 1px;
+    opacity: 0;
+    pointer-events: none;
+  }
+
+  /* Advanced Bento Grid System */
+  .bento-grid {
+    display: grid;
+    grid-template-columns: repeat(auto-fit, minmax(280px, 1fr));
+    gap: 1rem;
+    grid-auto-rows: minmax(200px, auto);
+  }
+  
+  .bento-card-featured {
+    grid-column: span 2;
+    grid-row: span 2;
+  }
+  
+  @media (max-width: 768px) {
+    .bento-card-featured {
+      grid-column: span 1;
+      grid-row: span 1;
+    }
+  }
+
+  /* AI-Driven Personalization Indicators */
+  .ai-personalized {
+    position: relative;
+  }
+  
+  .ai-personalized::after {
+    content: '✨';
+    position: absolute;
+    top: -8px;
+    right: -8px;
+    font-size: 12px;
+    opacity: 0.7;
+  }
+
+  /* Enhanced Micro-interactions */
+  .loom-pulse-gentle {
+    animation: pulseGentle 2s ease-in-out infinite;
+  }
+  
+  .loom-float {
+    animation: float 3s ease-in-out infinite;
+  }
+  
+  .loom-wiggle:hover {
+    animation: wiggle 0.5s ease-in-out;
+  }
+
+  /* Context-aware spacing */
+  .loom-spacing-compact {
+    --spacing-unit: 0.75rem;
+  }
+  
+  .loom-spacing-comfortable {
+    --spacing-unit: 1rem;
+  }
+  
+  .loom-spacing-spacious {
+    --spacing-unit: 1.5rem;
+  }
+}
+
+/* Advanced Animation Keyframes for 2025 */
 @keyframes fadeIn {
   from {
     opacity: 0;
@@ -326,5 +473,37 @@
   }
   90% {
     transform: translate3d(0, -1px, 0);
+  }
+}
+
+@keyframes pulseGentle {
+  0%, 100% {
+    opacity: 1;
+    transform: scale(1);
+  }
+  50% {
+    opacity: 0.8;
+    transform: scale(1.02);
+  }
+}
+
+@keyframes float {
+  0%, 100% {
+    transform: translateY(0px);
+  }
+  50% {
+    transform: translateY(-6px);
+  }
+}
+
+@keyframes wiggle {
+  0%, 100% {
+    transform: rotate(0deg);
+  }
+  25% {
+    transform: rotate(-2deg);
+  }
+  75% {
+    transform: rotate(2deg);
   }
 }

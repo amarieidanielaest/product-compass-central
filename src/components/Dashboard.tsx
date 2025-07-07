@@ -24,6 +24,9 @@ import { analyticsService, aiService } from '@/services/api';
 import { WelcomeMessage, EmptyState } from './BrandVoice';
 import { EmotionalFeedback, AchievementToast } from './EmotionalFeedback';
 import { InteractiveDemo } from './InteractiveDemo';
+import { BentoGrid, BentoCard } from './BentoGrid';
+import { VoiceInterface } from './VoiceInterface';
+import { AccessibilityPanel } from './AccessibilityEnhanced';
 import loomLogo from '@/assets/loom-logo.png';
 
 interface DashboardProps {
@@ -138,6 +141,12 @@ const Dashboard = ({ selectedProductId, onNavigate }: DashboardProps) => {
 
   return (
     <div className="space-y-6 font-body">
+      {/* 2025 UI/UX: Voice Interface Integration */}
+      <VoiceInterface 
+        onCommand={(command) => console.log('Voice command:', command)}
+        className="loom-fade-in"
+      />
+
       {/* SaaS Trend: Emotional Design - Success celebration */}
       <EmotionalFeedback 
         message="Welcome back! Your product metrics are looking fantastic today. 🚀"
@@ -175,78 +184,76 @@ const Dashboard = ({ selectedProductId, onNavigate }: DashboardProps) => {
         </div>
       </div>
 
-      {/* KPI Cards with Loom Brand Colors */}
-      <div className="grid grid-cols-1 sm:grid-cols-2 lg:grid-cols-4 gap-4 sm:gap-6">
-        <Card className="border-l-4 border-l-primary loom-hover-lift loom-shadow-md transition-all duration-200 loom-glass">
-          <CardContent className="pt-6">
-            <div className="flex items-center justify-between">
-              <div>
-                <p className="text-sm font-medium text-muted-foreground">Active Users</p>
-                <p className="text-2xl font-bold font-headline">
-                  {userMetricsLoading ? '...' : userMetrics?.activeUsers?.toLocaleString() || '2,847'}
-                </p>
-                <p className="text-xs text-accent font-medium">+12% from last week</p>
-              </div>
-              <div className="w-12 h-12 loom-rounded-full bg-primary/10 flex items-center justify-center loom-hover-scale">
-                <Users className="w-6 h-6 text-primary" />
-              </div>
+      {/* 2025 UI/UX: Bento Grid Dashboard Layout */}
+      <BentoGrid>
+        {/* KPI Cards with Enhanced Design */}
+        <BentoCard size="sm" variant="highlight" className="ai-personalized">
+          <div className="flex items-center justify-between h-full">
+            <div>
+              <p className="text-sm font-medium text-muted-foreground">Active Users</p>
+              <p className="text-2xl font-bold font-headline">
+                {userMetricsLoading ? '...' : userMetrics?.activeUsers?.toLocaleString() || '2,847'}
+              </p>
+              <p className="text-xs text-accent font-medium">+12% from last week</p>
             </div>
-          </CardContent>
-        </Card>
+            <div className="w-12 h-12 loom-rounded-full bg-primary/10 flex items-center justify-center loom-hover-scale">
+              <Users className="w-6 h-6 text-primary" />
+            </div>
+          </div>
+        </BentoCard>
         
-        <Card className="border-l-4 border-l-accent hover:loom-shadow-md transition-all duration-200">
-          <CardContent className="pt-6">
-            <div className="flex items-center justify-between">
-              <div>
-                <p className="text-sm font-medium text-muted-foreground">Retention Rate</p>
-                <p className="text-2xl font-bold font-headline">
-                  {userMetricsLoading ? '...' : `${userMetrics?.retentionRate || 87}%`}
-                </p>
-                <p className="text-xs text-accent font-medium">
-                  {userMetrics?.retentionRate && userMetrics.retentionRate > 85 ? '+3% improvement' : '+8% from last month'}
-                </p>
-              </div>
-              <div className="w-12 h-12 rounded-full bg-accent/10 flex items-center justify-center">
-                <TrendingUp className="w-6 h-6 text-accent" />
-              </div>
+        <BentoCard size="sm" variant="glass" className="ai-personalized">
+          <div className="flex items-center justify-between h-full">
+            <div>
+              <p className="text-sm font-medium text-muted-foreground">Retention Rate</p>
+              <p className="text-2xl font-bold font-headline">
+                {userMetricsLoading ? '...' : `${userMetrics?.retentionRate || 87}%`}
+              </p>
+              <p className="text-xs text-accent font-medium">
+                {userMetrics?.retentionRate && userMetrics.retentionRate > 85 ? '+3% improvement' : '+8% from last month'}
+              </p>
             </div>
-          </CardContent>
-        </Card>
+            <div className="w-12 h-12 loom-rounded-full bg-accent/10 flex items-center justify-center loom-hover-scale">
+              <TrendingUp className="w-6 h-6 text-accent" />
+            </div>
+          </div>
+        </BentoCard>
         
-        <Card className="border-l-4 border-l-coral hover:loom-shadow-md transition-all duration-200">
-          <CardContent className="pt-6">
-            <div className="flex items-center justify-between">
-              <div>
-                <p className="text-sm font-medium text-muted-foreground">Health Score</p>
-                <p className="text-2xl font-bold font-headline">
-                  {healthLoading ? '...' : `${productHealth?.overallHealth || 67}%`}
-                </p>
-                <p className="text-xs text-amber font-medium">-3% from target</p>
-              </div>
-              <div className="w-12 h-12 rounded-full bg-coral/10 flex items-center justify-center">
-                <Target className="w-6 h-6 text-coral" />
-              </div>
+        <BentoCard size="sm" variant="clay" className="ai-personalized">
+          <div className="flex items-center justify-between h-full">
+            <div>
+              <p className="text-sm font-medium text-muted-foreground">Health Score</p>
+              <p className="text-2xl font-bold font-headline">
+                {healthLoading ? '...' : `${productHealth?.overallHealth || 67}%`}
+              </p>
+              <p className="text-xs text-amber font-medium">-3% from target</p>
             </div>
-          </CardContent>
-        </Card>
+            <div className="w-12 h-12 loom-rounded-full bg-coral/10 flex items-center justify-center loom-hover-scale">
+              <Target className="w-6 h-6 text-coral" />
+            </div>
+          </div>
+        </BentoCard>
         
-        <Card className="border-l-4 border-l-indigo hover:loom-shadow-md transition-all duration-200">
-          <CardContent className="pt-6">
-            <div className="flex items-center justify-between">
-              <div>
-                <p className="text-sm font-medium text-muted-foreground">Engagement Score</p>
-                <p className="text-2xl font-bold font-headline">
-                  {userMetricsLoading ? '...' : `${userMetrics?.engagementScore || 8.4}`}
-                </p>
-                <p className="text-xs text-accent font-medium">+15% improvement</p>
-              </div>
-              <div className="w-12 h-12 rounded-full bg-indigo/10 flex items-center justify-center">
-                <Clock className="w-6 h-6 text-indigo" />
-              </div>
+        <BentoCard size="sm" variant="default" className="ai-personalized">
+          <div className="flex items-center justify-between h-full">
+            <div>
+              <p className="text-sm font-medium text-muted-foreground">Engagement Score</p>
+              <p className="text-2xl font-bold font-headline">
+                {userMetricsLoading ? '...' : `${userMetrics?.engagementScore || 8.4}`}
+              </p>
+              <p className="text-xs text-accent font-medium">+15% improvement</p>
             </div>
-          </CardContent>
-        </Card>
-      </div>
+            <div className="w-12 h-12 loom-rounded-full bg-indigo/10 flex items-center justify-center loom-hover-scale">
+              <Clock className="w-6 h-6 text-indigo" />
+            </div>
+          </div>
+        </BentoCard>
+
+        {/* 2025 UI/UX: Accessibility Panel in Bento Grid */}
+        <BentoCard size="md" variant="glass" title="Accessibility">
+          <AccessibilityPanel />
+        </BentoCard>
+      </BentoGrid>
 
       {/* AI Insights Section with Loom Voice */}
       {aiInsights && aiInsights.length > 0 ? (
