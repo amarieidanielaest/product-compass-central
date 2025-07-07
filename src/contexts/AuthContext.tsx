@@ -29,6 +29,38 @@ export const AuthProvider: React.FC<{ children: React.ReactNode }> = ({ children
   const [roles, setRoles] = useState<AppRole[]>([]);
   const [loading, setLoading] = useState(true);
 
+  // Development mode: simulate logged in user with Enterprise plan
+  const DEV_MODE = true; // Set to false for production
+  const mockUser = DEV_MODE ? {
+    id: 'mock-user-123',
+    email: 'admin@enterprise.com',
+    created_at: new Date().toISOString(),
+    app_metadata: {},
+    user_metadata: { first_name: 'John', last_name: 'Enterprise' },
+    aud: 'authenticated',
+    updated_at: new Date().toISOString(),
+  } as User : null;
+
+  const mockProfile = DEV_MODE ? {
+    id: 'mock-user-123',
+    email: 'admin@enterprise.com',
+    first_name: 'John',
+    last_name: 'Enterprise',
+    avatar_url: null,
+    created_at: new Date().toISOString(),
+    updated_at: new Date().toISOString(),
+    current_team_id: 'enterprise-team-123',
+  } as Profile : null;
+
+  const mockSession = DEV_MODE ? {
+    access_token: 'mock-token',
+    refresh_token: 'mock-refresh',
+    expires_in: 3600,
+    expires_at: Date.now() + 3600000,
+    token_type: 'bearer',
+    user: mockUser!,
+  } as Session : null;
+
   const fetchProfile = async (userId: string) => {
     try {
       const { data: profileData, error: profileError } = await supabase
@@ -56,6 +88,16 @@ export const AuthProvider: React.FC<{ children: React.ReactNode }> = ({ children
   };
 
   useEffect(() => {
+    if (DEV_MODE) {
+      // In development mode, use mock data
+      setUser(mockUser);
+      setSession(mockSession);
+      setProfile(mockProfile);
+      setRoles(['admin']); // Give admin role for Enterprise plan
+      setLoading(false);
+      return;
+    }
+
     // Set up auth state listener
     const { data: { subscription } } = supabase.auth.onAuthStateChange(
       async (event, session) => {
@@ -91,7 +133,7 @@ export const AuthProvider: React.FC<{ children: React.ReactNode }> = ({ children
     });
 
     return () => subscription.unsubscribe();
-  }, []);
+  }, [DEV_MODE, mockUser, mockSession, mockProfile]);
 
   const signUp = async (email: string, password: string, firstName?: string, lastName?: string) => {
     const redirectUrl = `${window.location.origin}/`;
