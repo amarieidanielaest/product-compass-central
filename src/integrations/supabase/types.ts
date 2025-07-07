@@ -14,6 +14,48 @@ export type Database = {
   }
   public: {
     Tables: {
+      plan_usage_quotas: {
+        Row: {
+          created_at: string | null
+          id: string
+          included_quota: number
+          metric_id: string | null
+          plan_id: string | null
+          updated_at: string | null
+        }
+        Insert: {
+          created_at?: string | null
+          id?: string
+          included_quota: number
+          metric_id?: string | null
+          plan_id?: string | null
+          updated_at?: string | null
+        }
+        Update: {
+          created_at?: string | null
+          id?: string
+          included_quota?: number
+          metric_id?: string | null
+          plan_id?: string | null
+          updated_at?: string | null
+        }
+        Relationships: [
+          {
+            foreignKeyName: "plan_usage_quotas_metric_id_fkey"
+            columns: ["metric_id"]
+            isOneToOne: false
+            referencedRelation: "usage_metrics"
+            referencedColumns: ["id"]
+          },
+          {
+            foreignKeyName: "plan_usage_quotas_plan_id_fkey"
+            columns: ["plan_id"]
+            isOneToOne: false
+            referencedRelation: "pricing_plans"
+            referencedColumns: ["id"]
+          },
+        ]
+      }
       pricing_plans: {
         Row: {
           billing_cycle: string | null
@@ -283,6 +325,36 @@ export type Database = {
             referencedColumns: ["id"]
           },
         ]
+      }
+      usage_metrics: {
+        Row: {
+          cost_per_unit: number
+          created_at: string | null
+          description: string | null
+          id: string
+          metric_name: string
+          unit_name: string
+          updated_at: string | null
+        }
+        Insert: {
+          cost_per_unit: number
+          created_at?: string | null
+          description?: string | null
+          id?: string
+          metric_name: string
+          unit_name: string
+          updated_at?: string | null
+        }
+        Update: {
+          cost_per_unit?: number
+          created_at?: string | null
+          description?: string | null
+          id?: string
+          metric_name?: string
+          unit_name?: string
+          updated_at?: string | null
+        }
+        Relationships: []
       }
       user_roles: {
         Row: {
