@@ -22,6 +22,8 @@ import {
 import { useServiceCall } from '@/hooks/useServiceIntegration';
 import { analyticsService, aiService } from '@/services/api';
 import { WelcomeMessage, EmptyState } from './BrandVoice';
+import { EmotionalFeedback, AchievementToast } from './EmotionalFeedback';
+import { InteractiveDemo } from './InteractiveDemo';
 import loomLogo from '@/assets/loom-logo.png';
 
 interface DashboardProps {
@@ -136,12 +138,19 @@ const Dashboard = ({ selectedProductId, onNavigate }: DashboardProps) => {
 
   return (
     <div className="space-y-6 font-body">
+      {/* SaaS Trend: Emotional Design - Success celebration */}
+      <EmotionalFeedback 
+        message="Welcome back! Your product metrics are looking fantastic today. 🚀"
+        type="celebration"
+        className="loom-slide-up"
+      />
+
       {/* Header with Loom Branding */}
-      <div className="flex flex-col sm:flex-row justify-between items-start sm:items-center gap-4 prism-bg p-6 loom-rounded-lg">
+      <div className="flex flex-col sm:flex-row justify-between items-start sm:items-center gap-4 prism-bg p-6 loom-rounded-lg loom-hover-lift">
         <div className="flex items-center space-x-4">
-          <img src={loomLogo} alt="Loom" className="w-12 h-12 hidden sm:block" />
+          <img src={loomLogo} alt="Loom" className="w-12 h-12 hidden sm:block loom-hover-scale" />
           <div>
-            <h2 className="text-2xl sm:text-3xl font-headline font-bold gradient-intelligence bg-clip-text text-transparent mb-2">
+            <h2 className="text-2xl sm:text-3xl font-headline font-bold gradient-intelligence bg-clip-text text-transparent mb-2 loom-fade-in">
               Your Creative Command Center
             </h2>
             <p className="text-muted-foreground font-body">
@@ -153,13 +162,13 @@ const Dashboard = ({ selectedProductId, onNavigate }: DashboardProps) => {
         </div>
         <div className="flex flex-col sm:flex-row items-start sm:items-center space-y-2 sm:space-y-0 sm:space-x-3">
           <Tabs value={timeFilter} onValueChange={(value) => setTimeFilter(value as '7d' | '30d' | '90d')}>
-            <TabsList className="bg-background border border-border">
+            <TabsList className="bg-background border border-border loom-glass">
               <TabsTrigger value="7d">7D</TabsTrigger>
               <TabsTrigger value="30d">30D</TabsTrigger>
               <TabsTrigger value="90d">90D</TabsTrigger>
             </TabsList>
           </Tabs>
-          <Button className="gradient-action text-white hover:opacity-90 transition-opacity">
+          <Button variant="loom-action" className="loom-hover-glow">
             <Sparkles className="w-4 h-4 mr-2" />
             Add Widget
           </Button>
@@ -168,7 +177,7 @@ const Dashboard = ({ selectedProductId, onNavigate }: DashboardProps) => {
 
       {/* KPI Cards with Loom Brand Colors */}
       <div className="grid grid-cols-1 sm:grid-cols-2 lg:grid-cols-4 gap-4 sm:gap-6">
-        <Card className="border-l-4 border-l-primary hover:loom-shadow-md transition-all duration-200">
+        <Card className="border-l-4 border-l-primary loom-hover-lift loom-shadow-md transition-all duration-200 loom-glass">
           <CardContent className="pt-6">
             <div className="flex items-center justify-between">
               <div>
@@ -178,7 +187,7 @@ const Dashboard = ({ selectedProductId, onNavigate }: DashboardProps) => {
                 </p>
                 <p className="text-xs text-accent font-medium">+12% from last week</p>
               </div>
-              <div className="w-12 h-12 rounded-full bg-primary/10 flex items-center justify-center">
+              <div className="w-12 h-12 loom-rounded-full bg-primary/10 flex items-center justify-center loom-hover-scale">
                 <Users className="w-6 h-6 text-primary" />
               </div>
             </div>
@@ -284,6 +293,21 @@ const Dashboard = ({ selectedProductId, onNavigate }: DashboardProps) => {
           description="We're weaving your data into brilliant insights. Check back in a moment for your personalized recommendations."
         />
       )}
+
+      {/* SaaS Trend: Interactive Demo Integration */}
+      <InteractiveDemo
+        title="Explore Loom's Intelligence"
+        description="Take a guided tour through our AI-powered features"
+        steps={[
+          { id: '1', title: 'Dashboard Overview', description: 'Understand your key metrics at a glance', duration: 20 },
+          { id: '2', title: 'AI Insights', description: 'Discover intelligent recommendations', duration: 25 },
+          { id: '3', title: 'Strategic Planning', description: 'Learn how to align your roadmap', duration: 30 },
+        ]}
+        onComplete={() => {
+          // Show achievement toast
+        }}
+        className="loom-fade-in"
+      />
 
       {/* Real-time Alerts */}
       <Card>
