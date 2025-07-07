@@ -41,7 +41,9 @@ const AppSidebar = ({ activeModule, setActiveModule, selectedProductId, onProduc
   const [isProductMenuOpen, setIsProductMenuOpen] = useState(false);
   const { state } = useSidebar();
   const { profile, hasRole, signOut } = useAuth();
-  const isCollapsed = state === 'collapsed';
+  
+  // Force collapsed mode when in settings to show only icons
+  const isCollapsed = state === 'collapsed' || activeModule === 'settings';
 
   const modules = [
     // Core Product Features

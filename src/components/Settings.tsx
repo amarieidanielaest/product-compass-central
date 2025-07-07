@@ -276,67 +276,76 @@ const Settings = ({ currentTeamId }: SettingsProps) => {
     );
   }
 
-  // Desktop view with sidebar
+  // Desktop view with sidebar matching main navigation
   return (
-    <div className="w-full max-w-7xl mx-auto p-6">
-      <div className="mb-6">
-        <h1 className="text-3xl font-bold">Settings</h1>
-        <p className="text-muted-foreground mt-2">
-          Manage your account, team, and preferences
-        </p>
-      </div>
-
-      <div className="flex gap-8">
-        {/* Sidebar */}
-        <div className="w-64 flex-shrink-0">
-          <div className="space-y-6">
-            {visibleSections.map((section) => (
-              <div key={section.title}>
-                <h3 className="text-sm font-medium text-muted-foreground mb-3 px-3">
-                  {section.title}
-                </h3>
-                <div className="space-y-1">
-                  {section.items.map((item) => (
-                    <button
-                      key={item.id}
-                      onClick={() => !item.comingSoon && setActiveSection(item.id)}
-                      disabled={item.comingSoon}
-                      className={cn(
-                        "w-full text-left px-3 py-2 rounded-lg text-sm transition-colors flex items-center justify-between group",
-                        activeSection === item.id
-                          ? "bg-primary text-primary-foreground"
-                          : "hover:bg-muted text-foreground",
-                        item.comingSoon && "opacity-50 cursor-not-allowed"
-                      )}
-                    >
-                      <div className="flex items-center space-x-3">
-                        <item.icon className="h-4 w-4" />
-                        <span>{item.title}</span>
-                      </div>
-                      <div className="flex items-center space-x-2">
-                        {item.comingSoon && (
-                          <span className="text-xs bg-primary/10 text-primary px-1.5 py-0.5 rounded-full">
-                            Soon
-                          </span>
-                        )}
-                        {!item.comingSoon && (
-                          <ChevronRight className={cn(
-                            "h-4 w-4 opacity-0 group-hover:opacity-100 transition-opacity",
-                            activeSection === item.id && "opacity-100"
-                          )} />
-                        )}
-                      </div>
-                    </button>
-                  ))}
-                </div>
-              </div>
-            ))}
-          </div>
+    <div className="flex h-full">
+      {/* Settings Sidebar */}
+      <div className="w-64 flex-shrink-0 border-r border-slate-200 bg-background">
+        <div className="p-4 border-b border-slate-200">
+          <h1 className="text-xl font-bold">Settings</h1>
+          <p className="text-sm text-muted-foreground mt-1">
+            Manage your account and preferences
+          </p>
         </div>
 
-        {/* Main Content */}
-        <div className="flex-1 min-w-0">
-          {renderContent()}
+        <div className="overflow-y-auto">
+          {visibleSections.map((section) => (
+            <div key={section.title} className="p-4">
+              <h3 className="text-xs font-medium text-muted-foreground mb-3 uppercase tracking-wider">
+                {section.title}
+              </h3>
+              <div className="space-y-1">
+                {section.items.map((item) => (
+                  <button
+                    key={item.id}
+                    onClick={() => !item.comingSoon && setActiveSection(item.id)}
+                    disabled={item.comingSoon}
+                    className={cn(
+                      "w-full text-left px-3 py-2 rounded-lg text-sm transition-all duration-200 flex items-center justify-between group animate-fade-in",
+                      activeSection === item.id
+                        ? "bg-primary text-primary-foreground shadow-sm"
+                        : "hover:bg-muted text-foreground hover-scale",
+                      item.comingSoon && "opacity-50 cursor-not-allowed"
+                    )}
+                  >
+                    <div className="flex items-center space-x-3">
+                      <item.icon className="h-4 w-4 flex-shrink-0" />
+                      <div className="min-w-0 flex-1">
+                        <div className="font-medium">{item.title}</div>
+                        {item.description && (
+                          <div className="text-xs opacity-75 truncate mt-0.5">
+                            {item.description}
+                          </div>
+                        )}
+                      </div>
+                    </div>
+                    <div className="flex items-center space-x-2 ml-2">
+                      {item.comingSoon && (
+                        <span className="text-xs bg-primary/10 text-primary px-2 py-1 rounded-full">
+                          Soon
+                        </span>
+                      )}
+                      {!item.comingSoon && (
+                        <ChevronRight className={cn(
+                          "h-4 w-4 opacity-0 group-hover:opacity-100 transition-opacity",
+                          activeSection === item.id && "opacity-100"
+                        )} />
+                      )}
+                    </div>
+                  </button>
+                ))}
+              </div>
+            </div>
+          ))}
+        </div>
+      </div>
+
+      {/* Main Content */}
+      <div className="flex-1 min-w-0 bg-gradient-to-br from-slate-50 via-purple-50 to-pink-50">
+        <div className="h-full overflow-auto">
+          <div className="max-w-5xl mx-auto p-6">
+            {renderContent()}
+          </div>
         </div>
       </div>
     </div>
