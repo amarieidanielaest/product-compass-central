@@ -1,7 +1,7 @@
 import { useState } from 'react';
 import { 
   BarChart3, Target, Map, MessageSquare, Home, FileText, Kanban, Package, 
-  ChevronDown, Settings, User, LogOut, Bell, Search, Users
+  ChevronDown, Settings, User, LogOut, Bell, Search, Users, DollarSign, CreditCard, Crown
 } from 'lucide-react';
 import {
   Sidebar,
@@ -51,7 +51,13 @@ const AppSidebar = ({ activeModule, setActiveModule, selectedProductId, onProduc
     { id: 'customer', name: 'Customer Board', icon: MessageSquare, badge: '5' },
     { id: 'prd', name: 'PRD Generator', icon: FileText, badge: null },
     { id: 'products', name: 'Products', icon: Package, badge: null },
-    ...(hasRole('admin') ? [{ id: 'users', name: 'User Management', icon: Users, badge: null }] : []),
+    { id: 'pricing', name: 'Pricing Plans', icon: DollarSign, badge: null },
+    { id: 'teams', name: 'Team Management', icon: Users, badge: null },
+    { id: 'billing', name: 'Billing', icon: CreditCard, badge: null },
+    ...(hasRole('admin') ? [
+      { id: 'users', name: 'User Management', icon: Users, badge: null },
+      { id: 'admin', name: 'Admin Dashboard', icon: Crown, badge: null }
+    ] : []),
   ];
 
   const mockProducts = [

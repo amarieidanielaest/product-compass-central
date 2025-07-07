@@ -12,6 +12,10 @@ import ProductManager from '../components/ProductManager';
 import UserManagement from '../components/UserManagement';
 import BreadcrumbNav from '../components/BreadcrumbNav';
 import QuickActions from '../components/QuickActions';
+import PricingPlans from '../components/PricingPlans';
+import TeamManagement from '../components/TeamManagement';
+import AdminDashboard from '../components/AdminDashboard';
+import BillingManagement from '../components/BillingManagement';
 
 const Index = () => {
   const [activeModule, setActiveModule] = useState('dashboard');
@@ -27,6 +31,10 @@ const Index = () => {
       prd: 'PRD Generator',
       customer: 'Customer Board',
       users: 'User Management',
+      pricing: 'Pricing Plans',
+      teams: 'Team Management',
+      admin: 'Admin Dashboard',
+      billing: 'Billing',
     };
     return moduleNames[moduleId] || moduleId;
   };
@@ -59,6 +67,14 @@ const Index = () => {
         return <CustomerBoard selectedProductId={selectedProductId} onNavigate={setActiveModule} />;
       case 'users':
         return <UserManagement />;
+      case 'pricing':
+        return <PricingPlans currentTeamId={selectedProductId} />;
+      case 'teams':
+        return <TeamManagement teamId={selectedProductId} />;
+      case 'admin':
+        return <AdminDashboard />;
+      case 'billing':
+        return <BillingManagement teamId={selectedProductId} />;
       default:
         return <Dashboard selectedProductId={selectedProductId} onNavigate={setActiveModule} />;
     }
