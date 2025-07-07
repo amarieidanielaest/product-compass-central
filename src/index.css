@@ -3,88 +3,122 @@
 @tailwind components;
 @tailwind utilities;
 
-/* Definition of the design system. All colors, gradients, fonts, etc should be defined here. */
+/* Loom Brand Design System - Playful Intelligence */
 
 @layer base {
   :root {
-    --background: 0 0% 100%;
-    --foreground: 222.2 84% 4.9%;
+    /* Loom Brand Colors */
+    --background: 0 0% 98%; /* Off-White #FAFAFA */
+    --foreground: 0 0% 13%; /* Charcoal #212121 */
 
     --card: 0 0% 100%;
-    --card-foreground: 222.2 84% 4.9%;
+    --card-foreground: 0 0% 13%;
 
     --popover: 0 0% 100%;
-    --popover-foreground: 222.2 84% 4.9%;
+    --popover-foreground: 0 0% 13%;
 
-    /* Updated to modern eclectic purple */
-    --primary: 267 89% 65%;
-    --primary-foreground: 210 40% 98%;
+    /* Primary Intelligence Gradient - Deep Purple */
+    --primary: 267 89% 44%; /* #6A11CB Deep Purple */
+    --primary-foreground: 0 0% 98%;
 
-    --secondary: 210 40% 96.1%;
-    --secondary-foreground: 222.2 47.4% 11.2%;
+    /* Grounding Clarity Neutrals */
+    --secondary: 0 0% 93%; /* Grey 200 #EEEEEE */
+    --secondary-foreground: 0 0% 13%;
 
-    --muted: 210 40% 96.1%;
-    --muted-foreground: 215.4 16.3% 40%; /* Improved contrast from 46.9% to 40% */
+    --muted: 0 0% 93%;
+    --muted-foreground: 0 0% 74%; /* Grey 400 #BDBDBD */
 
-    /* Updated to vibrant teal accent with better contrast */
-    --accent: 184 100% 22%;
-    --accent-foreground: 0 0% 100%; /* Pure white for better contrast */
+    /* Vibrant Action Accents - Teal */
+    --accent: 173 100% 47%; /* #1DE9B6 Teal Success */
+    --accent-foreground: 0 0% 13%;
 
-    --destructive: 0 84.2% 60.2%;
-    --destructive-foreground: 210 40% 98%;
+    /* Coral Primary Action */
+    --coral: 16 100% 66%; /* #FF7F50 Coral */
+    --coral-foreground: 0 0% 100%;
 
-    --border: 214.3 31.8% 91.4%;
-    --input: 214.3 31.8% 91.4%;
-    --ring: 267 89% 65%;
+    /* Additional Action Colors */
+    --amber: 45 100% 51%; /* #FFC107 Amber Warning */
+    --amber-foreground: 0 0% 13%;
+    
+    --indigo: 231 48% 48%; /* #3F51B5 Indigo Info */
+    --indigo-foreground: 0 0% 100%;
+
+    /* Intelligence Gradient Colors */
+    --deep-purple: 267 89% 44%; /* #6A11CB */
+    --vibrant-magenta: 349 78% 56%; /* #E53935 */
+    --warm-orange: 32 100% 64%; /* #FFB347 */
+
+    --destructive: 349 78% 56%; /* Using vibrant magenta */
+    --destructive-foreground: 0 0% 98%;
+
+    --border: 0 0% 93%;
+    --input: 0 0% 93%;
+    --ring: 267 89% 44%;
 
     --radius: 0.75rem;
 
+    /* Sidebar with Brand Colors */
     --sidebar-background: 0 0% 98%;
-    --sidebar-foreground: 240 5.3% 26.1%;
-    --sidebar-primary: 267 89% 65%;
+    --sidebar-foreground: 0 0% 13%;
+    --sidebar-primary: 267 89% 44%;
     --sidebar-primary-foreground: 0 0% 98%;
-    --sidebar-accent: 240 4.8% 95.9%;
-    --sidebar-accent-foreground: 240 5.9% 10%;
-    --sidebar-border: 220 13% 91%;
-    --sidebar-ring: 184 100% 22%;
+    --sidebar-accent: 0 0% 96%;
+    --sidebar-accent-foreground: 0 0% 13%;
+    --sidebar-border: 0 0% 90%;
+    --sidebar-ring: 173 100% 47%;
   }
 
   .dark {
-    --background: 222.2 84% 4.9%;
-    --foreground: 210 40% 98%;
+    /* Dark theme using Loom brand with adjusted brightness */
+    --background: 0 0% 8%; /* Deep charcoal */
+    --foreground: 0 0% 98%;
 
-    --card: 222.2 84% 4.9%;
-    --card-foreground: 210 40% 98%;
+    --card: 0 0% 10%;
+    --card-foreground: 0 0% 98%;
 
-    --popover: 222.2 84% 4.9%;
-    --popover-foreground: 210 40% 98%;
+    --popover: 0 0% 10%;
+    --popover-foreground: 0 0% 98%;
 
-    --primary: 267 89% 65%;
-    --primary-foreground: 222.2 47.4% 11.2%;
+    --primary: 267 89% 55%; /* Slightly brighter purple */
+    --primary-foreground: 0 0% 98%;
 
-    --secondary: 217.2 32.6% 17.5%;
-    --secondary-foreground: 210 40% 98%;
+    --secondary: 0 0% 15%;
+    --secondary-foreground: 0 0% 98%;
 
-    --muted: 217.2 32.6% 17.5%;
-    --muted-foreground: 215 20.2% 65.1%;
+    --muted: 0 0% 15%;
+    --muted-foreground: 0 0% 65%;
 
-    --accent: 184 100% 22%;
-    --accent-foreground: 210 40% 98%;
+    --accent: 173 100% 55%; /* Brighter teal for dark mode */
+    --accent-foreground: 0 0% 8%;
 
-    --destructive: 0 62.8% 30.6%;
-    --destructive-foreground: 210 40% 98%;
+    --coral: 16 100% 66%;
+    --coral-foreground: 0 0% 100%;
 
-    --border: 217.2 32.6% 17.5%;
-    --input: 217.2 32.6% 17.5%;
-    --ring: 267 89% 65%;
-    --sidebar-background: 240 5.9% 10%;
-    --sidebar-foreground: 240 4.8% 95.9%;
-    --sidebar-primary: 267 89% 65%;
-    --sidebar-primary-foreground: 0 0% 100%;
-    --sidebar-accent: 240 3.7% 15.9%;
-    --sidebar-accent-foreground: 240 4.8% 95.9%;
-    --sidebar-border: 240 3.7% 15.9%;
-    --sidebar-ring: 184 100% 22%;
+    --amber: 45 100% 60%;
+    --amber-foreground: 0 0% 8%;
+    
+    --indigo: 231 48% 60%;
+    --indigo-foreground: 0 0% 100%;
+
+    --deep-purple: 267 89% 55%;
+    --vibrant-magenta: 349 78% 65%;
+    --warm-orange: 32 100% 70%;
+
+    --destructive: 349 78% 65%;
+    --destructive-foreground: 0 0% 98%;
+
+    --border: 0 0% 20%;
+    --input: 0 0% 20%;
+    --ring: 267 89% 55%;
+
+    --sidebar-background: 0 0% 8%;
+    --sidebar-foreground: 0 0% 98%;
+    --sidebar-primary: 267 89% 55%;
+    --sidebar-primary-foreground: 0 0% 98%;
+    --sidebar-accent: 0 0% 15%;
+    --sidebar-accent-foreground: 0 0% 98%;
+    --sidebar-border: 0 0% 20%;
+    --sidebar-ring: 173 100% 55%;
   }
 }
 
@@ -98,17 +132,55 @@
   }
 }
 
-/* Custom gradient utilities for eclectic design */
+/* Loom Brand Typography & Gradients */
+@import url('https://fonts.googleapis.com/css2?family=Plus+Jakarta+Sans:wght@400;500;600;700;800&family=Figtree:wght@300;400;500;600;700&display=swap');
+
 @layer utilities {
-  .gradient-primary {
-    background: linear-gradient(135deg, hsl(267 89% 65%), hsl(290 100% 75%));
+  /* Intelligence Gradient - Primary brand gradient */
+  .gradient-intelligence {
+    background: linear-gradient(135deg, hsl(var(--deep-purple)), hsl(var(--vibrant-magenta)), hsl(var(--warm-orange)));
   }
   
-  .gradient-accent {
-    background: linear-gradient(135deg, hsl(184 100% 22%), hsl(200 100% 35%));
+  /* Clarity Prisms - Subtle background gradients */
+  .gradient-clarity {
+    background: linear-gradient(135deg, hsl(var(--accent) / 0.1), hsl(var(--primary) / 0.05));
   }
   
-  .gradient-bg {
-    background: linear-gradient(135deg, hsl(267 89% 65% / 0.05), hsl(184 100% 22% / 0.05));
+  /* Action gradient for buttons */
+  .gradient-action {
+    background: linear-gradient(135deg, hsl(var(--coral)), hsl(var(--amber)));
+  }
+  
+  /* Subtle background for hero sections */
+  .gradient-hero {
+    background: linear-gradient(135deg, hsl(var(--background)), hsl(var(--accent) / 0.05), hsl(var(--primary) / 0.03));
+  }
+
+  /* Typography classes */
+  .font-headline {
+    font-family: 'Plus Jakarta Sans', sans-serif;
+  }
+  
+  .font-body {
+    font-family: 'Figtree', sans-serif;
+  }
+
+  /* Clarity Prisms geometric elements */
+  .prism-bg {
+    position: relative;
+  }
+  
+  .prism-bg::before {
+    content: '';
+    position: absolute;
+    top: 0;
+    left: 0;
+    right: 0;
+    bottom: 0;
+    background: 
+      radial-gradient(circle at 20% 80%, hsl(var(--accent) / 0.1) 0%, transparent 50%),
+      radial-gradient(circle at 80% 20%, hsl(var(--primary) / 0.1) 0%, transparent 50%),
+      radial-gradient(circle at 40% 40%, hsl(var(--coral) / 0.05) 0%, transparent 50%);
+    pointer-events: none;
   }
 }

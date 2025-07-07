@@ -97,9 +97,9 @@ const AppSidebar = ({ activeModule, setActiveModule, selectedProductId, onProduc
           {/* Logo - only show when expanded */}
           {!isCollapsed && (
             <div className="flex items-center space-x-2 min-w-0">
-              <h1 className="text-xl font-bold bg-gradient-to-r from-purple-600 to-pink-600 bg-clip-text text-transparent truncate">
-                ProductHub
-              </h1>
+            <h1 className="text-xl font-headline font-bold gradient-intelligence bg-clip-text text-transparent truncate">
+              Loom
+            </h1>
             </div>
           )}
           
@@ -224,19 +224,19 @@ const AppSidebar = ({ activeModule, setActiveModule, selectedProductId, onProduc
             <SidebarGroupLabel>Context</SidebarGroupLabel>
             <SidebarGroupContent>
               <div className="space-y-3 p-2">
-                <div className="bg-gradient-to-r from-purple-50 to-pink-50 p-3 rounded-lg border">
-                  <div className="text-xs font-medium text-purple-700 mb-1">Active Sprint</div>
-                  <div className="text-sm font-semibold text-slate-900">Sprint 24</div>
-                  <div className="text-xs text-slate-600">65% complete</div>
-                  <div className="w-full bg-purple-200 rounded-full h-1.5 mt-2">
-                    <div className="bg-purple-600 h-1.5 rounded-full" style={{ width: '65%' }}></div>
+                <div className="gradient-clarity p-3 rounded-lg border border-border">
+                  <div className="text-xs font-medium text-primary mb-1">Active Sprint</div>
+                  <div className="text-sm font-semibold">Sprint 24</div>
+                  <div className="text-xs text-muted-foreground">65% complete</div>
+                  <div className="w-full bg-secondary rounded-full h-1.5 mt-2">
+                    <div className="bg-primary h-1.5 rounded-full transition-all duration-300" style={{ width: '65%' }}></div>
                   </div>
                 </div>
                 
-                <div className="bg-gradient-to-r from-emerald-50 to-blue-50 p-3 rounded-lg border">
-                  <div className="text-xs font-medium text-emerald-700 mb-1">Customer Health</div>
-                  <div className="text-sm font-semibold text-slate-900">5 High Priority</div>
-                  <div className="text-xs text-slate-600">2 escalated this week</div>
+                <div className="bg-gradient-to-r from-accent/10 to-amber/10 p-3 rounded-lg border border-border">
+                  <div className="text-xs font-medium text-accent mb-1">Customer Health</div>
+                  <div className="text-sm font-semibold">5 High Priority</div>
+                  <div className="text-xs text-muted-foreground">2 escalated this week</div>
                 </div>
               </div>
             </SidebarGroupContent>

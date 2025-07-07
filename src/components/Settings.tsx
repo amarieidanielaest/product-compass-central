@@ -251,9 +251,9 @@ const Settings = ({ currentTeamId }: SettingsProps) => {
     return (
       <div className="w-full p-4">
         <div className="mb-6">
-          <h1 className="text-2xl font-bold">Settings</h1>
-          <p className="text-muted-foreground mt-2">
-            Manage your account, team, and preferences
+          <h1 className="text-2xl font-headline font-bold">Settings</h1>
+          <p className="text-muted-foreground mt-2 font-body">
+            Let's configure your workspace just the way you like it
           </p>
         </div>
         <div className="space-y-4">
@@ -356,9 +356,9 @@ const Settings = ({ currentTeamId }: SettingsProps) => {
         {/* Content Header */}
         <div className="border-b border-border bg-background p-6 flex-shrink-0">
           <div className="max-w-4xl">
-            <h1 className="text-2xl font-bold text-foreground">Settings</h1>
-            <p className="text-muted-foreground mt-1">
-              Manage your account and preferences
+            <h1 className="text-2xl font-headline font-bold text-foreground">Settings</h1>
+            <p className="text-muted-foreground mt-1 font-body">
+              Let's configure your workspace just the way you like it
             </p>
           </div>
         </div>

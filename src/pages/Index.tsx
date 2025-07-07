@@ -68,7 +68,7 @@ const Index = () => {
 
   return (
     <SidebarProvider>
-      <div className="min-h-screen flex w-full bg-gradient-to-br from-slate-50 via-purple-50 to-pink-50">
+      <div className="min-h-screen flex w-full font-body gradient-hero">
         <AppSidebar 
           activeModule={activeModule} 
           setActiveModule={setActiveModule}
@@ -77,13 +77,13 @@ const Index = () => {
         />
         <main className="flex-1 transition-all duration-300 overflow-hidden">
           <div className="h-full overflow-auto">
-            <div className="max-w-7xl mx-auto px-2 sm:px-4 lg:px-8 py-2 sm:py-4 lg:py-8">
+            <div className="max-w-7xl mx-auto px-3 sm:px-6 lg:px-8 py-3 sm:py-6 lg:py-8">
               <div className="space-y-4 sm:space-y-6">
                 <BreadcrumbNav 
                   items={getBreadcrumbItems()}
                   currentProduct={getCurrentProduct()}
                 />
-                <div className="block sm:hidden">
+                <div className="sm:hidden">
                   <QuickActions 
                     currentModule={activeModule}
                     onNavigate={setActiveModule}

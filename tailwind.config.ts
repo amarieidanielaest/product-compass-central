@@ -61,7 +61,29 @@ export default {
 					'accent-foreground': 'hsl(var(--sidebar-accent-foreground))',
 					border: 'hsl(var(--sidebar-border))',
 					ring: 'hsl(var(--sidebar-ring))'
-				}
+				},
+				// Loom Brand Action Colors
+				coral: {
+					DEFAULT: 'hsl(var(--coral))',
+					foreground: 'hsl(var(--coral-foreground))'
+				},
+				amber: {
+					DEFAULT: 'hsl(var(--amber))',
+					foreground: 'hsl(var(--amber-foreground))'
+				},
+				indigo: {
+					DEFAULT: 'hsl(var(--indigo))',
+					foreground: 'hsl(var(--indigo-foreground))'
+				},
+				// Intelligence Gradient Colors
+				'deep-purple': 'hsl(var(--deep-purple))',
+				'vibrant-magenta': 'hsl(var(--vibrant-magenta))',
+				'warm-orange': 'hsl(var(--warm-orange))'
+			},
+			fontFamily: {
+				headline: ['Plus Jakarta Sans', 'sans-serif'],
+				body: ['Figtree', 'sans-serif'],
+				sans: ['Figtree', 'sans-serif'], // Default to Figtree
 			},
 			borderRadius: {
 				lg: 'var(--radius)',
