@@ -44,20 +44,17 @@ const AppSidebar = ({ activeModule, setActiveModule, selectedProductId, onProduc
   const isCollapsed = state === 'collapsed';
 
   const modules = [
-    { id: 'dashboard', name: 'Dashboard', icon: Home, badge: null },
-    { id: 'strategy', name: 'Strategy', icon: Target, badge: null },
-    { id: 'roadmap', name: 'Roadmap', icon: Map, badge: '3' },
-    { id: 'sprints', name: 'Sprint Board', icon: Kanban, badge: '12' },
-    { id: 'customer', name: 'Customer Board', icon: MessageSquare, badge: '5' },
-    { id: 'prd', name: 'PRD Generator', icon: FileText, badge: null },
-    { id: 'products', name: 'Products', icon: Package, badge: null },
-    { id: 'pricing', name: 'Pricing Plans', icon: DollarSign, badge: null },
-    { id: 'teams', name: 'Team Management', icon: Users, badge: null },
-    { id: 'billing', name: 'Billing', icon: CreditCard, badge: null },
-    ...(hasRole('admin') ? [
-      { id: 'users', name: 'User Management', icon: Users, badge: null },
-      { id: 'admin', name: 'Admin Dashboard', icon: Crown, badge: null }
-    ] : []),
+    // Core Product Features
+    { id: 'dashboard', name: 'Dashboard', icon: Home, badge: null, category: 'core' },
+    { id: 'strategy', name: 'Strategy', icon: Target, badge: null, category: 'core' },
+    { id: 'roadmap', name: 'Roadmap', icon: Map, badge: '3', category: 'core' },
+    { id: 'sprints', name: 'Sprint Board', icon: Kanban, badge: '12', category: 'core' },
+    { id: 'customer', name: 'Customer Board', icon: MessageSquare, badge: '5', category: 'core' },
+    { id: 'prd', name: 'PRD Generator', icon: FileText, badge: null, category: 'core' },
+    { id: 'products', name: 'Products', icon: Package, badge: null, category: 'core' },
+    
+    // Settings & Administration
+    { id: 'settings', name: 'Settings', icon: Settings, badge: null, category: 'settings' },
   ];
 
   const mockProducts = [
