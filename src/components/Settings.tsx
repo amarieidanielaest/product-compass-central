@@ -276,14 +276,23 @@ const Settings = ({ currentTeamId }: SettingsProps) => {
     );
   }
 
-  // Desktop view with sidebar matching main navigation
+  // Desktop view with FeatureBase-style layout
   return (
-    <div className="flex h-full">
-      {/* Settings Sidebar */}
-      <div className="w-64 flex-shrink-0 border-r border-slate-200 bg-background">
-        <div className="p-4 border-b border-slate-200">
-          <h1 className="text-xl font-bold">Settings</h1>
-          <p className="text-sm text-muted-foreground mt-1">
+    <div className="flex h-full bg-background">
+      {/* Settings Sidebar - Primary Navigation */}
+      <div className="w-80 flex-shrink-0 border-r border-border bg-background">
+        {/* Header */}
+        <div className="p-6 border-b border-border">
+          {/* Breadcrumb */}
+          <div className="flex items-center text-sm text-muted-foreground mb-4">
+            <Building className="h-4 w-4 mr-2" />
+            <span>Main Product</span>
+            <ChevronRight className="h-4 w-4 mx-2" />
+            <span className="text-foreground font-medium">Settings</span>
+          </div>
+          
+          <h1 className="text-2xl font-bold text-foreground">Settings</h1>
+          <p className="text-muted-foreground mt-1">
             Manage your account and preferences
           </p>
         </div>

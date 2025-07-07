@@ -29,6 +29,7 @@ import {
 import { Avatar, AvatarFallback } from '@/components/ui/avatar';
 import NotificationBell from './notifications/NotificationBell';
 import { useAuth } from '@/contexts/AuthContext';
+import { cn } from '@/lib/utils';
 
 interface AppSidebarProps {
   activeModule: string;
@@ -75,7 +76,10 @@ const AppSidebar = ({ activeModule, setActiveModule, selectedProductId, onProduc
   };
 
   return (
-    <Sidebar className="border-r border-slate-200">
+    <Sidebar className={cn(
+      "border-r border-slate-200 transition-all duration-300",
+      isCollapsed ? "w-16" : "w-64"
+    )}>
       <SidebarHeader className="border-b border-slate-200 p-4">
         <div className="flex items-center justify-between">
           <div className="flex items-center space-x-2">
