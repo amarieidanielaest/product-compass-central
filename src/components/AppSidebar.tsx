@@ -30,6 +30,7 @@ import { Avatar, AvatarFallback } from '@/components/ui/avatar';
 import NotificationBell from './notifications/NotificationBell';
 import { useAuth } from '@/contexts/AuthContext';
 import { cn } from '@/lib/utils';
+import loomLogo from '@/assets/loom-logo.png';
 
 interface AppSidebarProps {
   activeModule: string;
@@ -96,10 +97,11 @@ const AppSidebar = ({ activeModule, setActiveModule, selectedProductId, onProduc
         )}>
           {/* Logo - only show when expanded */}
           {!isCollapsed && (
-            <div className="flex items-center space-x-2 min-w-0">
-            <h1 className="text-xl font-headline font-bold gradient-intelligence bg-clip-text text-transparent truncate">
-              Loom
-            </h1>
+            <div className="flex items-center space-x-3 min-w-0">
+              <img src={loomLogo} alt="Loom" className="w-8 h-8 flex-shrink-0" />
+              <h1 className="text-xl font-headline font-bold text-foreground truncate">
+                Loom
+              </h1>
             </div>
           )}
           

@@ -1,5 +1,5 @@
 import { useState } from 'react';
-import { TrendingUp, Users, Calendar, Star, Settings, Plus, BarChart3, PieChart, LineChart, Target, DollarSign, Clock, AlertTriangle } from 'lucide-react';
+import { TrendingUp, Users, Calendar, Star, Settings, Plus, BarChart3, PieChart, LineChart, Target, DollarSign, Clock, AlertTriangle, Sparkles } from 'lucide-react';
 import { Card, CardContent, CardHeader, CardTitle } from '@/components/ui/card';
 import { Button } from '@/components/ui/button';
 import { Badge } from '@/components/ui/badge';
@@ -21,6 +21,8 @@ import {
 } from 'recharts';
 import { useServiceCall } from '@/hooks/useServiceIntegration';
 import { analyticsService, aiService } from '@/services/api';
+import { WelcomeMessage, EmptyState } from './BrandVoice';
+import loomLogo from '@/assets/loom-logo.png';
 
 interface DashboardProps {
   selectedProductId?: string;
@@ -127,129 +129,142 @@ const Dashboard = ({ selectedProductId, onNavigate }: DashboardProps) => {
   };
 
   return (
-    <div className="space-y-6">
-      {/* Header */}
-      <div className="flex flex-col sm:flex-row justify-between items-start sm:items-center gap-4">
-        <div>
-          <h2 className="text-2xl sm:text-3xl font-bold bg-gradient-to-r from-purple-600 to-pink-600 bg-clip-text text-transparent mb-2">
-            Product Dashboard
-          </h2>
-          <p className="text-slate-600">
-            {selectedProductId === 'main' ? 'Main Product Analytics' : 
-             selectedProductId === 'beta' ? 'Beta Product Analytics' : 
-             'Comprehensive product insights and performance metrics'}
-          </p>
+    <div className="space-y-6 font-body">
+      {/* Header with Loom Branding */}
+      <div className="flex flex-col sm:flex-row justify-between items-start sm:items-center gap-4 prism-bg p-6 rounded-lg">
+        <div className="flex items-center space-x-4">
+          <img src={loomLogo} alt="Loom" className="w-12 h-12 hidden sm:block" />
+          <div>
+            <h2 className="text-2xl sm:text-3xl font-headline font-bold gradient-intelligence bg-clip-text text-transparent mb-2">
+              Your Creative Command Center
+            </h2>
+            <p className="text-muted-foreground font-body">
+              {selectedProductId === 'main' ? 'Main Product — Where the magic happens' : 
+               selectedProductId === 'beta' ? 'Beta Product — Innovation in progress' : 
+               'Ready to turn complexity into clarity? Let\'s weave some product magic.'}
+            </p>
+          </div>
         </div>
-        <div className="flex space-x-2">
+        <div className="flex flex-col sm:flex-row items-start sm:items-center space-y-2 sm:space-y-0 sm:space-x-3">
           <Tabs value={timeFilter} onValueChange={(value) => setTimeFilter(value as '7d' | '30d' | '90d')}>
-            <TabsList>
+            <TabsList className="bg-background border border-border">
               <TabsTrigger value="7d">7D</TabsTrigger>
               <TabsTrigger value="30d">30D</TabsTrigger>
               <TabsTrigger value="90d">90D</TabsTrigger>
             </TabsList>
           </Tabs>
-          <Button className="bg-gradient-to-r from-purple-600 to-pink-600 hover:from-purple-700 hover:to-pink-700">
-            <Plus className="w-4 h-4 mr-2" />
+          <Button className="gradient-action text-white hover:opacity-90 transition-opacity">
+            <Sparkles className="w-4 h-4 mr-2" />
             Add Widget
           </Button>
         </div>
       </div>
 
-      {/* KPI Cards with Real Data Integration */}
-      <div className="grid grid-cols-1 sm:grid-cols-2 lg:grid-cols-4 gap-4">
-        <Card className="border-l-4 border-l-purple-500">
+      {/* KPI Cards with Loom Brand Colors */}
+      <div className="grid grid-cols-1 sm:grid-cols-2 lg:grid-cols-4 gap-4 sm:gap-6">
+        <Card className="border-l-4 border-l-primary hover:shadow-md transition-shadow">
           <CardContent className="pt-6">
             <div className="flex items-center justify-between">
               <div>
-                <p className="text-sm font-medium text-slate-600">Active Users</p>
-                <p className="text-2xl font-bold text-slate-900">
+                <p className="text-sm font-medium text-muted-foreground">Active Users</p>
+                <p className="text-2xl font-bold font-headline">
                   {userMetricsLoading ? '...' : userMetrics?.activeUsers?.toLocaleString() || '2,847'}
                 </p>
-                <p className="text-xs text-green-600">+12% from last week</p>
+                <p className="text-xs text-accent font-medium">+12% from last week</p>
               </div>
-              <Users className="w-8 h-8 text-purple-500" />
+              <div className="w-12 h-12 rounded-full bg-primary/10 flex items-center justify-center">
+                <Users className="w-6 h-6 text-primary" />
+              </div>
             </div>
           </CardContent>
         </Card>
         
-        <Card className="border-l-4 border-l-blue-500">
+        <Card className="border-l-4 border-l-accent hover:shadow-md transition-shadow">
           <CardContent className="pt-6">
             <div className="flex items-center justify-between">
               <div>
-                <p className="text-sm font-medium text-slate-600">Retention Rate</p>
-                <p className="text-2xl font-bold text-slate-900">
+                <p className="text-sm font-medium text-muted-foreground">Retention Rate</p>
+                <p className="text-2xl font-bold font-headline">
                   {userMetricsLoading ? '...' : `${userMetrics?.retentionRate || 87}%`}
                 </p>
-                <p className="text-xs text-green-600">
+                <p className="text-xs text-accent font-medium">
                   {userMetrics?.retentionRate && userMetrics.retentionRate > 85 ? '+3% improvement' : '+8% from last month'}
                 </p>
               </div>
-              <DollarSign className="w-8 h-8 text-blue-500" />
+              <div className="w-12 h-12 rounded-full bg-accent/10 flex items-center justify-center">
+                <TrendingUp className="w-6 h-6 text-accent" />
+              </div>
             </div>
           </CardContent>
         </Card>
         
-        <Card className="border-l-4 border-l-green-500">
+        <Card className="border-l-4 border-l-coral hover:shadow-md transition-shadow">
           <CardContent className="pt-6">
             <div className="flex items-center justify-between">
               <div>
-                <p className="text-sm font-medium text-slate-600">Health Score</p>
-                <p className="text-2xl font-bold text-slate-900">
+                <p className="text-sm font-medium text-muted-foreground">Health Score</p>
+                <p className="text-2xl font-bold font-headline">
                   {healthLoading ? '...' : `${productHealth?.overallHealth || 67}%`}
                 </p>
-                <p className="text-xs text-orange-600">-3% from target</p>
+                <p className="text-xs text-amber font-medium">-3% from target</p>
               </div>
-              <Target className="w-8 h-8 text-green-500" />
+              <div className="w-12 h-12 rounded-full bg-coral/10 flex items-center justify-center">
+                <Target className="w-6 h-6 text-coral" />
+              </div>
             </div>
           </CardContent>
         </Card>
         
-        <Card className="border-l-4 border-l-orange-500">
+        <Card className="border-l-4 border-l-indigo hover:shadow-md transition-shadow">
           <CardContent className="pt-6">
             <div className="flex items-center justify-between">
               <div>
-                <p className="text-sm font-medium text-slate-600">Engagement Score</p>
-                <p className="text-2xl font-bold text-slate-900">
+                <p className="text-sm font-medium text-muted-foreground">Engagement Score</p>
+                <p className="text-2xl font-bold font-headline">
                   {userMetricsLoading ? '...' : `${userMetrics?.engagementScore || 8.4}`}
                 </p>
-                <p className="text-xs text-green-600">-15% improvement</p>
+                <p className="text-xs text-accent font-medium">+15% improvement</p>
               </div>
-              <Clock className="w-8 h-8 text-orange-500" />
+              <div className="w-12 h-12 rounded-full bg-indigo/10 flex items-center justify-center">
+                <Clock className="w-6 h-6 text-indigo" />
+              </div>
             </div>
           </CardContent>
         </Card>
       </div>
 
-      {/* AI Insights Section */}
-      {aiInsights && aiInsights.length > 0 && (
-        <Card>
+      {/* AI Insights Section with Loom Voice */}
+      {aiInsights && aiInsights.length > 0 ? (
+        <Card className="gradient-clarity border-primary/20">
           <CardHeader>
-            <CardTitle className="flex items-center">
-              <Star className="w-5 h-5 mr-2 text-yellow-500" />
-              AI-Powered Insights
+            <CardTitle className="flex items-center font-headline">
+              <Sparkles className="w-5 h-5 mr-2 text-primary" />
+              AI-Powered Insights — Your Creative Partner at Work
             </CardTitle>
           </CardHeader>
           <CardContent>
             <div className="space-y-3">
               {aiInsights.slice(0, 3).map((insight, index) => (
-                <div key={index} className="flex items-start justify-between p-3 bg-slate-50 rounded-lg">
+                <div key={index} className="flex items-start justify-between p-4 bg-background/50 rounded-lg border border-border/50">
                   <div className="flex-1">
-                    <div className="flex items-center space-x-2 mb-1">
+                    <div className="flex items-center space-x-2 mb-2">
                       <Badge className={
-                        insight.type === 'opportunity' ? 'bg-green-100 text-green-800' :
-                        insight.type === 'warning' ? 'bg-orange-100 text-orange-800' :
-                        'bg-blue-100 text-blue-800'
+                        insight.type === 'opportunity' ? 'bg-accent/10 text-accent border-accent/20' :
+                        insight.type === 'warning' ? 'bg-amber/10 text-amber border-amber/20' :
+                        'bg-primary/10 text-primary border-primary/20'
                       }>
                         {insight.type}
                       </Badge>
-                      <span className="text-xs text-slate-500">Confidence: {Math.round(insight.confidence * 100)}%</span>
+                      <span className="text-xs text-muted-foreground font-medium">
+                        Confidence: {Math.round(insight.confidence * 100)}%
+                      </span>
                     </div>
-                    <h4 className="font-medium text-slate-900">{insight.title}</h4>
-                    <p className="text-sm text-slate-600 mt-1">{insight.description}</p>
+                    <h4 className="font-medium font-headline">{insight.title}</h4>
+                    <p className="text-sm text-muted-foreground mt-1">{insight.description}</p>
                   </div>
                   {insight.actionable && (
-                    <Button size="sm" variant="outline">
-                      Act
+                    <Button size="sm" variant="outline" className="hover:bg-primary hover:text-primary-foreground">
+                      Take Action
                     </Button>
                   )}
                 </div>
@@ -257,6 +272,11 @@ const Dashboard = ({ selectedProductId, onNavigate }: DashboardProps) => {
             </div>
           </CardContent>
         </Card>
+      ) : (
+        <WelcomeMessage 
+          title="AI Insights Coming Soon!"
+          description="We're weaving your data into brilliant insights. Check back in a moment for your personalized recommendations."
+        />
       )}
 
       {/* Real-time Alerts */}
