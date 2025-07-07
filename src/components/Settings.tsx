@@ -279,10 +279,12 @@ const Settings = ({ currentTeamId }: SettingsProps) => {
   return (
     <div className="flex h-screen bg-background">
       {/* Settings Navigation Sidebar */}
-      <div className="w-80 border-r border-border bg-background flex flex-col">
+      <div className="w-64 border-r border-border bg-background flex flex-col">
         {/* Navigation Header */}
-        <div className="p-4 border-b border-border flex-shrink-0">
-          <div className="text-xs font-medium text-muted-foreground mb-4 tracking-wide">Navigation</div>
+        <div className="border-b border-border p-4">
+          <h3 className="text-xs font-medium text-muted-foreground mb-3 tracking-wide uppercase">
+            Navigation
+          </h3>
         </div>
         
         {/* Settings Navigation */}
@@ -290,7 +292,7 @@ const Settings = ({ currentTeamId }: SettingsProps) => {
           {visibleSections.map((section) => (
             <div key={section.title} className="py-2">
               <div className="px-4 py-2">
-                <h3 className="text-xs font-medium text-muted-foreground mb-3 tracking-wide">
+                <h3 className="text-xs font-medium text-muted-foreground mb-3 tracking-wide uppercase">
                   {section.title}
                 </h3>
               </div>
@@ -301,22 +303,22 @@ const Settings = ({ currentTeamId }: SettingsProps) => {
                     onClick={() => !item.comingSoon && setActiveSection(item.id)}
                     disabled={item.comingSoon}
                     className={cn(
-                      "w-full text-left px-3 py-3 rounded-lg transition-all duration-200 flex items-center group",
+                      "w-full text-left px-3 py-2 rounded-lg transition-all duration-200 flex items-center group text-sm",
                       activeSection === item.id
-                        ? "bg-primary text-primary-foreground"
-                        : "hover:bg-muted text-foreground",
+                        ? "bg-accent text-accent-foreground"
+                        : "hover:bg-accent/50 text-foreground",
                       item.comingSoon && "opacity-50 cursor-not-allowed"
                     )}
                   >
-                    <item.icon className="h-5 w-5 mr-3 flex-shrink-0" />
+                    <item.icon className="h-4 w-4 mr-3 flex-shrink-0" />
                     <div className="flex-1 min-w-0">
-                      <div className="font-medium text-sm">{item.title}</div>
-                      <div className="text-xs opacity-75 mt-0.5 truncate">
+                      <div className="font-medium">{item.title}</div>
+                      <div className="text-xs text-muted-foreground mt-0.5 truncate">
                         {item.description}
                       </div>
                     </div>
                     {item.comingSoon ? (
-                      <span className="text-xs bg-primary/20 text-primary px-2 py-1 rounded-full ml-2">
+                      <span className="text-xs bg-muted text-muted-foreground px-2 py-1 rounded-full ml-2">
                         Soon
                       </span>
                     ) : (

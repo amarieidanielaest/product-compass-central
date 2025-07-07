@@ -40,11 +40,12 @@ interface AppSidebarProps {
 
 const AppSidebar = ({ activeModule, setActiveModule, selectedProductId, onProductChange }: AppSidebarProps) => {
   const [isProductMenuOpen, setIsProductMenuOpen] = useState(false);
-  const { state } = useSidebar();
+  const { state, setOpenMobile } = useSidebar();
   const { profile, hasRole, signOut } = useAuth();
   
-  // Properly handle collapsed state - don't force collapse in settings
-  const isCollapsed = state === 'collapsed';
+  // Auto-collapse when in settings
+  const shouldAutoCollapse = activeModule === 'settings';
+  const isCollapsed = state === 'collapsed' || shouldAutoCollapse;
 
   const modules = [
     // Core Product Features
@@ -80,18 +81,20 @@ const AppSidebar = ({ activeModule, setActiveModule, selectedProductId, onProduc
       collapsible="icon"
       className="border-r border-slate-200"
     >
-      <SidebarHeader className="border-b border-slate-200 p-4">
-        <div className="flex items-center justify-between">
-          <div className="flex items-center space-x-2">
+      <SidebarHeader className="border-b border-slate-200">
+        <div className="flex items-center justify-between p-4">
+          <div className="flex items-center space-x-2 min-w-0">
             {!isCollapsed && (
-              <h1 className="text-xl font-bold bg-gradient-to-r from-purple-600 to-pink-600 bg-clip-text text-transparent">
+              <h1 className="text-xl font-bold bg-gradient-to-r from-purple-600 to-pink-600 bg-clip-text text-transparent truncate">
                 ProductHub
               </h1>
             )}
           </div>
-          <div className="flex items-center space-x-2">
-            <NotificationBell />
-            <SidebarTrigger />
+          <div className="flex items-center space-x-1 flex-shrink-0">
+            <div className="hidden sm:block">
+              <NotificationBell />
+            </div>
+            <SidebarTrigger className="h-8 w-8" />
           </div>
         </div>
         
