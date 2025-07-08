@@ -25,7 +25,7 @@ import { WelcomeMessage, EmptyState } from './BrandVoice';
 import { EmotionalFeedback, AchievementToast } from './EmotionalFeedback';
 import { InteractiveDemo } from './InteractiveDemo';
 import { BentoGrid, BentoCard } from './BentoGrid';
-import { VoiceInterface } from './VoiceInterface';
+
 import { WidgetManager } from './WidgetManager';
 import { ConfigurableWidget } from './widgets/ConfigurableWidget';
 import loomLogo from '@/assets/loom-logo.png';
@@ -208,11 +208,6 @@ const Dashboard = ({ selectedProductId, onNavigate }: DashboardProps) => {
         </div>
       </div>
 
-      {/* Voice Interface */}
-      <VoiceInterface 
-        onCommand={(command) => console.log('Voice command:', command)}
-        className="mb-6"
-      />
 
       {/* Core Metrics - Redesigned */}
       <BentoGrid>

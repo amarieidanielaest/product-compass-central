@@ -15,6 +15,7 @@ import ProtectedRoute from "./components/ProtectedRoute";
 import NotFound from "./pages/NotFound";
 import HelpCenter from "./pages/HelpCenter";
 import HelpCenterAdmin from "./components/HelpCenterAdmin";
+import FloatingVoiceAssistant from "./components/FloatingVoiceAssistant";
 
 const queryClient = new QueryClient();
 
@@ -57,6 +58,7 @@ const App = () => (
               {/* ADD ALL CUSTOM ROUTES ABOVE THE CATCH-ALL "*" ROUTE */}
               <Route path="*" element={<NotFound />} />
             </Routes>
+            <FloatingVoiceAssistant />
           </BrowserRouter>
         </TooltipProvider>
       </AuthProvider>
