@@ -209,13 +209,13 @@ const Dashboard = ({ selectedProductId, onNavigate }: DashboardProps) => {
         </div>
       </div>
 
-      {/* Key Metrics Grid - Mobile First */}
-      <div className="grid grid-cols-1 sm:grid-cols-2 lg:grid-cols-4 gap-3 md:gap-4 lg:gap-6">
+      {/* Key Metrics Grid - Fixed Responsive */}
+      <div className="grid grid-cols-1 sm:grid-cols-2 xl:grid-cols-4 gap-4 md:gap-6">
         <Card className="loom-glass border border-border/30 p-4 md:p-6">
-          <div className="flex items-center justify-between">
+          <div className="flex items-center justify-between gap-3">
             <div className="space-y-1 md:space-y-2 min-w-0 flex-1">
-              <p className="text-xs md:text-sm font-medium text-muted-foreground font-body truncate">Total Users</p>
-              <p className="text-xl md:text-2xl lg:text-3xl font-bold font-headline text-foreground">
+              <p className="text-xs md:text-sm font-medium text-muted-foreground font-body">Total Users</p>
+              <p className="text-2xl md:text-3xl font-bold font-headline text-foreground">
                 {formatNumber(2847)}
               </p>
               <div className="flex items-center space-x-1 text-xs md:text-sm text-emerald-600">
@@ -230,10 +230,10 @@ const Dashboard = ({ selectedProductId, onNavigate }: DashboardProps) => {
         </Card>
 
         <Card className="loom-glass border border-border/30 p-4 md:p-6">
-          <div className="flex items-center justify-between">
+          <div className="flex items-center justify-between gap-3">
             <div className="space-y-1 md:space-y-2 min-w-0 flex-1">
-              <p className="text-xs md:text-sm font-medium text-muted-foreground font-body truncate">Revenue</p>
-              <p className="text-xl md:text-2xl lg:text-3xl font-bold font-headline text-foreground">
+              <p className="text-xs md:text-sm font-medium text-muted-foreground font-body">Revenue</p>
+              <p className="text-2xl md:text-3xl font-bold font-headline text-foreground">
                 ${formatNumber(125000)}
               </p>
               <div className="flex items-center space-x-1 text-xs md:text-sm text-emerald-600">
@@ -248,10 +248,10 @@ const Dashboard = ({ selectedProductId, onNavigate }: DashboardProps) => {
         </Card>
 
         <Card className="loom-glass border border-border/30 p-4 md:p-6">
-          <div className="flex items-center justify-between">
+          <div className="flex items-center justify-between gap-3">
             <div className="space-y-1 md:space-y-2 min-w-0 flex-1">
-              <p className="text-xs md:text-sm font-medium text-muted-foreground font-body truncate">Active Features</p>
-              <p className="text-xl md:text-2xl lg:text-3xl font-bold font-headline text-foreground">
+              <p className="text-xs md:text-sm font-medium text-muted-foreground font-body">Active Features</p>
+              <p className="text-2xl md:text-3xl font-bold font-headline text-foreground">
                 {formatNumber(156)}
               </p>
               <div className="flex items-center space-x-1 text-xs md:text-sm text-blue-600">
@@ -266,10 +266,10 @@ const Dashboard = ({ selectedProductId, onNavigate }: DashboardProps) => {
         </Card>
 
         <Card className="loom-glass border border-border/30 p-4 md:p-6">
-          <div className="flex items-center justify-between">
+          <div className="flex items-center justify-between gap-3">
             <div className="space-y-1 md:space-y-2 min-w-0 flex-1">
-              <p className="text-xs md:text-sm font-medium text-muted-foreground font-body truncate">Health Score</p>
-              <p className="text-xl md:text-2xl lg:text-3xl font-bold font-headline text-foreground">
+              <p className="text-xs md:text-sm font-medium text-muted-foreground font-body">Health Score</p>
+              <p className="text-2xl md:text-3xl font-bold font-headline text-foreground">
                 {formatNumber(87)}%
               </p>
               <div className="flex items-center space-x-1 text-xs md:text-sm text-amber-600">
