@@ -1,5 +1,5 @@
 import { useState } from 'react';
-import { TrendingUp, Users, Calendar, Star, Settings, Plus, BarChart3, PieChart, LineChart, Target, DollarSign, Clock, AlertTriangle, Sparkles } from 'lucide-react';
+import { TrendingUp, Users, Calendar, Star, Settings, Plus, BarChart3, PieChart, LineChart, Target, DollarSign, Clock, AlertTriangle, Sparkles, Zap, Activity, Brain } from 'lucide-react';
 import { Card, CardContent, CardHeader, CardTitle } from '@/components/ui/card';
 import { Button } from '@/components/ui/button';
 import { Badge } from '@/components/ui/badge';
@@ -26,7 +26,8 @@ import { EmotionalFeedback, AchievementToast } from './EmotionalFeedback';
 import { InteractiveDemo } from './InteractiveDemo';
 import { BentoGrid, BentoCard } from './BentoGrid';
 import { VoiceInterface } from './VoiceInterface';
-
+import { WidgetManager } from './WidgetManager';
+import { ConfigurableWidget } from './widgets/ConfigurableWidget';
 import loomLogo from '@/assets/loom-logo.png';
 
 interface DashboardProps {
@@ -34,9 +35,21 @@ interface DashboardProps {
   onNavigate?: (module: string) => void;
 }
 
+interface WidgetConfig {
+  id: string;
+  type: 'chart' | 'metric' | 'table' | 'ai-insight';
+  title: string;
+  dataSource: string;
+  visualization: string;
+  size: 'sm' | 'md' | 'lg' | 'xl';
+  filters?: Record<string, any>;
+  customOptions?: Record<string, any>;
+}
+
 const Dashboard = ({ selectedProductId, onNavigate }: DashboardProps) => {
   const [timeFilter, setTimeFilter] = useState<'7d' | '30d' | '90d'>('30d');
   const [selectedMetric, setSelectedMetric] = useState('users');
+  const [customWidgets, setCustomWidgets] = useState<WidgetConfig[]>([]);
 
   // Integrate Analytics Service
   const { data: userMetrics, loading: userMetricsLoading, error: userMetricsError } = useServiceCall(
@@ -124,354 +137,315 @@ const Dashboard = ({ selectedProductId, onNavigate }: DashboardProps) => {
     'hsl(var(--indigo))'
   ];
 
-  const alerts = [
-    { id: 1, type: 'warning', message: 'Sprint 24 is behind schedule', action: 'View Sprint' },
-    { id: 2, type: 'info', message: '5 new customer feedback items', action: 'Review' },
-    { id: 3, type: 'success', message: 'Dark mode feature completed', action: 'Deploy' },
+  const aiInsightsData = [
+    {
+      type: 'trend',
+      title: 'User Engagement Surge',
+      description: 'User engagement increased 23% this week, driven by new onboarding flow',
+      confidence: 92,
+      actionable: true,
+      impact: 'high'
+    },
+    {
+      type: 'recommendation',
+      title: 'Feature Adoption Opportunity',
+      description: 'Only 34% of users are using the PRD Generator. Consider adding guided tutorials',
+      confidence: 87,
+      actionable: true,
+      impact: 'medium'
+    },
+    {
+      type: 'alert',
+      title: 'Churn Risk Detected',
+      description: '15 enterprise customers showing decreased activity patterns',
+      confidence: 95,
+      actionable: true,
+      impact: 'critical'
+    }
   ];
 
-  const getAlertIcon = (type: string) => {
-    switch (type) {
-      case 'warning': return <AlertTriangle className="w-4 h-4 text-amber" />;
-      case 'info': return <Star className="w-4 h-4 text-indigo" />;
-      case 'success': return <Target className="w-4 h-4 text-accent" />;
-      default: return <AlertTriangle className="w-4 h-4 text-muted-foreground" />;
-    }
+  const handleAddWidget = (config: WidgetConfig) => {
+    setCustomWidgets(prev => [...prev, config]);
+  };
+
+  const handleEditWidget = (config: WidgetConfig) => {
+    setCustomWidgets(prev => prev.map(w => w.id === config.id ? config : w));
+  };
+
+  const handleDeleteWidget = (id: string) => {
+    setCustomWidgets(prev => prev.filter(w => w.id !== id));
+  };
+
+  const formatNumber = (num: number) => {
+    if (num >= 1000000) return `${(num / 1000000).toFixed(1)}M`;
+    if (num >= 1000) return `${(num / 1000).toFixed(1)}K`;
+    return num.toString();
   };
 
   return (
-    <div className="space-y-6 font-body">
-      {/* 2025 UI/UX: Voice Interface Integration */}
-      <VoiceInterface 
-        onCommand={(command) => console.log('Voice command:', command)}
-        className="loom-fade-in"
-      />
-
-      {/* SaaS Trend: Emotional Design - Success celebration */}
-      <EmotionalFeedback 
-        message="Welcome back! Your product metrics are looking fantastic today. 🚀"
-        type="celebration"
-        className="loom-slide-up"
-      />
-
-      {/* Header with Loom Branding */}
-      <div className="flex flex-col sm:flex-row justify-between items-start sm:items-center gap-4 prism-bg p-6 loom-rounded-lg loom-hover-lift">
-        <div className="flex items-center space-x-4">
-          <img src={loomLogo} alt="Loom" className="w-12 h-12 hidden sm:block loom-hover-scale" />
-          <div>
-            <h2 className="text-2xl sm:text-3xl font-headline font-bold gradient-intelligence bg-clip-text text-transparent mb-2 loom-fade-in">
-              Your Creative Command Center
-            </h2>
-            <p className="text-muted-foreground font-body">
-              {selectedProductId === 'main' ? 'Main Product — Where the magic happens' : 
-               selectedProductId === 'beta' ? 'Beta Product — Innovation in progress' : 
-               'Ready to turn complexity into clarity? Let\'s weave some product magic.'}
-            </p>
-          </div>
+    <div className="space-y-6 animate-fade-in">
+      {/* AI-Powered Header with Personalization */}
+      <div className="flex flex-col lg:flex-row lg:items-center lg:justify-between space-y-4 lg:space-y-0">
+        <div className="space-y-1">
+          <h1 className="text-3xl font-bold font-headline gradient-text">
+            Product Intelligence Dashboard
+          </h1>
+          <p className="text-muted-foreground font-body">
+            AI-powered insights for {selectedProductId === 'main' ? 'Main Product' : 'All Products'} • Last updated 2 minutes ago
+          </p>
         </div>
-        <div className="flex flex-col sm:flex-row items-start sm:items-center space-y-2 sm:space-y-0 sm:space-x-3">
-          <Tabs value={timeFilter} onValueChange={(value) => setTimeFilter(value as '7d' | '30d' | '90d')}>
-            <TabsList className="bg-background border border-border loom-glass">
-              <TabsTrigger value="7d">7D</TabsTrigger>
-              <TabsTrigger value="30d">30D</TabsTrigger>
-              <TabsTrigger value="90d">90D</TabsTrigger>
+        
+        <div className="flex items-center space-x-3">
+          <Tabs value={timeFilter} onValueChange={(value: any) => setTimeFilter(value)}>
+            <TabsList className="loom-rounded">
+              <TabsTrigger value="7d" className="loom-rounded">7D</TabsTrigger>
+              <TabsTrigger value="30d" className="loom-rounded">30D</TabsTrigger>
+              <TabsTrigger value="90d" className="loom-rounded">90D</TabsTrigger>
             </TabsList>
           </Tabs>
-          <Button variant="loom-action" className="loom-hover-glow">
-            <Sparkles className="w-4 h-4 mr-2" />
-            Add Widget
-          </Button>
+          
+          <WidgetManager onAddWidget={handleAddWidget} />
         </div>
       </div>
 
-      {/* 2025 UI/UX: Bento Grid Dashboard Layout */}
+      {/* Voice Interface */}
+      <VoiceInterface 
+        onCommand={(command) => console.log('Voice command:', command)}
+        className="mb-6"
+      />
+
+      {/* Core Metrics - Redesigned */}
       <BentoGrid>
-        {/* KPI Cards with Enhanced Design */}
-        <BentoCard size="sm" variant="highlight" className="ai-personalized">
-          <div className="flex items-center justify-between h-full">
+        {/* Primary KPI Cards */}
+        <BentoCard size="sm" variant="highlight" title="Total Users">
+          <div className="flex items-center justify-between">
             <div>
-              <p className="text-sm font-medium text-muted-foreground">Active Users</p>
-              <p className="text-2xl font-bold font-headline">
-                {userMetricsLoading ? '...' : userMetrics?.activeUsers?.toLocaleString() || '2,847'}
-              </p>
-              <p className="text-xs text-accent font-medium">+12% from last week</p>
+              <div className="text-3xl font-bold font-headline text-primary">
+                {formatNumber(2847)}
+              </div>
+              <div className="flex items-center space-x-1 text-sm text-emerald-600 mt-1">
+                <TrendingUp className="w-4 h-4" />
+                <span>+12.5%</span>
+              </div>
             </div>
             <div className="w-12 h-12 loom-rounded-full bg-primary/10 flex items-center justify-center loom-hover-scale">
               <Users className="w-6 h-6 text-primary" />
             </div>
           </div>
         </BentoCard>
-        
-        <BentoCard size="sm" variant="glass" className="ai-personalized">
-          <div className="flex items-center justify-between h-full">
+
+        <BentoCard size="sm" variant="glass" title="Revenue">
+          <div className="flex items-center justify-between">
             <div>
-              <p className="text-sm font-medium text-muted-foreground">Retention Rate</p>
-              <p className="text-2xl font-bold font-headline">
-                {userMetricsLoading ? '...' : `${userMetrics?.retentionRate || 87}%`}
-              </p>
-              <p className="text-xs text-accent font-medium">
-                {userMetrics?.retentionRate && userMetrics.retentionRate > 85 ? '+3% improvement' : '+8% from last month'}
-              </p>
+              <div className="text-3xl font-bold font-headline text-emerald-600">
+                ${formatNumber(125000)}
+              </div>
+              <div className="flex items-center space-x-1 text-sm text-emerald-600 mt-1">
+                <TrendingUp className="w-4 h-4" />
+                <span>+8.2%</span>
+              </div>
             </div>
-            <div className="w-12 h-12 loom-rounded-full bg-accent/10 flex items-center justify-center loom-hover-scale">
-              <TrendingUp className="w-6 h-6 text-accent" />
+            <div className="w-12 h-12 loom-rounded-full bg-emerald/10 flex items-center justify-center loom-hover-scale">
+              <DollarSign className="w-6 h-6 text-emerald" />
             </div>
           </div>
         </BentoCard>
-        
-        <BentoCard size="sm" variant="clay" className="ai-personalized">
-          <div className="flex items-center justify-between h-full">
+
+        <BentoCard size="sm" variant="clay" title="Active Features">
+          <div className="flex items-center justify-between">
             <div>
-              <p className="text-sm font-medium text-muted-foreground">Health Score</p>
-              <p className="text-2xl font-bold font-headline">
-                {healthLoading ? '...' : `${productHealth?.overallHealth || 67}%`}
-              </p>
-              <p className="text-xs text-amber font-medium">-3% from target</p>
-            </div>
-            <div className="w-12 h-12 loom-rounded-full bg-coral/10 flex items-center justify-center loom-hover-scale">
-              <Target className="w-6 h-6 text-coral" />
-            </div>
-          </div>
-        </BentoCard>
-        
-        <BentoCard size="sm" variant="default" className="ai-personalized">
-          <div className="flex items-center justify-between h-full">
-            <div>
-              <p className="text-sm font-medium text-muted-foreground">Engagement Score</p>
-              <p className="text-2xl font-bold font-headline">
-                {userMetricsLoading ? '...' : `${userMetrics?.engagementScore || 8.4}`}
-              </p>
-              <p className="text-xs text-accent font-medium">+15% improvement</p>
+              <div className="text-3xl font-bold font-headline text-indigo">
+                {formatNumber(156)}
+              </div>
+              <div className="flex items-center space-x-1 text-sm text-indigo mt-1">
+                <Activity className="w-4 h-4" />
+                <span>+5 this week</span>
+              </div>
             </div>
             <div className="w-12 h-12 loom-rounded-full bg-indigo/10 flex items-center justify-center loom-hover-scale">
-              <Clock className="w-6 h-6 text-indigo" />
+              <Zap className="w-6 h-6 text-indigo" />
             </div>
           </div>
         </BentoCard>
 
-      </BentoGrid>
+        <BentoCard size="sm" variant="default" title="Health Score">
+          <div className="flex items-center justify-between">
+            <div>
+              <div className="text-3xl font-bold font-headline text-amber">
+                {formatNumber(87)}%
+              </div>
+              <div className="flex items-center space-x-1 text-sm text-amber mt-1">
+                <Target className="w-4 h-4" />
+                <span>Good</span>
+              </div>
+            </div>
+            <div className="w-12 h-12 loom-rounded-full bg-amber/10 flex items-center justify-center loom-hover-scale">
+              <Clock className="w-6 h-6 text-amber" />
+            </div>
+          </div>
+        </BentoCard>
 
-      {/* AI Insights Section with Loom Voice */}
-      {aiInsights && aiInsights.length > 0 ? (
-        <Card className="gradient-clarity border-primary/20">
-          <CardHeader>
-            <CardTitle className="flex items-center font-headline">
-              <Sparkles className="w-5 h-5 mr-2 text-primary" />
-              AI-Powered Insights — Your Creative Partner at Work
-            </CardTitle>
-          </CardHeader>
-          <CardContent>
-            <div className="space-y-3">
-              {aiInsights.slice(0, 3).map((insight, index) => (
-                <div key={index} className="flex items-start justify-between p-4 bg-background/50 loom-rounded-lg border border-border/50">
-                  <div className="flex-1">
-                    <div className="flex items-center space-x-2 mb-2">
-                      <Badge className={
-                        insight.type === 'opportunity' ? 'bg-accent/10 text-accent border-accent/20' :
-                        insight.type === 'warning' ? 'bg-amber/10 text-amber border-amber/20' :
-                        'bg-primary/10 text-primary border-primary/20'
-                      }>
-                        {insight.type}
-                      </Badge>
-                      <span className="text-xs text-muted-foreground font-medium">
-                        Confidence: {Math.round(insight.confidence * 100)}%
+        {/* Enhanced Charts */}
+        <BentoCard size="lg" variant="glass" title="User Growth Trend" 
+          description="Monthly active users and retention rates over time">
+          <div className="h-64">
+            <ChartContainer config={chartConfig}>
+              <ResponsiveContainer width="100%" height="100%">
+                <RechartsLineChart data={userGrowthData}>
+                  <XAxis dataKey="month" stroke="hsl(var(--muted-foreground))" />
+                  <YAxis stroke="hsl(var(--muted-foreground))" />
+                  <ChartTooltip content={<ChartTooltipContent />} />
+                  <Line 
+                    type="monotone" 
+                    dataKey="users" 
+                    stroke="hsl(var(--primary))" 
+                    strokeWidth={3}
+                    dot={{ fill: "hsl(var(--primary))", strokeWidth: 2, r: 4 }}
+                  />
+                  <Line 
+                    type="monotone" 
+                    dataKey="retention" 
+                    stroke="hsl(var(--accent))" 
+                    strokeWidth={3}
+                    dot={{ fill: "hsl(var(--accent))", strokeWidth: 2, r: 4 }}
+                  />
+                </RechartsLineChart>
+              </ResponsiveContainer>
+            </ChartContainer>
+          </div>
+        </BentoCard>
+
+        {/* Feature Adoption */}
+        <BentoCard size="md" variant="highlight" title="Feature Adoption" 
+          description="Usage rates across core platform features">
+          <div className="h-48">
+            <ChartContainer config={chartConfig}>
+              <ResponsiveContainer width="100%" height="100%">
+                <BarChart data={featureAdoptionData}>
+                  <XAxis dataKey="feature" stroke="hsl(var(--muted-foreground))" />
+                  <YAxis stroke="hsl(var(--muted-foreground))" />
+                  <ChartTooltip content={<ChartTooltipContent />} />
+                  <Bar 
+                    dataKey="adoption" 
+                    fill="hsl(var(--coral))" 
+                    className="loom-rounded"
+                  />
+                </BarChart>
+              </ResponsiveContainer>
+            </ChartContainer>
+          </div>
+        </BentoCard>
+
+        {/* AI Insights Widget */}
+        <BentoCard size="lg" variant="highlight" title="AI Intelligence Center" 
+          description="Smart insights and recommendations powered by machine learning">
+          <div className="space-y-4">
+            {aiInsightsData.map((insight, index) => (
+              <div key={index} className="p-4 loom-glass loom-rounded border border-border/30 loom-hover-lift">
+                <div className="flex items-start justify-between mb-2">
+                  <div className="flex items-center space-x-2">
+                    <Badge variant={
+                      insight.impact === 'critical' ? 'destructive' :
+                      insight.impact === 'high' ? 'default' : 'secondary'
+                    }>
+                      {insight.type}
+                    </Badge>
+                    <div className="flex items-center space-x-1">
+                      <Brain className="w-3 h-3 text-primary" />
+                      <span className="text-xs text-muted-foreground">
+                        {insight.confidence}% confidence
                       </span>
                     </div>
-                    <h4 className="font-medium font-headline">{insight.title}</h4>
-                    <p className="text-sm text-muted-foreground mt-1">{insight.description}</p>
                   </div>
                   {insight.actionable && (
-                    <Button size="sm" variant="outline" className="hover:bg-primary hover:text-primary-foreground">
+                    <Button size="sm" variant="outline" className="loom-rounded text-xs">
                       Take Action
                     </Button>
                   )}
                 </div>
-              ))}
-            </div>
-          </CardContent>
-        </Card>
-      ) : (
-        <WelcomeMessage 
-          title="AI Insights Coming Soon!"
-          description="We're weaving your data into brilliant insights. Check back in a moment for your personalized recommendations."
-        />
-      )}
-
-      {/* SaaS Trend: Interactive Demo Integration */}
-      <InteractiveDemo
-        title="Explore Loom's Intelligence"
-        description="Take a guided tour through our AI-powered features"
-        steps={[
-          { id: '1', title: 'Dashboard Overview', description: 'Understand your key metrics at a glance', duration: 20 },
-          { id: '2', title: 'AI Insights', description: 'Discover intelligent recommendations', duration: 25 },
-          { id: '3', title: 'Strategic Planning', description: 'Learn how to align your roadmap', duration: 30 },
-        ]}
-        onComplete={() => {
-          // Show achievement toast
-        }}
-        className="loom-fade-in"
-      />
-
-      {/* Real-time Alerts */}
-      <Card>
-        <CardHeader>
-          <CardTitle className="flex items-center">
-            <AlertTriangle className="w-5 h-5 mr-2 text-amber" />
-            Real-time Alerts
-          </CardTitle>
-        </CardHeader>
-        <CardContent>
-          <div className="space-y-3">
-            {alerts.map((alert) => (
-              <div key={alert.id} className="flex items-center justify-between p-3 bg-secondary/50 loom-rounded-lg">
-                <div className="flex items-center space-x-3">
-                  {getAlertIcon(alert.type)}
-                  <span className="text-sm text-foreground font-body">{alert.message}</span>
-                </div>
-                <Button 
-                  size="sm" 
-                  variant="outline"
-                  onClick={() => onNavigate?.(alert.action.toLowerCase().includes('sprint') ? 'sprints' : 'customer')}
-                >
-                  {alert.action}
-                </Button>
+                <h4 className="font-medium font-headline text-sm mb-1">{insight.title}</h4>
+                <p className="text-xs text-muted-foreground leading-relaxed">{insight.description}</p>
               </div>
             ))}
           </div>
+        </BentoCard>
+
+        {/* Interactive Demo Integration */}
+        <BentoCard size="md" variant="clay" title="Interactive Learning">
+          <InteractiveDemo
+            title="Explore Features"
+            description="Discover new capabilities with guided tutorials"
+            steps={[
+              { id: '1', title: 'Dashboard Tour', description: 'Learn the basics', duration: 15 },
+              { id: '2', title: 'AI Features', description: 'Discover AI capabilities', duration: 20 },
+            ]}
+            onComplete={() => console.log('Demo completed')}
+          />
+        </BentoCard>
+
+        {/* Custom Widgets */}
+        {customWidgets.map((widget) => (
+          <ConfigurableWidget
+            key={widget.id}
+            config={widget}
+            onEdit={handleEditWidget}
+            onDelete={handleDeleteWidget}
+          />
+        ))}
+      </BentoGrid>
+
+      {/* Emotional Feedback Integration */}
+      <EmotionalFeedback 
+        message="🎉 Great job! Your user engagement is up 23% this week. Keep up the amazing work!"
+        type="celebration"
+        className="animate-slide-in-right"
+      />
+
+      {/* Quick Navigation */}
+      <Card className="loom-glass border border-border/30">
+        <CardHeader>
+          <CardTitle className="flex items-center font-headline">
+            <Sparkles className="w-5 h-5 mr-2 text-primary" />
+            Quick Actions
+          </CardTitle>
+        </CardHeader>
+        <CardContent>
+          <div className="grid grid-cols-2 md:grid-cols-4 gap-3">
+            <Button 
+              variant="outline" 
+              className="h-16 flex-col space-y-1 loom-rounded loom-hover-scale"
+              onClick={() => onNavigate?.('sprints')}
+            >
+              <BarChart3 className="w-5 h-5 text-primary" />
+              <span className="text-sm font-body">Sprint Board</span>
+            </Button>
+            <Button 
+              variant="outline" 
+              className="h-16 flex-col space-y-1 loom-rounded loom-hover-scale"
+              onClick={() => onNavigate?.('customer')}
+            >
+              <Users className="w-5 h-5 text-accent" />
+              <span className="text-sm font-body">Customer Portal</span>
+            </Button>
+            <Button 
+              variant="outline" 
+              className="h-16 flex-col space-y-1 loom-rounded loom-hover-scale"
+              onClick={() => onNavigate?.('roadmap')}
+            >
+              <Calendar className="w-5 h-5 text-coral" />
+              <span className="text-sm font-body">Roadmap</span>
+            </Button>
+            <Button 
+              variant="outline" 
+              className="h-16 flex-col space-y-1 loom-rounded loom-hover-scale"
+              onClick={() => onNavigate?.('strategy')}
+            >
+              <Target className="w-5 h-5 text-indigo" />
+              <span className="text-sm font-body">Strategy</span>
+            </Button>
+          </div>
         </CardContent>
       </Card>
-
-      {/* Quick Actions */}
-      <div className="grid grid-cols-1 sm:grid-cols-2 lg:grid-cols-4 gap-4">
-        <Button 
-          variant="outline" 
-          className="h-16 flex-col space-y-1 loom-rounded-lg"
-          onClick={() => onNavigate?.('sprints')}
-        >
-          <BarChart3 className="w-5 h-5" />
-          <span className="text-sm">View Sprints</span>
-        </Button>
-        <Button 
-          variant="outline" 
-          className="h-16 flex-col space-y-1 loom-rounded-lg"
-          onClick={() => onNavigate?.('customer')}
-        >
-          <Users className="w-5 h-5" />
-          <span className="text-sm">Customer Feedback</span>
-        </Button>
-        <Button 
-          variant="outline" 
-          className="h-16 flex-col space-y-1 loom-rounded-lg"
-          onClick={() => onNavigate?.('roadmap')}
-        >
-          <Calendar className="w-5 h-5" />
-          <span className="text-sm">Roadmap</span>
-        </Button>
-        <Button 
-          variant="outline" 
-          className="h-16 flex-col space-y-1 loom-rounded-lg"
-          onClick={() => onNavigate?.('strategy')}
-        >
-          <Target className="w-5 h-5" />
-          <span className="text-sm">Strategy</span>
-        </Button>
-      </div>
-
-      {/* Charts Grid */}
-      <div className="grid grid-cols-1 lg:grid-cols-2 gap-6">
-        {/* User Growth Chart */}
-        <Card>
-          <CardHeader>
-            <CardTitle className="flex items-center">
-              <TrendingUp className="w-5 h-5 mr-2 text-primary" />
-              User Growth & Retention
-            </CardTitle>
-          </CardHeader>
-          <CardContent>
-            <ChartContainer config={chartConfig} className="h-80 w-full">
-              <AreaChart data={userGrowthData} margin={{ top: 10, right: 30, left: 0, bottom: 0 }}>
-                <XAxis dataKey="month" />
-                <YAxis yAxisId="left" />
-                <YAxis yAxisId="right" orientation="right" />
-                <ChartTooltip content={<ChartTooltipContent />} />
-                <Area yAxisId="left" type="monotone" dataKey="users" stackId="1" stroke="hsl(var(--primary))" fill="hsl(var(--primary))" fillOpacity={0.3} />
-                <Line yAxisId="right" type="monotone" dataKey="retention" stroke="hsl(var(--accent))" strokeWidth={3} />
-              </AreaChart>
-            </ChartContainer>
-          </CardContent>
-        </Card>
-
-        {/* Feature Adoption */}
-        <Card>
-          <CardHeader>
-            <CardTitle className="flex items-center">
-              <BarChart3 className="w-5 h-5 mr-2 text-coral" />
-              Feature Adoption Rates
-            </CardTitle>
-          </CardHeader>
-          <CardContent>
-            <ChartContainer config={chartConfig} className="h-80 w-full">
-              <BarChart data={featureAdoptionData} margin={{ top: 10, right: 30, left: 0, bottom: 0 }}>
-                <XAxis dataKey="feature" />
-                <YAxis />
-                <ChartTooltip content={<ChartTooltipContent />} />
-                <Bar dataKey="adoption" fill="hsl(var(--coral))" />
-              </BarChart>
-            </ChartContainer>
-          </CardContent>
-        </Card>
-
-        {/* Customer Satisfaction */}
-        <Card>
-          <CardHeader>
-            <CardTitle className="flex items-center">
-              <Star className="w-5 h-5 mr-2 text-amber" />
-              Customer Satisfaction
-            </CardTitle>
-          </CardHeader>
-          <CardContent>
-            <div className="h-80 w-full">
-              <ResponsiveContainer width="100%" height="100%">
-                <RechartsPieChart margin={{ top: 10, right: 30, left: 0, bottom: 0 }}>
-                  <Pie
-                    data={satisfactionData}
-                    cx="50%"
-                    cy="50%"
-                    outerRadius="80%"
-                    dataKey="count"
-                    label={({ score, percentage }) => `${score}: ${percentage}%`}
-                  >
-                    {satisfactionData.map((entry, index) => (
-                      <Cell key={`cell-${index}`} fill={COLORS[index % COLORS.length]} />
-                    ))}
-                  </Pie>
-                </RechartsPieChart>
-              </ResponsiveContainer>
-            </div>
-          </CardContent>
-        </Card>
-
-        {/* Sprint Performance */}
-        <Card>
-          <CardHeader>
-            <CardTitle className="flex items-center">
-              <Target className="w-5 h-5 mr-2 text-indigo" />
-              Sprint Performance
-            </CardTitle>
-          </CardHeader>
-          <CardContent>
-            <ChartContainer config={chartConfig} className="h-80 w-full">
-              <BarChart data={sprintMetrics} margin={{ top: 10, right: 30, left: 0, bottom: 0 }}>
-                <XAxis dataKey="sprint" />
-                <YAxis />
-                <ChartTooltip content={<ChartTooltipContent />} />
-                <Bar dataKey="committed" fill="hsl(var(--amber))" />
-                <Bar dataKey="completed" fill="hsl(var(--indigo))" />
-              </BarChart>
-            </ChartContainer>
-          </CardContent>
-        </Card>
-      </div>
     </div>
   );
 };
