@@ -284,9 +284,9 @@ const Dashboard = ({ selectedProductId, onNavigate }: DashboardProps) => {
         </Card>
       </div>
 
-      {/* Charts Grid - Responsive Stack */}
+      {/* Charts and Analytics - Stacked Layout */}
       <div className="space-y-4 md:space-y-6">
-        {/* User Growth Chart - Full Width on Mobile */}
+        {/* User Growth Chart - Full Width */}
         <Card className="loom-glass border border-border/30">
           <CardHeader className="pb-3 md:pb-4 px-4 md:px-6 pt-4 md:pt-6">
             <CardTitle className="text-lg md:text-xl font-headline text-foreground">User Growth Trend</CardTitle>
@@ -332,115 +332,112 @@ const Dashboard = ({ selectedProductId, onNavigate }: DashboardProps) => {
           </CardContent>
         </Card>
 
-        {/* Secondary Charts Grid */}
-        <div className="grid grid-cols-1 lg:grid-cols-2 gap-4 md:gap-6">
-          {/* Feature Adoption */}
-          <Card className="loom-glass border border-border/30">
-            <CardHeader className="pb-3 md:pb-4 px-4 md:px-6 pt-4 md:pt-6">
-              <CardTitle className="text-lg md:text-xl font-headline text-foreground">Feature Adoption</CardTitle>
-              <p className="text-xs md:text-sm text-muted-foreground font-body">
-                Usage rates across core features
-              </p>
-            </CardHeader>
-            <CardContent className="px-4 md:px-6 pb-4 md:pb-6">
-              <div className="h-48 md:h-56 -mx-2">
-                <ChartContainer config={chartConfig}>
-                  <ResponsiveContainer width="100%" height="100%">
-                    <BarChart data={featureAdoptionData} margin={{ top: 5, right: 5, left: 5, bottom: 5 }}>
-                      <XAxis 
-                        dataKey="feature" 
-                        stroke="hsl(var(--muted-foreground))" 
-                        fontSize={10}
-                        className="md:text-xs"
-                        angle={-45}
-                        textAnchor="end"
-                        height={60}
-                      />
-                      <YAxis 
-                        stroke="hsl(var(--muted-foreground))" 
-                        fontSize={10}
-                        className="md:text-xs"
-                      />
-                      <ChartTooltip content={<ChartTooltipContent />} />
-                      <Bar 
-                        dataKey="adoption" 
-                        fill="hsl(var(--primary))" 
-                        radius={[2, 2, 0, 0]}
-                      />
-                    </BarChart>
-                  </ResponsiveContainer>
-                </ChartContainer>
-              </div>
-            </CardContent>
-          </Card>
+        {/* Feature Adoption - Full Width */}
+        <Card className="loom-glass border border-border/30">
+          <CardHeader className="pb-3 md:pb-4 px-4 md:px-6 pt-4 md:pt-6">
+            <CardTitle className="text-lg md:text-xl font-headline text-foreground">Feature Adoption</CardTitle>
+            <p className="text-xs md:text-sm text-muted-foreground font-body">
+              Usage rates across core features
+            </p>
+          </CardHeader>
+          <CardContent className="px-4 md:px-6 pb-4 md:pb-6">
+            <div className="h-48 md:h-56 -mx-2">
+              <ChartContainer config={chartConfig}>
+                <ResponsiveContainer width="100%" height="100%">
+                  <BarChart data={featureAdoptionData} margin={{ top: 5, right: 5, left: 5, bottom: 5 }}>
+                    <XAxis 
+                      dataKey="feature" 
+                      stroke="hsl(var(--muted-foreground))" 
+                      fontSize={10}
+                      className="md:text-xs"
+                      angle={-45}
+                      textAnchor="end"
+                      height={60}
+                    />
+                    <YAxis 
+                      stroke="hsl(var(--muted-foreground))" 
+                      fontSize={10}
+                      className="md:text-xs"
+                    />
+                    <ChartTooltip content={<ChartTooltipContent />} />
+                    <Bar 
+                      dataKey="adoption" 
+                      fill="hsl(var(--primary))" 
+                      radius={[2, 2, 0, 0]}
+                    />
+                  </BarChart>
+                </ResponsiveContainer>
+              </ChartContainer>
+            </div>
+          </CardContent>
+        </Card>
 
-          {/* AI Intelligence Center */}
-          <Card className="loom-glass border border-border/30">
-            <CardHeader className="pb-3 md:pb-4 px-4 md:px-6 pt-4 md:pt-6">
-              <CardTitle className="flex items-center text-lg md:text-xl font-headline text-foreground">
-                <Brain className="w-4 h-4 md:w-5 md:h-5 mr-2 text-primary shrink-0" />
-                <span className="truncate">AI Intelligence</span>
-              </CardTitle>
-              <p className="text-xs md:text-sm text-muted-foreground font-body">
-                Smart insights and recommendations
-              </p>
-            </CardHeader>
-            <CardContent className="px-4 md:px-6 pb-4 md:pb-6">
-              <div className="space-y-3">
-                {aiInsightsData.slice(0, 2).map((insight, index) => (
-                  <div key={index} className="p-3 md:p-4 loom-glass loom-rounded border border-border/20">
-                    <div className="flex items-start justify-between mb-2 gap-2">
-                      <div className="flex items-center space-x-2 min-w-0 flex-1">
-                        <Badge variant={
-                          insight.impact === 'critical' ? 'destructive' :
-                          insight.impact === 'high' ? 'default' : 'secondary'
-                        } className="text-xs shrink-0">
-                          {insight.type}
-                        </Badge>
-                        <span className="text-xs text-muted-foreground font-body truncate">
-                          {insight.confidence}% confidence
-                        </span>
-                      </div>
-                      {insight.actionable && (
-                        <Button size="sm" variant="outline" className="loom-rounded h-7 text-xs shrink-0">
-                          Action
-                        </Button>
-                      )}
+        {/* AI Intelligence Center - Full Width */}
+        <Card className="loom-glass border border-border/30">
+          <CardHeader className="pb-3 md:pb-4 px-4 md:px-6 pt-4 md:pt-6">
+            <CardTitle className="flex items-center text-lg md:text-xl font-headline text-foreground">
+              <Brain className="w-4 h-4 md:w-5 md:h-5 mr-2 text-primary shrink-0" />
+              AI Intelligence Center
+            </CardTitle>
+            <p className="text-xs md:text-sm text-muted-foreground font-body">
+              Smart insights and recommendations powered by machine learning
+            </p>
+          </CardHeader>
+          <CardContent className="px-4 md:px-6 pb-4 md:pb-6">
+            <div className="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-3 gap-3 md:gap-4">
+              {aiInsightsData.map((insight, index) => (
+                <div key={index} className="p-3 md:p-4 loom-glass loom-rounded border border-border/20">
+                  <div className="flex items-start justify-between mb-2 gap-2">
+                    <div className="flex items-center space-x-2 min-w-0 flex-1">
+                      <Badge variant={
+                        insight.impact === 'critical' ? 'destructive' :
+                        insight.impact === 'high' ? 'default' : 'secondary'
+                      } className="text-xs shrink-0">
+                        {insight.type}
+                      </Badge>
+                      <span className="text-xs text-muted-foreground font-body truncate">
+                        {insight.confidence}% confidence
+                      </span>
                     </div>
-                    <h4 className="font-semibold font-headline text-sm mb-1 text-foreground line-clamp-1">
-                      {insight.title}
-                    </h4>
-                    <p className="text-xs text-muted-foreground font-body leading-relaxed line-clamp-2">
-                      {insight.description}
-                    </p>
+                    {insight.actionable && (
+                      <Button size="sm" variant="outline" className="loom-rounded h-7 text-xs shrink-0">
+                        Action
+                      </Button>
+                    )}
                   </div>
-                ))}
-              </div>
-            </CardContent>
-          </Card>
-        </div>
-      </div>
+                  <h4 className="font-semibold font-headline text-sm mb-1 text-foreground line-clamp-1">
+                    {insight.title}
+                  </h4>
+                  <p className="text-xs text-muted-foreground font-body leading-relaxed line-clamp-2">
+                    {insight.description}
+                  </p>
+                </div>
+              ))}
+            </div>
+          </CardContent>
+        </Card>
 
-      {/* Interactive Learning - Mobile Optimized */}
-      <Card className="loom-glass border border-border/30">
-        <CardHeader className="pb-3 md:pb-4 px-4 md:px-6 pt-4 md:pt-6">
-          <CardTitle className="text-lg md:text-xl font-headline text-foreground">Interactive Learning</CardTitle>
-          <p className="text-xs md:text-sm text-muted-foreground font-body">
-            Discover new capabilities with guided tutorials
-          </p>
-        </CardHeader>
-        <CardContent className="px-4 md:px-6 pb-4 md:pb-6">
-          <InteractiveDemo
-            title="Explore Features"
-            description="Discover new capabilities with guided tutorials"
-            steps={[
-              { id: '1', title: 'Dashboard Tour', description: 'Learn the basics', duration: 15 },
-              { id: '2', title: 'AI Features', description: 'Discover AI capabilities', duration: 20 },
-            ]}
-            onComplete={() => console.log('Demo completed')}
-          />
-        </CardContent>
-      </Card>
+        {/* Interactive Learning - Full Width */}
+        <Card className="loom-glass border border-border/30">
+          <CardHeader className="pb-3 md:pb-4 px-4 md:px-6 pt-4 md:pt-6">
+            <CardTitle className="text-lg md:text-xl font-headline text-foreground">Interactive Learning</CardTitle>
+            <p className="text-xs md:text-sm text-muted-foreground font-body">
+              Discover new capabilities with guided tutorials
+            </p>
+          </CardHeader>
+          <CardContent className="px-4 md:px-6 pb-4 md:pb-6">
+            <InteractiveDemo
+              title="Explore Features"
+              description="Discover new capabilities with guided tutorials"
+              steps={[
+                { id: '1', title: 'Dashboard Tour', description: 'Learn the basics', duration: 15 },
+                { id: '2', title: 'AI Features', description: 'Discover AI capabilities', duration: 20 },
+              ]}
+              onComplete={() => console.log('Demo completed')}
+            />
+          </CardContent>
+        </Card>
+      </div>
 
       {/* Custom Widgets */}
       {customWidgets.length > 0 && (
