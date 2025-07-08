@@ -5,7 +5,7 @@ import { Button } from '@/components/ui/button';
 import { Separator } from '@/components/ui/separator';
 import { cn } from '@/lib/utils';
 import { useIsMobile } from '@/hooks/use-mobile';
-import { 
+import {
   Settings as SettingsIcon, 
   CreditCard, 
   Users, 
@@ -22,7 +22,8 @@ import {
   FileText,
   Code,
   Webhook,
-  MessageSquare
+  MessageSquare,
+  Accessibility
 } from 'lucide-react';
 import PricingPlans from './PricingPlans';
 import BillingManagement from './BillingManagement';
@@ -31,6 +32,7 @@ import AdminDashboard from './AdminDashboard';
 import UserManagement from './UserManagement';
 import OrganizationManagement from './OrganizationManagement';
 import KnowledgeCenter from './KnowledgeCenter';
+import { AccessibilityPanel } from './AccessibilityEnhanced';
 
 type SettingsSection = 
   | 'overview' 
@@ -44,6 +46,7 @@ type SettingsSection =
   | 'notifications'
   | 'organization'
   | 'security'
+  | 'accessibility'
   | 'api'
   | 'webhooks'
   | 'danger'
@@ -115,6 +118,12 @@ const Settings = ({ currentTeamId }: SettingsProps) => {
     {
       title: 'SECURITY & ACCESS',
       items: [
+        { 
+          id: 'accessibility', 
+          title: 'Accessibility', 
+          icon: Accessibility,
+          description: 'Inclusive design settings and preferences'
+        },
         { 
           id: 'security', 
           title: 'Auth & Security', 
@@ -230,6 +239,8 @@ const Settings = ({ currentTeamId }: SettingsProps) => {
         return <UserManagement />;
       case 'organizations':
         return <OrganizationManagement />;
+      case 'accessibility':
+        return <AccessibilityPanel />;
       case 'help':
         // Open external help center
         window.open('/help', '_blank');

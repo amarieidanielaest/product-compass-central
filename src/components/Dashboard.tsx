@@ -26,7 +26,7 @@ import { EmotionalFeedback, AchievementToast } from './EmotionalFeedback';
 import { InteractiveDemo } from './InteractiveDemo';
 import { BentoGrid, BentoCard } from './BentoGrid';
 import { VoiceInterface } from './VoiceInterface';
-import { AccessibilityPanel } from './AccessibilityEnhanced';
+
 import loomLogo from '@/assets/loom-logo.png';
 
 interface DashboardProps {
@@ -249,10 +249,6 @@ const Dashboard = ({ selectedProductId, onNavigate }: DashboardProps) => {
           </div>
         </BentoCard>
 
-        {/* 2025 UI/UX: Accessibility Panel in Bento Grid */}
-        <BentoCard size="md" variant="glass" title="Accessibility">
-          <AccessibilityPanel />
-        </BentoCard>
       </BentoGrid>
 
       {/* AI Insights Section with Loom Voice */}
