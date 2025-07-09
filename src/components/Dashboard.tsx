@@ -183,17 +183,8 @@ const Dashboard = ({ selectedProductId, onNavigate }: DashboardProps) => {
 
   return (
     <div className="space-y-6 animate-fade-in p-4 md:p-6 lg:p-8">
-      {/* Dashboard Header */}
+      {/* Dashboard Controls */}
       <div className="flex flex-col lg:flex-row lg:items-center lg:justify-between gap-4">
-        <div className="space-y-2">
-          <h1 className="text-2xl md:text-3xl lg:text-4xl font-bold font-headline gradient-text">
-            Product Intelligence Dashboard
-          </h1>
-          <p className="text-sm md:text-base text-muted-foreground font-body">
-            AI-powered insights for {selectedProductId === 'main' ? 'Main Product' : 'All Products'} • Last updated 2 minutes ago
-          </p>
-        </div>
-        
         <div className="flex flex-col sm:flex-row gap-3">
           <Tabs value={timeFilter} onValueChange={(value: any) => setTimeFilter(value)}>
             <TabsList className="loom-rounded h-10 w-full sm:w-auto">

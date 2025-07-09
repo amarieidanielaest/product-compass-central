@@ -83,17 +83,11 @@ const ProductManager = ({ onProductSelect, selectedProductId }: ProductManagerPr
   };
 
   return (
-    <div className="max-w-7xl mx-auto px-4 sm:px-6 lg:px-8 py-8">
-      <div className="mb-8 flex justify-between items-center">
-        <div>
-          <h2 className="text-3xl font-bold bg-gradient-to-r from-purple-600 to-pink-600 bg-clip-text text-transparent mb-2">
-            Product Portfolio
-          </h2>
-          <p className="text-slate-600">Manage your product ecosystem with unified strategy</p>
-        </div>
+    <div className="space-y-6">
+      <div className="flex justify-between items-center">
         <Button 
           onClick={() => setShowAddProduct(true)}
-          className="bg-gradient-to-r from-purple-600 to-pink-600 hover:from-purple-700 hover:to-pink-700"
+          className="bg-gradient-to-r from-purple-600 to-pink-600 hover:from-purple-700 hover:to-pink-700 ml-auto"
         >
           <Plus className="w-4 h-4 mr-2" />
           Add Product

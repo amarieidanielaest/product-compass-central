@@ -261,12 +261,6 @@ const Settings = ({ currentTeamId }: SettingsProps) => {
   if (isMobile) {
     return (
       <div className="w-full p-4">
-        <div className="mb-6">
-          <h1 className="text-2xl font-headline font-bold">Settings</h1>
-          <p className="text-muted-foreground mt-2 font-body">
-            Let's configure your workspace just the way you like it
-          </p>
-        </div>
         <div className="space-y-4">
           {visibleSections.map((section) => (
             <Card key={section.title}>
@@ -364,13 +358,9 @@ const Settings = ({ currentTeamId }: SettingsProps) => {
 
       {/* Main Content Area */}
       <div className="flex-1 flex flex-col min-w-0">
-        {/* Content Header */}
+        {/* Content Area */}
         <div className="border-b border-border bg-background p-6 flex-shrink-0">
           <div className="max-w-4xl">
-            <h1 className="text-2xl font-headline font-bold text-foreground">Settings</h1>
-            <p className="text-muted-foreground mt-1 font-body">
-              Let's configure your workspace just the way you like it
-            </p>
           </div>
         </div>
         
