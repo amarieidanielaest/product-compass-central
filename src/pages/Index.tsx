@@ -84,32 +84,43 @@ const Index = () => {
 
   return (
     <SidebarProvider>
-      <div className="min-h-screen flex w-full font-body">
+      <div className="min-h-screen flex w-full font-body bg-white">
         <AppSidebar 
           activeModule={activeModule} 
           setActiveModule={setActiveModule}
           selectedProductId={selectedProductId}
           onProductChange={setSelectedProductId}
         />
-        <div className="flex-1 flex flex-col overflow-hidden">
+        <div className="flex-1 flex flex-col overflow-hidden bg-white">
           <PageHeader 
             title={getModuleName(activeModule)}
             breadcrumbs={getBreadcrumbs()}
           />
-          <main className="flex-1 overflow-auto">
-            <div className="max-w-7xl mx-auto px-3 sm:px-6 lg:px-8 py-4 sm:py-6 lg:py-8">
-              <div className="space-y-6">
-                {/* Page Content */}
-                <div className="w-full">
-                  {renderModule()}
-                </div>
-                
-                {/* Quick Actions - Moved to bottom */}
-                <div className="border-t border-border/40 pt-6">
-                  <QuickActions 
-                    currentModule={activeModule}
-                    onNavigate={setActiveModule}
-                  />
+          <main className="flex-1 overflow-auto bg-white">
+            <div className="w-full">
+              <div className="bg-white">
+                <div className="mx-auto max-w-7xl px-4 sm:px-6 lg:px-8">
+                  <div className="py-6 space-y-6">
+                    {/* Page Title */}
+                    <div>
+                      <h1 className="text-3xl font-bold leading-tight tracking-tight text-gray-900">
+                        {getModuleName(activeModule)}
+                      </h1>
+                    </div>
+                    
+                    {/* Page Content */}
+                    <div className="w-full">
+                      {renderModule()}
+                    </div>
+                    
+                    {/* Quick Actions */}
+                    <div className="border-t border-gray-200 pt-6">
+                      <QuickActions 
+                        currentModule={activeModule}
+                        onNavigate={setActiveModule}
+                      />
+                    </div>
+                  </div>
                 </div>
               </div>
             </div>
