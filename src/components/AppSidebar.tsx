@@ -80,9 +80,9 @@ const AppSidebar = ({ activeModule, setActiveModule, selectedProductId, onProduc
   return (
     <Sidebar 
       collapsible="icon"
-      className="border-r border-slate-200"
+      className=""
     >
-      <SidebarHeader className="border-b border-slate-200">
+      <SidebarHeader>
         {/* Logo at the top */}
         <div className={cn(
           "flex items-center p-4 transition-all duration-200",
@@ -143,74 +143,49 @@ const AppSidebar = ({ activeModule, setActiveModule, selectedProductId, onProduc
       </SidebarHeader>
 
       <SidebarContent>
-        {/* Main Navigation - Only when open */}
-        {!isCollapsed && (
-          <SidebarGroup>
-            <SidebarGroupLabel>Navigation</SidebarGroupLabel>
-            <SidebarGroupContent>
-              <SidebarMenu>
-                {modules.map((module) => {
-                  const Icon = module.icon;
-                  return (
-                    <SidebarMenuItem key={module.id}>
-                      <SidebarMenuButton
-                        onClick={() => setActiveModule(module.id)}
-                        isActive={activeModule === module.id}
-                        className="w-full"
-                      >
-                        <Icon className="w-4 h-4" />
-                        <span>{module.name}</span>
-                        {module.badge && (
-                          <Badge variant="secondary" className="ml-auto text-xs">
-                            {module.badge}
-                          </Badge>
-                        )}
-                      </SidebarMenuButton>
-                    </SidebarMenuItem>
-                  );
-                })}
-              </SidebarMenu>
-            </SidebarGroupContent>
-          </SidebarGroup>
-        )}
-
-        {/* Navigation icons only when collapsed */}
-        {isCollapsed && (
-          <SidebarGroup>
-            <SidebarGroupContent>
-              <SidebarMenu>
-                {modules.map((module) => {
-                  const Icon = module.icon;
-                  return (
-                    <SidebarMenuItem key={module.id}>
-                      <SidebarMenuButton
-                        onClick={() => setActiveModule(module.id)}
-                        isActive={activeModule === module.id}
-                        className="w-full justify-center"
-                        tooltip={module.name}
-                      >
-                        <Icon className="w-4 h-4" />
-                      </SidebarMenuButton>
-                    </SidebarMenuItem>
-                  );
-                })}
-              </SidebarMenu>
-            </SidebarGroupContent>
-          </SidebarGroup>
-        )}
+        {/* Navigation */}
+        <SidebarGroup>
+          <SidebarGroupContent>
+            <SidebarMenu>
+              {modules.map((module) => {
+                const Icon = module.icon;
+                return (
+                  <SidebarMenuItem key={module.id}>
+                    <SidebarMenuButton
+                      onClick={() => setActiveModule(module.id)}
+                      isActive={activeModule === module.id}
+                      className="w-full"
+                      tooltip={isCollapsed ? module.name : undefined}
+                    >
+                      <Icon className="w-4 h-4" />
+                      {!isCollapsed && <span>{module.name}</span>}
+                      {!isCollapsed && module.badge && (
+                        <Badge variant="secondary" className="ml-auto text-xs">
+                          {module.badge}
+                        </Badge>
+                      )}
+                    </SidebarMenuButton>
+                  </SidebarMenuItem>
+                );
+              })}
+              
+              {/* Collapse button as menu item */}
+              <SidebarMenuItem>
+                <SidebarMenuButton
+                  asChild
+                  className="w-full"
+                  tooltip={isCollapsed ? "Expand" : undefined}
+                >
+                  <SidebarTrigger>
+                    <PanelLeftClose className="h-4 w-4" />
+                    {!isCollapsed && <span>Collapse</span>}
+                  </SidebarTrigger>
+                </SidebarMenuButton>
+              </SidebarMenuItem>
+            </SidebarMenu>
+          </SidebarGroupContent>
+        </SidebarGroup>
       </SidebarContent>
-
-      {/* Footer with collapse toggle - Only when open */}
-      {!isCollapsed && (
-        <SidebarFooter className="border-t border-slate-200">
-          <div className="p-2">
-            <SidebarTrigger className="w-full h-10 justify-start px-3 bg-background border border-border hover:bg-accent hover:text-accent-foreground">
-              <PanelLeftClose className="h-4 w-4 mr-2" />
-              <span className="text-sm font-medium">Collapse</span>
-            </SidebarTrigger>
-          </div>
-        </SidebarFooter>
-      )}
     </Sidebar>
   );
 };
