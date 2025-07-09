@@ -1,7 +1,7 @@
 import { useState, useEffect } from 'react';
 import { 
   BarChart3, Target, Map, MessageSquare, Home, FileText, Kanban, Package, 
-  ChevronDown, Settings, PanelLeftClose, PanelLeftOpen
+  ChevronDown, Settings, ChevronLeft, ChevronRight
 } from 'lucide-react';
 import {
   Sidebar,
@@ -80,33 +80,39 @@ const AppSidebar = ({ activeModule, setActiveModule, selectedProductId, onProduc
   return (
     <Sidebar 
       collapsible="icon"
-      className=""
+      className="bg-white"
     >
-      <SidebarHeader>
-        {/* Logo at the top */}
-        <div className={cn(
-          "flex items-center p-4 transition-all duration-200",
-          isCollapsed ? "justify-center" : "justify-start"
-        )}>
-          <img src={loomLogo} alt="Loom" className="w-8 h-8 flex-shrink-0" />
-          {!isCollapsed && (
-            <h1 className="text-xl font-headline font-bold text-foreground ml-3 truncate">
-              Loom
-            </h1>
-          )}
+      <SidebarHeader className="p-3">
+        {/* Logo */}
+        <div className="flex items-center justify-between mb-4">
+          <div className="flex items-center">
+            <img src={loomLogo} alt="Loom" className="w-6 h-6 mr-2" />
+            {!isCollapsed && (
+              <span className="font-semibold text-sm">Loom</span>
+            )}
+          </div>
+          
+          {/* Animated collapse button */}
+          <SidebarTrigger className="h-6 w-6 p-0 hover:bg-gray-100 rounded">
+            {isCollapsed ? (
+              <ChevronRight className="h-3 w-3 transition-transform duration-200" />
+            ) : (
+              <ChevronLeft className="h-3 w-3 transition-transform duration-200" />
+            )}
+          </SidebarTrigger>
         </div>
         
-        {/* Product Selector - Only when open */}
+        {/* Product Selector - Only when expanded */}
         {!isCollapsed && (
-          <div className="px-4 pb-4">
+          <div className="mb-3">
             <DropdownMenu open={isProductMenuOpen} onOpenChange={setIsProductMenuOpen}>
               <DropdownMenuTrigger asChild>
-                <Button variant="outline" className="w-full justify-between">
+                <Button variant="outline" size="sm" className="w-full justify-between h-8 text-xs">
                   <div className="flex items-center">
-                    <Package className="w-4 h-4 mr-2" />
+                    <Package className="w-3 h-3 mr-1" />
                     <span className="truncate">{getCurrentProduct()}</span>
                   </div>
-                  <ChevronDown className="w-4 h-4" />
+                  <ChevronDown className="w-3 h-3" />
                 </Button>
               </DropdownMenuTrigger>
               <DropdownMenuContent className="w-56">
@@ -142,46 +148,47 @@ const AppSidebar = ({ activeModule, setActiveModule, selectedProductId, onProduc
         )}
       </SidebarHeader>
 
-      <SidebarContent>
-        {/* Navigation */}
+      <SidebarContent className="px-2">
         <SidebarGroup>
           <SidebarGroupContent>
-            <SidebarMenu>
+            <SidebarMenu className="space-y-1">
               {modules.map((module) => {
                 const Icon = module.icon;
+                const isActive = activeModule === module.id;
+                
                 return (
                   <SidebarMenuItem key={module.id}>
                     <SidebarMenuButton
                       onClick={() => setActiveModule(module.id)}
-                      isActive={activeModule === module.id}
-                      className="w-full"
+                      className={cn(
+                        "h-8 px-2 justify-start hover:bg-gray-100 transition-colors duration-150",
+                        isActive && "bg-blue-50 text-blue-700 hover:bg-blue-50",
+                        isCollapsed && "justify-center px-0"
+                      )}
                       tooltip={isCollapsed ? module.name : undefined}
                     >
-                      <Icon className="w-4 h-4" />
-                      {!isCollapsed && <span>{module.name}</span>}
-                      {!isCollapsed && module.badge && (
-                        <Badge variant="secondary" className="ml-auto text-xs">
-                          {module.badge}
-                        </Badge>
+                      <Icon className={cn(
+                        "h-4 w-4 transition-colors duration-150",
+                        isActive && "text-blue-700",
+                        isCollapsed ? "mx-auto" : "mr-2"
+                      )} />
+                      
+                      {!isCollapsed && (
+                        <div className="flex-1 flex items-center justify-between">
+                          <span className="text-sm font-medium truncate">
+                            {module.name}
+                          </span>
+                          {module.badge && (
+                            <Badge variant="secondary" className="ml-2 text-xs h-4 px-1">
+                              {module.badge}
+                            </Badge>
+                          )}
+                        </div>
                       )}
                     </SidebarMenuButton>
                   </SidebarMenuItem>
                 );
               })}
-              
-              {/* Collapse button as menu item */}
-              <SidebarMenuItem>
-                <SidebarMenuButton
-                  asChild
-                  className="w-full"
-                  tooltip={isCollapsed ? "Expand" : undefined}
-                >
-                  <SidebarTrigger>
-                    <PanelLeftClose className="h-4 w-4" />
-                    {!isCollapsed && <span>Collapse</span>}
-                  </SidebarTrigger>
-                </SidebarMenuButton>
-              </SidebarMenuItem>
             </SidebarMenu>
           </SidebarGroupContent>
         </SidebarGroup>
