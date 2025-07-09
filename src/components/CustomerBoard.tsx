@@ -300,22 +300,17 @@ const CustomerBoard = ({ selectedProductId, onNavigate }: CustomerBoardProps) =>
 
   return (
     <div className="space-y-6">
-      {/* Header with AI Enhancement */}
+      {/* Header with actions */}
       <div className="flex flex-col sm:flex-row justify-between items-start sm:items-center gap-4">
-        <div>
-          <h2 className="text-2xl sm:text-3xl font-bold bg-gradient-to-r from-purple-600 to-pink-600 bg-clip-text text-transparent mb-2">
-            Customer Feedback Board
-          </h2>
-          <div className="flex items-center space-x-4 text-sm text-slate-600">
-            <span className="flex items-center">
-              <MessageSquare className="w-4 h-4 mr-1" />
-              {feedbackLoading ? '...' : filteredTickets.length} feedback items
-            </span>
-            <span className="flex items-center">
-              <Brain className="w-4 h-4 mr-1 text-purple-600" />
-              AI-powered insights
-            </span>
-          </div>
+        <div className="flex items-center space-x-4 text-sm text-slate-600">
+          <span className="flex items-center">
+            <MessageSquare className="w-4 h-4 mr-1" />
+            {feedbackLoading ? '...' : filteredTickets.length} feedback items
+          </span>
+          <span className="flex items-center">
+            <Brain className="w-4 h-4 mr-1 text-purple-600" />
+            AI-powered insights
+          </span>
         </div>
         <div className="flex space-x-2">
           <Button 
