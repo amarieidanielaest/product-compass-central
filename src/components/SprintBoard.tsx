@@ -114,14 +114,6 @@ const SprintBoard = ({ selectedProductId, onNavigate }: SprintBoardProps) => {
   return (
     <div className="space-y-6">
       <div className="flex flex-col sm:flex-row justify-between items-start sm:items-center gap-4">
-        <div>
-          <h2 className="text-2xl sm:text-3xl font-bold bg-gradient-to-r from-purple-600 to-pink-600 bg-clip-text text-transparent mb-2">
-            Sprint Board
-          </h2>
-          <p className="text-slate-600">
-            Agile development with direct customer feedback integration
-          </p>
-        </div>
         <div className="flex space-x-2">
           <Button variant="outline" onClick={() => onNavigate?.('customer')}>
             <MessageSquare className="w-4 h-4 mr-2" />

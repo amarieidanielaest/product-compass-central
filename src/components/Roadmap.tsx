@@ -190,21 +190,7 @@ const Roadmap = () => {
   };
 
   return (
-    <div className="max-w-7xl mx-auto px-4 sm:px-6 lg:px-8 py-8">
-      <div className="mb-8">
-        <h2 className="text-3xl font-bold text-slate-900 mb-2">Product Roadmap & Execution</h2>
-        <div className="flex items-center space-x-4 text-sm text-slate-600">
-          <span className="flex items-center">
-            <Target className="w-4 h-4 mr-1" />
-            Strategic & Delivery Alignment
-          </span>
-          <span className="flex items-center">
-            <Brain className="w-4 h-4 mr-1 text-purple-600" />
-            AI-powered insights
-          </span>
-        </div>
-      </div>
-
+    <div className="space-y-6">
       <Tabs defaultValue="strategic" className="w-full">
         <TabsList className="grid w-full grid-cols-3">
           <TabsTrigger value="strategic" className="flex items-center">
