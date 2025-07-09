@@ -136,35 +136,32 @@ const Strategy = ({ selectedProductId, onNavigate }: StrategyProps) => {
   };
 
   return (
-    <PageContainer>
-      <PageContent>
-        {/* Header Actions */}
-        <Section>
-          <div className="flex items-center justify-between">
-            <div>
-              <BodySmall className="flex items-center space-x-4">
-                <span className="flex items-center text-gray-500">
-                  <Target className="w-4 h-4 mr-1" />
-                  Portfolio Strategy & OKR Alignment
-                </span>
-                <span className="flex items-center text-blue-600">
-                  <Brain className="w-4 h-4 mr-1" />
-                  AI-powered insights
-                </span>
-              </BodySmall>
-            </div>
-            <div className="flex space-x-3">
-              <Button variant="outline" size="sm" onClick={() => onNavigate?.('roadmap')}>
-                <Calendar className="w-4 h-4 mr-2" />
-                Delivery Roadmap
-              </Button>
-              <Button variant="outline" size="sm" onClick={() => onNavigate?.('customer')}>
-                <Users className="w-4 h-4 mr-2" />
-                Customer Insights
-              </Button>
-            </div>
+    <div className="space-y-6">
+      {/* Header Actions */}
+      <div className="flex items-center justify-between">
+        <div>
+          <div className="flex items-center space-x-4 text-sm">
+            <span className="flex items-center text-gray-500">
+              <Target className="w-4 h-4 mr-1" />
+              Portfolio Strategy & OKR Alignment
+            </span>
+            <span className="flex items-center text-blue-600">
+              <Brain className="w-4 h-4 mr-1" />
+              AI-powered insights
+            </span>
           </div>
-        </Section>
+        </div>
+        <div className="flex space-x-3">
+          <Button variant="outline" size="sm" onClick={() => onNavigate?.('roadmap')}>
+            <Calendar className="w-4 h-4 mr-2" />
+            Delivery Roadmap
+          </Button>
+          <Button variant="outline" size="sm" onClick={() => onNavigate?.('customer')}>
+            <Users className="w-4 h-4 mr-2" />
+            Customer Insights
+          </Button>
+        </div>
+      </div>
 
       <Tabs defaultValue="strategic" className="w-full">
         <TabsList className="grid w-full grid-cols-4">
@@ -649,9 +646,8 @@ const Strategy = ({ selectedProductId, onNavigate }: StrategyProps) => {
             </CardContent>
           </Card>
         </TabsContent>
-        </Tabs>
-      </PageContent>
-    </PageContainer>
+      </Tabs>
+    </div>
   );
 };
 
