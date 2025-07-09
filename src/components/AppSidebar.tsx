@@ -96,7 +96,7 @@ const AppSidebar = ({ activeModule, setActiveModule, selectedProductId, onProduc
           )}
         </div>
         
-        {/* Product Selector - Hidden when collapsed */}
+        {/* Product Selector - Only when open */}
         {!isCollapsed && (
           <div className="px-4 pb-4">
             <DropdownMenu open={isProductMenuOpen} onOpenChange={setIsProductMenuOpen}>
@@ -143,83 +143,74 @@ const AppSidebar = ({ activeModule, setActiveModule, selectedProductId, onProduc
       </SidebarHeader>
 
       <SidebarContent>
-        {/* Main Navigation */}
-        <SidebarGroup>
-          <SidebarGroupLabel>Navigation</SidebarGroupLabel>
-          <SidebarGroupContent>
-            <SidebarMenu>
-              {modules.map((module) => {
-                const Icon = module.icon;
-                return (
-                  <SidebarMenuItem key={module.id}>
-                    <SidebarMenuButton
-                      onClick={() => setActiveModule(module.id)}
-                      isActive={activeModule === module.id}
-                      className="w-full"
-                      tooltip={isCollapsed ? module.name : undefined}
-                    >
-                      <Icon className="w-4 h-4" />
-                      {!isCollapsed && <span>{module.name}</span>}
-                      {!isCollapsed && module.badge && (
-                        <Badge variant="secondary" className="ml-auto text-xs">
-                          {module.badge}
-                        </Badge>
-                      )}
-                    </SidebarMenuButton>
-                  </SidebarMenuItem>
-                );
-              })}
-            </SidebarMenu>
-          </SidebarGroupContent>
-        </SidebarGroup>
-
-        {/* Context Cards - Hidden when collapsed */}
+        {/* Main Navigation - Only when open */}
         {!isCollapsed && (
           <SidebarGroup>
-            <SidebarGroupLabel>Context</SidebarGroupLabel>
+            <SidebarGroupLabel>Navigation</SidebarGroupLabel>
             <SidebarGroupContent>
-              <div className="space-y-3 p-2">
-                <div className="gradient-clarity p-3 rounded-lg border border-border">
-                  <div className="text-xs font-medium text-primary mb-1">Active Sprint</div>
-                  <div className="text-sm font-semibold">Sprint 24</div>
-                  <div className="text-xs text-muted-foreground">65% complete</div>
-                  <div className="w-full bg-secondary rounded-full h-1.5 mt-2">
-                    <div className="bg-primary h-1.5 rounded-full transition-all duration-300" style={{ width: '65%' }}></div>
-                  </div>
-                </div>
-                
-                <div className="bg-gradient-to-r from-accent/10 to-amber/10 p-3 rounded-lg border border-border">
-                  <div className="text-xs font-medium text-accent mb-1">Customer Health</div>
-                  <div className="text-sm font-semibold">5 High Priority</div>
-                  <div className="text-xs text-muted-foreground">2 escalated this week</div>
-                </div>
-              </div>
+              <SidebarMenu>
+                {modules.map((module) => {
+                  const Icon = module.icon;
+                  return (
+                    <SidebarMenuItem key={module.id}>
+                      <SidebarMenuButton
+                        onClick={() => setActiveModule(module.id)}
+                        isActive={activeModule === module.id}
+                        className="w-full"
+                      >
+                        <Icon className="w-4 h-4" />
+                        <span>{module.name}</span>
+                        {module.badge && (
+                          <Badge variant="secondary" className="ml-auto text-xs">
+                            {module.badge}
+                          </Badge>
+                        )}
+                      </SidebarMenuButton>
+                    </SidebarMenuItem>
+                  );
+                })}
+              </SidebarMenu>
+            </SidebarGroupContent>
+          </SidebarGroup>
+        )}
+
+        {/* Navigation icons only when collapsed */}
+        {isCollapsed && (
+          <SidebarGroup>
+            <SidebarGroupContent>
+              <SidebarMenu>
+                {modules.map((module) => {
+                  const Icon = module.icon;
+                  return (
+                    <SidebarMenuItem key={module.id}>
+                      <SidebarMenuButton
+                        onClick={() => setActiveModule(module.id)}
+                        isActive={activeModule === module.id}
+                        className="w-full justify-center"
+                        tooltip={module.name}
+                      >
+                        <Icon className="w-4 h-4" />
+                      </SidebarMenuButton>
+                    </SidebarMenuItem>
+                  );
+                })}
+              </SidebarMenu>
             </SidebarGroupContent>
           </SidebarGroup>
         )}
       </SidebarContent>
 
-      {/* Footer with collapse toggle */}
-      <SidebarFooter className="border-t border-slate-200">
-        <div className="p-2">
-          <SidebarTrigger 
-            className={cn(
-              "w-full transition-all duration-200 bg-background border border-border hover:bg-accent hover:text-accent-foreground",
-              isCollapsed ? "h-10 justify-center" : "h-10 justify-between px-3"
-            )}
-            aria-label={isCollapsed ? "Expand sidebar" : "Collapse sidebar"}
-          >
-            {isCollapsed ? (
-              <PanelLeftOpen className="h-4 w-4" />
-            ) : (
-              <>
-                <span className="text-sm font-medium">Collapse Menu</span>
-                <PanelLeftClose className="h-4 w-4" />
-              </>
-            )}
-          </SidebarTrigger>
-        </div>
-      </SidebarFooter>
+      {/* Footer with collapse toggle - Only when open */}
+      {!isCollapsed && (
+        <SidebarFooter className="border-t border-slate-200">
+          <div className="p-2">
+            <SidebarTrigger className="w-full h-10 justify-start px-3 bg-background border border-border hover:bg-accent hover:text-accent-foreground">
+              <PanelLeftClose className="h-4 w-4 mr-2" />
+              <span className="text-sm font-medium">Collapse</span>
+            </SidebarTrigger>
+          </div>
+        </SidebarFooter>
+      )}
     </Sidebar>
   );
 };
