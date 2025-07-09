@@ -14,6 +14,7 @@ import BreadcrumbNav from '../components/BreadcrumbNav';
 import QuickActions from '../components/QuickActions';
 import Settings from '../components/Settings';
 import KnowledgeCenter from '../components/KnowledgeCenter';
+import GlobalSearch from '../components/GlobalSearch';
 
 const Index = () => {
   const [activeModule, setActiveModule] = useState('dashboard');
@@ -79,10 +80,15 @@ const Index = () => {
           <div className="h-full overflow-auto">
             <div className="max-w-7xl mx-auto px-3 sm:px-6 lg:px-8 py-3 sm:py-6 lg:py-8">
               <div className="space-y-4 sm:space-y-6">
-                <BreadcrumbNav 
-                  items={getBreadcrumbItems()}
-                  currentProduct={getCurrentProduct()}
-                />
+                <div className="flex items-center justify-between gap-4">
+                  <BreadcrumbNav 
+                    items={getBreadcrumbItems()}
+                    currentProduct={getCurrentProduct()}
+                  />
+                  <div className="hidden sm:block flex-1 max-w-md">
+                    <GlobalSearch />
+                  </div>
+                </div>
                 <div className="sm:hidden">
                   <QuickActions 
                     currentModule={activeModule}
