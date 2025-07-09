@@ -1,5 +1,13 @@
 import React from 'react';
 import { Bell, Search, Menu, Home, ChevronRight } from 'lucide-react';
+import {
+  Breadcrumb,
+  BreadcrumbList,
+  BreadcrumbItem,
+  BreadcrumbLink,
+  BreadcrumbSeparator,
+  BreadcrumbPage,
+} from '@/components/ui/breadcrumb';
 import { Button } from '@/components/ui/button';
 import { Avatar, AvatarFallback } from '@/components/ui/avatar';
 import {
@@ -34,13 +42,44 @@ const PageHeader = ({ title, subtitle, breadcrumbs }: PageHeaderProps) => {
 
   return (
     <div className="bg-white border-b border-gray-200">
-      {/* Top Header Bar */}
+      {/* Top Header Bar with Breadcrumbs */}
       <header className="sticky top-0 z-50 w-full bg-white/95 backdrop-blur supports-[backdrop-filter]:bg-white/95">
         <div className="mx-auto max-w-7xl px-4 sm:px-6 lg:px-8">
           <div className="flex h-16 items-center justify-between">
-            {/* Search */}
-            <div className="flex-1 max-w-lg">
-              <GlobalSearch />
+            {/* Left side - Search and Breadcrumbs */}
+            <div className="flex items-center gap-4 flex-1">
+              <div className="max-w-lg">
+                <GlobalSearch />
+              </div>
+              
+              {/* Breadcrumbs next to search */}
+              {breadcrumbs && breadcrumbs.length > 0 && (
+                <Breadcrumb className="hidden md:flex">
+                  <BreadcrumbList>
+                    <BreadcrumbItem>
+                      <BreadcrumbLink href="/" className="flex items-center">
+                        <Home className="h-3 w-3" />
+                      </BreadcrumbLink>
+                    </BreadcrumbItem>
+                    {breadcrumbs.map((item, index) => (
+                      <React.Fragment key={index}>
+                        <BreadcrumbSeparator />
+                        <BreadcrumbItem>
+                          {item.href ? (
+                            <BreadcrumbLink href={item.href} className="text-xs">
+                              {item.label}
+                            </BreadcrumbLink>
+                          ) : (
+                            <BreadcrumbPage className="text-xs font-medium">
+                              {item.label}
+                            </BreadcrumbPage>
+                          )}
+                        </BreadcrumbItem>
+                      </React.Fragment>
+                    ))}
+                  </BreadcrumbList>
+                </Breadcrumb>
+              )}
             </div>
 
             {/* Right side - Actions and User */}
@@ -95,58 +134,6 @@ const PageHeader = ({ title, subtitle, breadcrumbs }: PageHeaderProps) => {
           </div>
         </div>
       </header>
-
-      {/* Page Header Content */}
-      <div className="mx-auto max-w-7xl px-4 sm:px-6 lg:px-8">
-        <div className="py-6">
-          {/* Breadcrumbs */}
-          {breadcrumbs && breadcrumbs.length > 0 && (
-            <nav className="flex mb-4" aria-label="Breadcrumb">
-              <ol role="list" className="flex items-center space-x-4">
-                <li>
-                  <div>
-                    <a href="/" className="text-gray-400 hover:text-gray-500">
-                      <Home className="h-5 w-5 flex-shrink-0" aria-hidden="true" />
-                      <span className="sr-only">Home</span>
-                    </a>
-                  </div>
-                </li>
-                {breadcrumbs.map((item, index) => (
-                  <li key={index}>
-                    <div className="flex items-center">
-                      <ChevronRight className="h-5 w-5 flex-shrink-0 text-gray-400" aria-hidden="true" />
-                      {item.href ? (
-                        <a
-                          href={item.href}
-                          className="ml-4 text-sm font-medium text-gray-500 hover:text-gray-700"
-                        >
-                          {item.label}
-                        </a>
-                      ) : (
-                        <span className="ml-4 text-sm font-medium text-gray-500">
-                          {item.label}
-                        </span>
-                      )}
-                    </div>
-                  </li>
-                ))}
-              </ol>
-            </nav>
-          )}
-
-          {/* Page Title */}
-          <div>
-            <h1 className="text-3xl font-bold leading-tight tracking-tight text-gray-900">
-              {title}
-            </h1>
-            {subtitle && (
-              <p className="mt-2 text-lg text-gray-600">
-                {subtitle}
-              </p>
-            )}
-          </div>
-        </div>
-      </div>
     </div>
   );
 };
