@@ -21,6 +21,8 @@ import { SidebarTrigger } from '@/components/ui/sidebar';
 import NotificationBell from './notifications/NotificationBell';
 import GlobalSearch from './GlobalSearch';
 import { useAuth } from '@/contexts/AuthContext';
+import { H1, Lead } from '@/components/ui/typography';
+import { PageContainer, PageContent } from '@/components/PageLayout';
 
 interface BreadcrumbItem {
   label: string;
@@ -41,18 +43,14 @@ const PageHeader = ({ title, subtitle, breadcrumbs }: PageHeaderProps) => {
   };
 
   return (
-    <div className="bg-white border-b border-gray-200">
-      {/* Top Header Bar with Breadcrumbs */}
-      <header className="sticky top-0 z-50 w-full bg-white/95 backdrop-blur supports-[backdrop-filter]:bg-white/95">
+    <>
+      {/* Top Header Bar with Breadcrumbs and Search */}
+      <header className="sticky top-0 z-50 w-full bg-gray-50 border-b border-gray-200">
         <div className="mx-auto max-w-7xl px-4 sm:px-6 lg:px-8">
           <div className="flex h-16 items-center justify-between">
-            {/* Left side - Search and Breadcrumbs */}
+            {/* Left side - Breadcrumbs and Search */}
             <div className="flex items-center gap-4 flex-1">
-              <div className="max-w-lg">
-                <GlobalSearch />
-              </div>
-              
-              {/* Breadcrumbs next to search */}
+              {/* Breadcrumbs first */}
               {breadcrumbs && breadcrumbs.length > 0 && (
                 <Breadcrumb className="hidden md:flex">
                   <BreadcrumbList>
@@ -80,6 +78,11 @@ const PageHeader = ({ title, subtitle, breadcrumbs }: PageHeaderProps) => {
                   </BreadcrumbList>
                 </Breadcrumb>
               )}
+              
+              {/* Search after breadcrumbs */}
+              <div className="max-w-lg">
+                <GlobalSearch />
+              </div>
             </div>
 
             {/* Right side - Actions and User */}
@@ -134,7 +137,23 @@ const PageHeader = ({ title, subtitle, breadcrumbs }: PageHeaderProps) => {
           </div>
         </div>
       </header>
-    </div>
+
+      {/* Page Title Section */}
+      <div className="bg-white">
+        <PageContainer>
+          <PageContent className="py-6">
+            <div>
+              <H1>{title}</H1>
+              {subtitle && (
+                <Lead className="mt-2">
+                  {subtitle}
+                </Lead>
+              )}
+            </div>
+          </PageContent>
+        </PageContainer>
+      </div>
+    </>
   );
 };
 
