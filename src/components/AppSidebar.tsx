@@ -1,11 +1,12 @@
 import { useState, useEffect } from 'react';
 import { 
   BarChart3, Target, Map, MessageSquare, Home, FileText, Kanban, Package, 
-  ChevronDown, Settings
+  ChevronDown, Settings, PanelLeftClose, PanelLeftOpen
 } from 'lucide-react';
 import {
   Sidebar,
   SidebarContent,
+  SidebarFooter,
   SidebarGroup,
   SidebarGroupContent,
   SidebarGroupLabel,
@@ -13,6 +14,7 @@ import {
   SidebarMenu,
   SidebarMenuButton,
   SidebarMenuItem,
+  SidebarTrigger,
   useSidebar,
 } from '@/components/ui/sidebar';
 import { Button } from '@/components/ui/button';
@@ -24,6 +26,8 @@ import {
   DropdownMenuSeparator,
   DropdownMenuTrigger,
 } from '@/components/ui/dropdown-menu';
+import { cn } from '@/lib/utils';
+import loomLogo from '@/assets/loom-logo.png';
 
 interface AppSidebarProps {
   activeModule: string;
@@ -79,9 +83,22 @@ const AppSidebar = ({ activeModule, setActiveModule, selectedProductId, onProduc
       className="border-r border-slate-200"
     >
       <SidebarHeader className="border-b border-slate-200">
+        {/* Logo at the top */}
+        <div className={cn(
+          "flex items-center p-4 transition-all duration-200",
+          isCollapsed ? "justify-center" : "justify-start"
+        )}>
+          <img src={loomLogo} alt="Loom" className="w-8 h-8 flex-shrink-0" />
+          {!isCollapsed && (
+            <h1 className="text-xl font-headline font-bold text-foreground ml-3 truncate">
+              Loom
+            </h1>
+          )}
+        </div>
+        
         {/* Product Selector - Hidden when collapsed */}
         {!isCollapsed && (
-          <div className="p-4">
+          <div className="px-4 pb-4">
             <DropdownMenu open={isProductMenuOpen} onOpenChange={setIsProductMenuOpen}>
               <DropdownMenuTrigger asChild>
                 <Button variant="outline" className="w-full justify-between">
@@ -126,7 +143,6 @@ const AppSidebar = ({ activeModule, setActiveModule, selectedProductId, onProduc
       </SidebarHeader>
 
       <SidebarContent>
-
         {/* Main Navigation */}
         <SidebarGroup>
           <SidebarGroupLabel>Navigation</SidebarGroupLabel>
@@ -182,6 +198,28 @@ const AppSidebar = ({ activeModule, setActiveModule, selectedProductId, onProduc
           </SidebarGroup>
         )}
       </SidebarContent>
+
+      {/* Footer with collapse toggle */}
+      <SidebarFooter className="border-t border-slate-200">
+        <div className="p-2">
+          <SidebarTrigger 
+            className={cn(
+              "w-full transition-all duration-200 bg-background border border-border hover:bg-accent hover:text-accent-foreground",
+              isCollapsed ? "h-10 justify-center" : "h-10 justify-between px-3"
+            )}
+            aria-label={isCollapsed ? "Expand sidebar" : "Collapse sidebar"}
+          >
+            {isCollapsed ? (
+              <PanelLeftOpen className="h-4 w-4" />
+            ) : (
+              <>
+                <span className="text-sm font-medium">Collapse Menu</span>
+                <PanelLeftClose className="h-4 w-4" />
+              </>
+            )}
+          </SidebarTrigger>
+        </div>
+      </SidebarFooter>
     </Sidebar>
   );
 };

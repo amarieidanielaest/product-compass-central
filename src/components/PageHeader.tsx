@@ -29,36 +29,21 @@ const PageHeader = ({ title, subtitle }: PageHeaderProps) => {
 
   return (
     <header className="sticky top-0 z-50 w-full border-b border-border/40 bg-background/95 backdrop-blur supports-[backdrop-filter]:bg-background/60">
-      <div className="container flex h-16 max-w-screen-2xl items-center">
-        {/* Left side - Logo and Navigation */}
-        <div className="flex items-center gap-4">
-          <SidebarTrigger className="h-8 w-8" />
-          
-          {/* Logo - visible on larger screens */}
-          <div className="hidden md:flex items-center space-x-3">
-            <img src={loomLogo} alt="Loom" className="w-8 h-8" />
-            <h1 className="text-xl font-headline font-bold text-foreground">
-              Loom
-            </h1>
-          </div>
-          
+      <div className="container flex h-12 max-w-screen-2xl items-center">
+        {/* Left side - Navigation and Title */}
+        <div className="flex items-center gap-3">
           {/* Page Title */}
-          <div className="hidden sm:block">
-            <div className="flex items-center space-x-2">
-              <div className="h-6 w-px bg-border" />
-              <div>
-                <h2 className="text-lg font-semibold text-foreground">{title}</h2>
-                {subtitle && (
-                  <p className="text-sm text-muted-foreground">{subtitle}</p>
-                )}
-              </div>
-            </div>
+          <div>
+            <h2 className="text-base font-semibold text-foreground">{title}</h2>
+            {subtitle && (
+              <p className="text-xs text-muted-foreground">{subtitle}</p>
+            )}
           </div>
         </div>
 
         {/* Center - Search */}
         <div className="flex-1 flex justify-center px-4">
-          <div className="w-full max-w-md">
+          <div className="w-full max-w-sm">
             <GlobalSearch />
           </div>
         </div>
@@ -66,7 +51,7 @@ const PageHeader = ({ title, subtitle }: PageHeaderProps) => {
         {/* Right side - Actions and User */}
         <div className="flex items-center gap-2">
           {/* Mobile search trigger */}
-          <Button variant="ghost" size="sm" className="sm:hidden">
+          <Button variant="ghost" size="sm" className="sm:hidden h-8 w-8 p-0">
             <Search className="h-4 w-4" />
           </Button>
           
