@@ -260,7 +260,7 @@ const Settings = ({ currentTeamId }: SettingsProps) => {
 
   if (isMobile) {
     return (
-      <div className="w-full p-4">
+      <div className="w-full">
         <div className="space-y-4">
           {visibleSections.map((section) => (
             <Card key={section.title}>
@@ -359,7 +359,7 @@ const Settings = ({ currentTeamId }: SettingsProps) => {
       {/* Main Content Area */}
       <div className="flex-1 flex flex-col min-w-0">
         {/* Content Area */}
-        <div className="border-b border-border bg-background p-6 flex-shrink-0">
+        <div className="bg-background flex-shrink-0">
           <div className="max-w-4xl">
           </div>
         </div>

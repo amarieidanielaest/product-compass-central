@@ -182,7 +182,7 @@ const Dashboard = ({ selectedProductId, onNavigate }: DashboardProps) => {
   };
 
   return (
-    <div className="space-y-6 animate-fade-in p-4 md:p-6 lg:p-8">
+    <div className="space-y-6">
       {/* Dashboard Controls */}
       <div className="flex flex-col lg:flex-row lg:items-center lg:justify-between gap-4">
         <div className="flex flex-col sm:flex-row gap-3">
