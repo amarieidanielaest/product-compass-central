@@ -2,6 +2,7 @@
 import { BarChart3, Target, Map, MessageSquare, Home, FileText, Kanban, Package } from 'lucide-react';
 import ProductSelector from './ProductSelector';
 import MobileNavigation from './MobileNavigation';
+import GlobalSearch from './GlobalSearch';
 
 interface NavigationProps {
   activeModule: string;
@@ -67,6 +68,11 @@ const Navigation = ({ activeModule, setActiveModule, selectedProductId, onProduc
                 );
               })}
             </div>
+          </div>
+          
+          {/* Global Search */}
+          <div className="flex-1 max-w-md mx-4 hidden md:block">
+            <GlobalSearch />
           </div>
           
           <div className="flex items-center space-x-4">
