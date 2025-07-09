@@ -1,12 +1,11 @@
 import { useState, useEffect } from 'react';
 import { 
   BarChart3, Target, Map, MessageSquare, Home, FileText, Kanban, Package, 
-  ChevronDown, Settings, User, LogOut, Bell, Search, Users, DollarSign, CreditCard, Crown
+  ChevronDown, Settings
 } from 'lucide-react';
 import {
   Sidebar,
   SidebarContent,
-  SidebarFooter,
   SidebarGroup,
   SidebarGroupContent,
   SidebarGroupLabel,
@@ -14,7 +13,6 @@ import {
   SidebarMenu,
   SidebarMenuButton,
   SidebarMenuItem,
-  SidebarTrigger,
   useSidebar,
 } from '@/components/ui/sidebar';
 import { Button } from '@/components/ui/button';
@@ -26,11 +24,6 @@ import {
   DropdownMenuSeparator,
   DropdownMenuTrigger,
 } from '@/components/ui/dropdown-menu';
-import { Avatar, AvatarFallback } from '@/components/ui/avatar';
-import NotificationBell from './notifications/NotificationBell';
-import { useAuth } from '@/contexts/AuthContext';
-import { cn } from '@/lib/utils';
-import loomLogo from '@/assets/loom-logo.png';
 
 interface AppSidebarProps {
   activeModule: string;
@@ -42,7 +35,6 @@ interface AppSidebarProps {
 const AppSidebar = ({ activeModule, setActiveModule, selectedProductId, onProductChange }: AppSidebarProps) => {
   const [isProductMenuOpen, setIsProductMenuOpen] = useState(false);
   const { state, setOpen } = useSidebar();
-  const { profile, hasRole, signOut } = useAuth();
   
   // Auto-collapse when in settings
   useEffect(() => {
@@ -81,56 +73,15 @@ const AppSidebar = ({ activeModule, setActiveModule, selectedProductId, onProduc
     return 'All Products';
   };
 
-  const handleSignOut = async () => {
-    await signOut();
-  };
-
   return (
     <Sidebar 
       collapsible="icon"
       className="border-r border-slate-200"
     >
       <SidebarHeader className="border-b border-slate-200">
-        <div className={cn(
-          "flex items-center p-2 transition-all duration-200 relative",
-          isCollapsed ? "justify-center px-1" : "justify-between px-4"
-        )}>
-          {/* Logo - only show when expanded */}
-          {!isCollapsed && (
-            <div className="flex items-center space-x-3 min-w-0">
-              <img src={loomLogo} alt="Loom" className="w-8 h-8 flex-shrink-0" />
-              <h1 className="text-xl font-headline font-bold text-foreground truncate">
-                Loom
-              </h1>
-            </div>
-          )}
-          
-          {/* Icons */}
-          <div className={cn(
-            "flex items-center flex-shrink-0 relative z-10",
-            isCollapsed ? "space-x-0" : "space-x-2"
-          )}>
-            {/* Notification - hide when collapsed or on mobile */}
-            {!isCollapsed && (
-              <div className="hidden sm:block">
-                <NotificationBell />
-              </div>
-            )}
-            
-            {/* Collapse trigger - always visible and clickable */}
-            <SidebarTrigger 
-              className={cn(
-                "transition-all duration-200 relative z-20 bg-background border border-border hover:bg-accent hover:text-accent-foreground",
-                isCollapsed ? "h-8 w-8 rounded-md shadow-sm" : "h-8 w-8"
-              )}
-              aria-label={isCollapsed ? "Expand sidebar" : "Collapse sidebar"}
-            />
-          </div>
-        </div>
-        
         {/* Product Selector - Hidden when collapsed */}
         {!isCollapsed && (
-          <div className="mt-4">
+          <div className="p-4">
             <DropdownMenu open={isProductMenuOpen} onOpenChange={setIsProductMenuOpen}>
               <DropdownMenuTrigger asChild>
                 <Button variant="outline" className="w-full justify-between">
@@ -175,20 +126,6 @@ const AppSidebar = ({ activeModule, setActiveModule, selectedProductId, onProduc
       </SidebarHeader>
 
       <SidebarContent>
-        {/* Quick Actions - Hidden when collapsed */}
-        {!isCollapsed && (
-          <SidebarGroup>
-            <SidebarGroupLabel>Quick Actions</SidebarGroupLabel>
-            <SidebarGroupContent>
-              <div className="grid grid-cols-2 gap-2 p-2">
-                <Button size="sm" variant="outline" className="h-8 text-xs">
-                  <Search className="w-3 h-3 mr-1" />
-                  Search
-                </Button>
-              </div>
-            </SidebarGroupContent>
-          </SidebarGroup>
-        )}
 
         {/* Main Navigation */}
         <SidebarGroup>
@@ -245,48 +182,6 @@ const AppSidebar = ({ activeModule, setActiveModule, selectedProductId, onProduc
           </SidebarGroup>
         )}
       </SidebarContent>
-
-      <SidebarFooter className="border-t border-slate-200 p-4">
-        <DropdownMenu>
-          <DropdownMenuTrigger asChild>
-            <Button variant="ghost" className="w-full justify-start">
-              <Avatar className="w-6 h-6 mr-2">
-                <AvatarFallback className="text-xs bg-gradient-to-r from-purple-600 to-pink-600 text-white">
-                  {profile?.first_name?.[0] || profile?.email?.[0]?.toUpperCase() || 'U'}
-                </AvatarFallback>
-              </Avatar>
-              {!isCollapsed && (
-                <div className="flex flex-col items-start">
-                  <span className="text-sm font-medium">
-                    {profile?.first_name || profile?.last_name 
-                      ? `${profile.first_name || ''} ${profile.last_name || ''}`.trim()
-                      : profile?.email || 'User'
-                    }
-                  </span>
-                  <span className="text-xs text-slate-500">
-                    {profile?.email}
-                  </span>
-                </div>
-              )}
-            </Button>
-          </DropdownMenuTrigger>
-          <DropdownMenuContent align="end" className="w-56">
-            <DropdownMenuItem>
-              <User className="w-4 h-4 mr-2" />
-              Profile
-            </DropdownMenuItem>
-            <DropdownMenuItem>
-              <Settings className="w-4 h-4 mr-2" />
-              Settings
-            </DropdownMenuItem>
-            <DropdownMenuSeparator />
-            <DropdownMenuItem className="text-red-600" onClick={handleSignOut}>
-              <LogOut className="w-4 h-4 mr-2" />
-              Log out
-            </DropdownMenuItem>
-          </DropdownMenuContent>
-        </DropdownMenu>
-      </SidebarFooter>
     </Sidebar>
   );
 };

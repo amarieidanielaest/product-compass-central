@@ -2,6 +2,7 @@
 import { useState } from 'react';
 import { SidebarProvider } from '@/components/ui/sidebar';
 import AppSidebar from '../components/AppSidebar';
+import PageHeader from '../components/PageHeader';
 import Dashboard from '../components/Dashboard';
 import Strategy from '../components/Strategy';
 import Roadmap from '../components/Roadmap';
@@ -10,11 +11,9 @@ import PRDGenerator from '../components/PRDGenerator';
 import CustomerBoard from '../components/CustomerBoard';
 import ProductManager from '../components/ProductManager';
 import UserManagement from '../components/UserManagement';
-import BreadcrumbNav from '../components/BreadcrumbNav';
 import QuickActions from '../components/QuickActions';
 import Settings from '../components/Settings';
 import KnowledgeCenter from '../components/KnowledgeCenter';
-import GlobalSearch from '../components/GlobalSearch';
 
 const Index = () => {
   const [activeModule, setActiveModule] = useState('dashboard');
@@ -40,9 +39,6 @@ const Index = () => {
     return 'All Products';
   };
 
-  const getBreadcrumbItems = () => {
-    return [{ label: getModuleName(activeModule) }];
-  };
 
   const renderModule = () => {
     switch (activeModule) {
@@ -69,45 +65,37 @@ const Index = () => {
 
   return (
     <SidebarProvider>
-      <div className="min-h-screen flex w-full font-body gradient-hero">
+      <div className="min-h-screen flex w-full font-body">
         <AppSidebar 
           activeModule={activeModule} 
           setActiveModule={setActiveModule}
           selectedProductId={selectedProductId}
           onProductChange={setSelectedProductId}
         />
-        <main className="flex-1 transition-all duration-300 overflow-hidden">
-          <div className="h-full overflow-auto">
-            <div className="max-w-7xl mx-auto px-3 sm:px-6 lg:px-8 py-3 sm:py-6 lg:py-8">
-              <div className="space-y-4 sm:space-y-6">
-                <div className="flex items-center justify-between gap-4">
-                  <BreadcrumbNav 
-                    items={getBreadcrumbItems()}
-                    currentProduct={getCurrentProduct()}
-                  />
-                  <div className="hidden sm:block flex-1 max-w-md">
-                    <GlobalSearch />
-                  </div>
-                </div>
-                <div className="sm:hidden">
-                  <QuickActions 
-                    currentModule={activeModule}
-                    onNavigate={setActiveModule}
-                  />
-                </div>
-                <div className="hidden sm:block">
-                  <QuickActions 
-                    currentModule={activeModule}
-                    onNavigate={setActiveModule}
-                  />
-                </div>
+        <div className="flex-1 flex flex-col overflow-hidden">
+          <PageHeader 
+            title={getModuleName(activeModule)}
+            subtitle={`Current Product: ${getCurrentProduct()}`}
+          />
+          <main className="flex-1 overflow-auto">
+            <div className="max-w-7xl mx-auto px-3 sm:px-6 lg:px-8 py-4 sm:py-6 lg:py-8">
+              <div className="space-y-6">
+                {/* Page Content */}
                 <div className="w-full">
                   {renderModule()}
                 </div>
+                
+                {/* Quick Actions - Moved to bottom */}
+                <div className="border-t border-border/40 pt-6">
+                  <QuickActions 
+                    currentModule={activeModule}
+                    onNavigate={setActiveModule}
+                  />
+                </div>
               </div>
             </div>
-          </div>
-        </main>
+          </main>
+        </div>
       </div>
     </SidebarProvider>
   );
