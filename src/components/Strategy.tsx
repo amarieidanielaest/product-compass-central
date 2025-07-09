@@ -8,6 +8,8 @@ import { Input } from '@/components/ui/input';
 import { Textarea } from '@/components/ui/textarea';
 import { Badge } from '@/components/ui/badge';
 import { Dialog, DialogContent, DialogHeader, DialogTitle, DialogTrigger } from '@/components/ui/dialog';
+import { H1, H2, H3, H4, Body, BodySmall, Muted } from '@/components/ui/typography';
+import { PageContainer, PageContent, Section, Grid, Stack } from '@/components/PageLayout';
 import OKRAlignmentWidget from './widgets/OKRAlignmentWidget';
 
 interface StrategyProps {
@@ -134,34 +136,35 @@ const Strategy = ({ selectedProductId, onNavigate }: StrategyProps) => {
   };
 
   return (
-    <div className="space-y-6">
-      <div className="flex items-center justify-between">
-        <div>
-          <h2 className="text-2xl sm:text-3xl font-bold bg-gradient-to-r from-purple-600 to-pink-600 bg-clip-text text-transparent mb-2">
-            Strategic Overview
-          </h2>
-          <div className="flex items-center space-x-4 text-sm text-slate-600">
-            <span className="flex items-center">
-              <Target className="w-4 h-4 mr-1" />
-              Portfolio Strategy & OKR Alignment
-            </span>
-            <span className="flex items-center">
-              <Brain className="w-4 h-4 mr-1 text-purple-600" />
-              AI-powered insights
-            </span>
+    <PageContainer>
+      <PageContent>
+        {/* Header Actions */}
+        <Section>
+          <div className="flex items-center justify-between">
+            <div>
+              <BodySmall className="flex items-center space-x-4">
+                <span className="flex items-center text-gray-500">
+                  <Target className="w-4 h-4 mr-1" />
+                  Portfolio Strategy & OKR Alignment
+                </span>
+                <span className="flex items-center text-blue-600">
+                  <Brain className="w-4 h-4 mr-1" />
+                  AI-powered insights
+                </span>
+              </BodySmall>
+            </div>
+            <div className="flex space-x-3">
+              <Button variant="outline" size="sm" onClick={() => onNavigate?.('roadmap')}>
+                <Calendar className="w-4 h-4 mr-2" />
+                Delivery Roadmap
+              </Button>
+              <Button variant="outline" size="sm" onClick={() => onNavigate?.('customer')}>
+                <Users className="w-4 h-4 mr-2" />
+                Customer Insights
+              </Button>
+            </div>
           </div>
-        </div>
-        <div className="flex space-x-2">
-          <Button variant="outline" onClick={() => onNavigate?.('roadmap')}>
-            <Calendar className="w-4 h-4 mr-2" />
-            Delivery Roadmap
-          </Button>
-          <Button variant="outline" onClick={() => onNavigate?.('customer')}>
-            <Users className="w-4 h-4 mr-2" />
-            Customer Insights
-          </Button>
-        </div>
-      </div>
+        </Section>
 
       <Tabs defaultValue="strategic" className="w-full">
         <TabsList className="grid w-full grid-cols-4">
@@ -646,8 +649,9 @@ const Strategy = ({ selectedProductId, onNavigate }: StrategyProps) => {
             </CardContent>
           </Card>
         </TabsContent>
-      </Tabs>
-    </div>
+        </Tabs>
+      </PageContent>
+    </PageContainer>
   );
 };
 

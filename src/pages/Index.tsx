@@ -39,6 +39,25 @@ const Index = () => {
     return 'All Products';
   };
 
+  const getBreadcrumbs = () => {
+    const breadcrumbs = [];
+    
+    // Add product context if not on products page
+    if (activeModule !== 'products') {
+      breadcrumbs.push({
+        label: getCurrentProduct(),
+        href: '#'
+      });
+    }
+    
+    // Add current module
+    breadcrumbs.push({
+      label: getModuleName(activeModule)
+    });
+    
+    return breadcrumbs;
+  };
+
 
   const renderModule = () => {
     switch (activeModule) {
@@ -75,7 +94,7 @@ const Index = () => {
         <div className="flex-1 flex flex-col overflow-hidden">
           <PageHeader 
             title={getModuleName(activeModule)}
-            subtitle={`Current Product: ${getCurrentProduct()}`}
+            breadcrumbs={getBreadcrumbs()}
           />
           <main className="flex-1 overflow-auto">
             <div className="max-w-7xl mx-auto px-3 sm:px-6 lg:px-8 py-4 sm:py-6 lg:py-8">
