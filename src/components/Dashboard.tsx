@@ -349,74 +349,6 @@ const Dashboard = ({ selectedProductId, onNavigate }: DashboardProps) => {
         </Card>
       </div>
 
-      {/* Secondary Content Grid */}
-      <div className="grid grid-cols-1 lg:grid-cols-2 gap-4 lg:gap-6">
-        {/* AI Intelligence Center */}
-        <Card className="loom-glass border border-border/30">
-          <CardHeader className="p-4 lg:p-6 pb-3">
-            <CardTitle className="flex items-center text-lg lg:text-xl font-headline text-foreground">
-              <Brain className="w-5 h-5 mr-2 text-primary shrink-0" />
-              AI Intelligence Center
-            </CardTitle>
-            <p className="text-sm text-muted-foreground font-body">
-              Smart insights and recommendations powered by machine learning
-            </p>
-          </CardHeader>
-          <CardContent className="p-4 lg:p-6 pt-0">
-            <div className="space-y-3">
-              {aiInsightsData.slice(0, 3).map((insight, index) => (
-                <div key={index} className="p-3 loom-glass loom-rounded border border-border/20">
-                  <div className="flex items-start justify-between mb-2 gap-2">
-                    <div className="flex items-center space-x-2 min-w-0 flex-1">
-                      <Badge variant={
-                        insight.impact === 'critical' ? 'destructive' :
-                        insight.impact === 'high' ? 'default' : 'secondary'
-                      } className="text-xs shrink-0">
-                        {insight.type}
-                      </Badge>
-                      <span className="text-xs text-muted-foreground font-body">
-                        {insight.confidence}% confidence
-                      </span>
-                    </div>
-                    {insight.actionable && (
-                      <Button size="sm" variant="outline" className="loom-rounded h-7 text-xs shrink-0">
-                        Action
-                      </Button>
-                    )}
-                  </div>
-                  <h4 className="font-semibold font-headline text-sm mb-1 text-foreground">
-                    {insight.title}
-                  </h4>
-                  <p className="text-xs text-muted-foreground font-body leading-relaxed">
-                    {insight.description}
-                  </p>
-                </div>
-              ))}
-            </div>
-          </CardContent>
-        </Card>
-
-        {/* Interactive Learning */}
-        <Card className="loom-glass border border-border/30">
-          <CardHeader className="p-4 lg:p-6 pb-3">
-            <CardTitle className="text-lg lg:text-xl font-headline text-foreground">Interactive Learning</CardTitle>
-            <p className="text-sm text-muted-foreground font-body">
-              Discover new capabilities with guided tutorials
-            </p>
-          </CardHeader>
-          <CardContent className="p-4 lg:p-6 pt-0">
-            <InteractiveDemo
-              title="Explore Features"
-              description="Discover new capabilities with guided tutorials"
-              steps={[
-                { id: '1', title: 'Dashboard Tour', description: 'Learn the basics', duration: 15 },
-                { id: '2', title: 'AI Features', description: 'Discover AI capabilities', duration: 20 },
-              ]}
-              onComplete={() => console.log('Demo completed')}
-            />
-          </CardContent>
-        </Card>
-      </div>
 
       {/* Custom Widgets */}
       {customWidgets.length > 0 && (
@@ -481,12 +413,6 @@ const Dashboard = ({ selectedProductId, onNavigate }: DashboardProps) => {
         </CardContent>
       </Card>
 
-      {/* Emotional Feedback */}
-      <EmotionalFeedback 
-        message="🎉 Great job! Your user engagement is up 23% this week. Keep up the amazing work!"
-        type="celebration"
-        className="animate-slide-in-right"
-      />
     </div>
   );
 };
