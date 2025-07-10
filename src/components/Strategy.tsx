@@ -163,15 +163,11 @@ const Strategy = ({ selectedProductId, onNavigate }: StrategyProps) => {
         </div>
       </div>
 
-      <Tabs defaultValue="strategic" className="w-full">
-        <TabsList className="grid w-full grid-cols-4">
-          <TabsTrigger value="strategic" className="flex items-center">
+      <Tabs defaultValue="objectives" className="w-full">
+        <TabsList className="grid w-full grid-cols-5">
+          <TabsTrigger value="objectives" className="flex items-center">
             <Target className="w-4 h-4 mr-2" />
-            <span className="hidden sm:inline">Strategic</span>
-          </TabsTrigger>
-          <TabsTrigger value="okrs" className="flex items-center">
-            <TrendingUp className="w-4 h-4 mr-2" />
-            <span className="hidden sm:inline">OKRs</span>
+            <span className="hidden sm:inline">Objectives</span>
           </TabsTrigger>
           <TabsTrigger value="alignment" className="flex items-center">
             <Layers className="w-4 h-4 mr-2" />
@@ -180,6 +176,14 @@ const Strategy = ({ selectedProductId, onNavigate }: StrategyProps) => {
           <TabsTrigger value="portfolio" className="flex items-center">
             <Globe className="w-4 h-4 mr-2" />
             <span className="hidden sm:inline">Portfolio</span>
+          </TabsTrigger>
+          <TabsTrigger value="resources" className="flex items-center">
+            <Users className="w-4 h-4 mr-2" />
+            <span className="hidden sm:inline">Resources</span>
+          </TabsTrigger>
+          <TabsTrigger value="reporting" className="flex items-center">
+            <Eye className="w-4 h-4 mr-2" />
+            <span className="hidden sm:inline">Reporting</span>
           </TabsTrigger>
         </TabsList>
 
