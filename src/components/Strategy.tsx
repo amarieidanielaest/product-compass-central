@@ -1,6 +1,6 @@
 
 import React, { useState } from 'react';
-import { Target, TrendingUp, Users, Calendar, Package, Globe, Eye, Layers, ExternalLink, Brain, Zap, Edit3, Save, X, Plus } from 'lucide-react';
+import { Target, TrendingUp, Users, Calendar, Package, Globe, Eye, Layers, ExternalLink, Brain, Zap, Edit3, Save, X, Plus, Sparkles, ChevronDown, BarChart3 } from 'lucide-react';
 import { Card, CardContent, CardHeader, CardTitle } from '@/components/ui/card';
 import { Button } from '@/components/ui/button';
 import { Tabs, TabsContent, TabsList, TabsTrigger } from '@/components/ui/tabs';
@@ -16,6 +16,7 @@ import AlignmentMapping from './strategy/AlignmentMapping';
 import PortfolioHealthDashboard from './strategy/PortfolioHealthDashboard';
 import ResourceManagement from './strategy/ResourceManagement';
 import ExecutiveReporting from './strategy/ExecutiveReporting';
+import QuickActions from './QuickActions';
 
 interface StrategyProps {
   selectedProductId?: string;
@@ -28,6 +29,7 @@ const Strategy = ({ selectedProductId, onNavigate }: StrategyProps) => {
   const [isEditingInitiatives, setIsEditingInitiatives] = useState(false);
   const [editingInitiativeId, setEditingInitiativeId] = useState<string | null>(null);
   const [showAddInitiative, setShowAddInitiative] = useState(false);
+  const [showAIInsights, setShowAIInsights] = useState(false);
 
   // Vision state
   const [visionTitle, setVisionTitle] = useState("Empowering product organizations through unified, AI-driven collaboration");
@@ -142,28 +144,59 @@ const Strategy = ({ selectedProductId, onNavigate }: StrategyProps) => {
 
   return (
     <div className="space-y-6">
-      {/* Header Actions */}
+      {/* Page Header */}
       <div className="flex items-center justify-between">
         <div>
-          <div className="flex items-center space-x-4 text-sm">
-            <span className="flex items-center text-gray-500">
-              <Target className="w-4 h-4 mr-1" />
-              Portfolio Strategy & OKR Alignment
-            </span>
-            <span className="flex items-center text-blue-600">
-              <Brain className="w-4 h-4 mr-1" />
-              AI-powered insights
-            </span>
-          </div>
+          <h1 className="text-3xl font-bold text-gray-900">Strategy</h1>
+          <p className="text-gray-600 mt-1">Define objectives, track alignment, and manage your strategic portfolio</p>
         </div>
-        <div className="flex space-x-3">
-          <Button variant="outline" size="sm" onClick={() => onNavigate?.('roadmap')}>
-            <Calendar className="w-4 h-4 mr-2" />
-            Delivery Roadmap
+        <div className="flex items-center gap-2">
+          <div className="relative">
+            <Button
+              variant="secondary"
+              size="sm"
+              className="bg-blue-50 text-blue-700 border-blue-200 hover:bg-blue-100"
+              onClick={() => setShowAIInsights(!showAIInsights)}
+            >
+              <Sparkles className="w-4 h-4 mr-2" />
+              AI-powered insights
+              <ChevronDown className="w-3 h-3 ml-1" />
+            </Button>
+            {showAIInsights && (
+              <div className="absolute right-0 top-full mt-2 w-80 bg-white border border-gray-200 rounded-lg shadow-lg p-4 z-10">
+                <div className="space-y-3">
+                  <div className="flex items-start gap-3">
+                    <div className="w-2 h-2 bg-green-500 rounded-full mt-2 flex-shrink-0"></div>
+                    <div>
+                      <p className="text-sm font-medium text-gray-900">Strong Alignment</p>
+                      <p className="text-xs text-gray-600">87% of initiatives are linked to strategic objectives</p>
+                    </div>
+                  </div>
+                  <div className="flex items-start gap-3">
+                    <div className="w-2 h-2 bg-yellow-500 rounded-full mt-2 flex-shrink-0"></div>
+                    <div>
+                      <p className="text-sm font-medium text-gray-900">Resource Opportunity</p>
+                      <p className="text-xs text-gray-600">Mobile initiatives are under-resourced by 23%</p>
+                    </div>
+                  </div>
+                  <div className="flex items-start gap-3">
+                    <div className="w-2 h-2 bg-blue-500 rounded-full mt-2 flex-shrink-0"></div>
+                    <div>
+                      <p className="text-sm font-medium text-gray-900">Trend Alert</p>
+                      <p className="text-xs text-gray-600">Portfolio health improved 12% this quarter</p>
+                    </div>
+                  </div>
+                </div>
+              </div>
+            )}
+          </div>
+          <Button variant="outline" size="sm">
+            <Plus className="w-4 h-4 mr-2" />
+            Quick Create
           </Button>
-          <Button variant="outline" size="sm" onClick={() => onNavigate?.('customer')}>
-            <Users className="w-4 h-4 mr-2" />
-            Customer Insights
+          <Button variant="outline" size="sm">
+            <BarChart3 className="w-4 h-4 mr-2" />
+            View Analytics
           </Button>
         </div>
       </div>
@@ -191,6 +224,29 @@ const Strategy = ({ selectedProductId, onNavigate }: StrategyProps) => {
             <span className="hidden sm:inline">Reporting</span>
           </TabsTrigger>
         </TabsList>
+
+        <TabsContent value="objectives" className="space-y-6">
+          <StrategicObjectivesHub />
+          <QuickActions currentModule="strategy" activeTab="objectives" onNavigate={() => {}} />
+        </TabsContent>
+
+        <TabsContent value="alignment" className="space-y-6">
+          <AlignmentMapping />
+        </TabsContent>
+
+        <TabsContent value="portfolio" className="space-y-6">
+          <PortfolioHealthDashboard />
+        </TabsContent>
+
+        <TabsContent value="resources" className="space-y-6">
+          <ResourceManagement />
+          <QuickActions currentModule="strategy" activeTab="resources" onNavigate={() => {}} />
+        </TabsContent>
+
+        <TabsContent value="reporting" className="space-y-6">
+          <ExecutiveReporting />
+          <QuickActions currentModule="strategy" activeTab="reporting" onNavigate={() => {}} />
+        </TabsContent>
 
         <TabsContent value="strategic" className="space-y-6">
           {/* Vision Statement with Edit Functionality */}
