@@ -351,27 +351,6 @@ const AlignmentMapping = ({ onNavigateToItem }: AlignmentMappingProps) => {
 
   return (
     <div className="space-y-6">
-      <div className="flex items-center justify-between">
-        <div>
-          <h2 className="text-2xl font-bold text-gray-900">Strategic Alignment Mapping</h2>
-          <p className="text-gray-600 mt-1">Golden thread from strategy to execution</p>
-        </div>
-        <div className="flex items-center space-x-4">
-          <div className="flex items-center space-x-2 bg-green-50 px-3 py-1 rounded-lg">
-            <Brain className="w-4 h-4 text-green-600" />
-            <span className="text-sm font-medium text-green-700">
-              Alignment Score: {getAlignmentScore()}%
-            </span>
-          </div>
-          <Tabs value={viewMode} onValueChange={(value) => setViewMode(value as any)}>
-            <TabsList>
-              <TabsTrigger value="tree">Tree View</TabsTrigger>
-              <TabsTrigger value="matrix">Matrix View</TabsTrigger>
-            </TabsList>
-          </Tabs>
-        </div>
-      </div>
-
       {/* Alignment Metrics */}
       <div className="grid grid-cols-1 md:grid-cols-4 gap-4">
         <Card>

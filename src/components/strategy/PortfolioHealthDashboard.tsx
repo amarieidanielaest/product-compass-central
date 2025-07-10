@@ -405,38 +405,6 @@ const PortfolioHealthDashboard = ({ products: propProducts, filters }: Portfolio
 
   return (
     <div className="space-y-6">
-      <div className="flex items-center justify-between">
-        <div>
-          <h2 className="text-2xl font-bold text-gray-900">Portfolio Health Dashboard</h2>
-          <p className="text-gray-600 mt-1">Real-time view of product portfolio performance and health</p>
-        </div>
-        <div className="flex items-center space-x-3">
-          <Select value={activeFilters.businessUnit || 'all'} onValueChange={(value) => 
-            setActiveFilters(prev => ({ ...prev, businessUnit: value === 'all' ? undefined : value }))
-          }>
-            <SelectTrigger className="w-40">
-              <SelectValue placeholder="Business Unit" />
-            </SelectTrigger>
-            <SelectContent>
-              <SelectItem value="all">All Units</SelectItem>
-              <SelectItem value="Platform">Platform</SelectItem>
-              <SelectItem value="AI/ML">AI/ML</SelectItem>
-              <SelectItem value="Mobile">Mobile</SelectItem>
-              <SelectItem value="Analytics">Analytics</SelectItem>
-            </SelectContent>
-          </Select>
-          
-          <Button variant="outline" size="sm">
-            <Download className="w-4 h-4 mr-2" />
-            Export
-          </Button>
-          <Button variant="outline" size="sm">
-            <RefreshCw className="w-4 h-4 mr-2" />
-            Refresh
-          </Button>
-        </div>
-      </div>
-
       <Tabs value={selectedView} onValueChange={setSelectedView}>
         <TabsList>
           <TabsTrigger value="overview">Portfolio Overview</TabsTrigger>
