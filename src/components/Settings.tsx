@@ -33,6 +33,7 @@ import UserManagement from './UserManagement';
 import OrganizationManagement from './OrganizationManagement';
 import KnowledgeCenter from './KnowledgeCenter';
 import { AccessibilityPanel } from './AccessibilityEnhanced';
+import IntegrationsManager from './IntegrationsManager';
 
 type SettingsSection = 
   | 'overview' 
@@ -249,7 +250,7 @@ const Settings = ({ currentTeamId }: SettingsProps) => {
           description="Opening help center in a new tab..." 
         />;
       case 'integrations':
-        return <IntegrationsSection />;
+        return <IntegrationsManager />;
       default:
         return <ComingSoonSection 
           title={visibleSections.flatMap(s => s.items).find(i => i.id === activeSection)?.title || 'Coming Soon'} 

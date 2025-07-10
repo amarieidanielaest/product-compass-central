@@ -156,23 +156,11 @@ const Roadmap = ({ selectedProductId, onNavigate }: RoadmapProps) => {
     }
   ];
 
-  // Integration Data (connecting to external tools)
-  const integrations = [
-    {
-      name: 'Jira',
-      status: 'connected',
-      lastSync: '2 minutes ago',
-      syncedItems: 45,
-      errors: 0
-    },
-    {
-      name: 'Azure DevOps',
-      status: 'connected',
-      lastSync: '5 minutes ago',
-      syncedItems: 23,
-      errors: 0
-    }
-  ];
+  // Integration status for display (simplified)
+  const integrationStatus = {
+    jira: { connected: true, itemsCount: 45 },
+    azureDevops: { connected: true, itemsCount: 23 }
+  };
 
   const getStatusColor = (status: string) => {
     switch (status) {
@@ -279,7 +267,7 @@ const Roadmap = ({ selectedProductId, onNavigate }: RoadmapProps) => {
       </div>
 
       <Tabs defaultValue="strategic" className="w-full">
-        <TabsList className="grid w-full grid-cols-4">
+        <TabsList className="grid w-full grid-cols-3">
           <TabsTrigger value="strategic" className="flex items-center">
             <Target className="w-4 h-4 mr-2" />
             <span className="hidden sm:inline">Strategic</span>
@@ -291,10 +279,6 @@ const Roadmap = ({ selectedProductId, onNavigate }: RoadmapProps) => {
           <TabsTrigger value="capacity" className="flex items-center">
             <Users className="w-4 h-4 mr-2" />
             <span className="hidden sm:inline">Capacity</span>
-          </TabsTrigger>
-          <TabsTrigger value="integrations" className="flex items-center">
-            <ExternalLink className="w-4 h-4 mr-2" />
-            <span className="hidden sm:inline">Integrations</span>
           </TabsTrigger>
         </TabsList>
 
@@ -411,6 +395,10 @@ const Roadmap = ({ selectedProductId, onNavigate }: RoadmapProps) => {
                   Features & Releases
                 </div>
                 <div className="flex items-center gap-2">
+                  <Button variant="outline" size="sm" onClick={() => onNavigate?.('settings')}>
+                    <ExternalLink className="w-4 h-4 mr-2" />
+                    Manage Integrations
+                  </Button>
                   <Button variant="outline" size="sm" onClick={() => onNavigate?.('customer')}>
                     <MessageSquare className="w-4 h-4 mr-2" />
                     Customer Feedback
@@ -579,55 +567,6 @@ const Roadmap = ({ selectedProductId, onNavigate }: RoadmapProps) => {
                     <h4 className="font-medium text-yellow-900">Capacity Alert</h4>
                     <p className="text-sm text-yellow-700">AI/ML team is over-allocated by 10%. Consider redistributing or delaying lower-priority work.</p>
                   </div>
-                </div>
-              </div>
-            </CardContent>
-          </Card>
-        </TabsContent>
-
-        <TabsContent value="integrations" className="mt-8 space-y-6">
-          {/* Integrations */}
-          <Card>
-            <CardHeader>
-              <CardTitle className="flex items-center">
-                <ExternalLink className="w-5 h-5 mr-2 text-gray-600" />
-                Development Tool Integrations
-              </CardTitle>
-            </CardHeader>
-            <CardContent>
-              <div className="space-y-4">
-                {integrations.map((integration, index) => (
-                  <div key={index} className="flex items-center justify-between p-4 bg-gray-50 rounded-lg">
-                    <div className="flex items-center">
-                      <div className="w-10 h-10 bg-white rounded-lg border flex items-center justify-center mr-3">
-                        <ExternalLink className="w-5 h-5 text-gray-600" />
-                      </div>
-                      <div>
-                        <h3 className="font-medium text-gray-900">{integration.name}</h3>
-                        <p className="text-sm text-gray-600">
-                          Last sync: {integration.lastSync} • {integration.syncedItems} items synced
-                        </p>
-                      </div>
-                    </div>
-                    <div className="flex items-center gap-2">
-                      <Badge variant="outline" className="bg-green-100 text-green-700">
-                        {integration.status}
-                      </Badge>
-                      <Button variant="outline" size="sm">
-                        Configure
-                      </Button>
-                    </div>
-                  </div>
-                ))}
-
-                <div className="p-4 border-2 border-dashed border-gray-300 rounded-lg text-center">
-                  <ExternalLink className="w-8 h-8 text-gray-400 mx-auto mb-2" />
-                  <h3 className="text-sm font-medium text-gray-900 mb-1">Add Integration</h3>
-                  <p className="text-xs text-gray-600 mb-3">Connect GitHub, Trello, Asana, or other tools</p>
-                  <Button variant="outline" size="sm">
-                    <Plus className="w-4 h-4 mr-2" />
-                    Add Integration
-                  </Button>
                 </div>
               </div>
             </CardContent>
