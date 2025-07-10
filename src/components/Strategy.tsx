@@ -11,6 +11,11 @@ import { Dialog, DialogContent, DialogHeader, DialogTitle, DialogTrigger } from 
 import { H1, H2, H3, H4, Body, BodySmall, Muted } from '@/components/ui/typography';
 import { PageContainer, PageContent, Section, Grid, Stack } from '@/components/PageLayout';
 import OKRAlignmentWidget from './widgets/OKRAlignmentWidget';
+import StrategicObjectivesHub from './strategy/StrategicObjectivesHub';
+import AlignmentMapping from './strategy/AlignmentMapping';
+import PortfolioHealthDashboard from './strategy/PortfolioHealthDashboard';
+import ResourceManagement from './strategy/ResourceManagement';
+import ExecutiveReporting from './strategy/ExecutiveReporting';
 
 interface StrategyProps {
   selectedProductId?: string;

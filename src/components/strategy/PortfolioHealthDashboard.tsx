@@ -281,8 +281,8 @@ const PortfolioHealthDashboard = ({ products: propProducts, filters }: Portfolio
                 <BarChart data={investmentByLifecycle}>
                   <CartesianGrid strokeDasharray="3 3" />
                   <XAxis dataKey="lifecycle" />
-                  <YAxis tickFormatter={(value) => `$${(value / 1000000).toFixed(1)}M`} />
-                  <Tooltip formatter={(value) => [`$${(value / 1000000).toFixed(1)}M`, 'Investment']} />
+                  <YAxis tickFormatter={(value) => `$${(Number(value) / 1000000).toFixed(1)}M`} />
+                  <Tooltip formatter={(value) => [`$${(Number(value) / 1000000).toFixed(1)}M`, 'Investment']} />
                   <Bar dataKey="investment">
                     {investmentByLifecycle.map((entry, index) => (
                       <Cell key={`cell-${index}`} fill={getLifecycleColor(entry.lifecycle)} />
