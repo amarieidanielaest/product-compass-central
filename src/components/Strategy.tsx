@@ -145,11 +145,7 @@ const Strategy = ({ selectedProductId, onNavigate }: StrategyProps) => {
   return (
     <div className="space-y-8 p-6">
       {/* Page Header */}
-      <div className="flex items-center justify-between">
-        <div>
-          <h1 className="text-3xl font-bold text-gray-900">Strategy</h1>
-          <p className="text-gray-600 mt-1">Define objectives, track alignment, and manage your strategic portfolio</p>
-        </div>
+      <div className="flex items-center justify-end">
         <div className="flex items-center gap-2">
           <div className="relative">
             <Button
