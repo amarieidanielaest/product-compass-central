@@ -143,9 +143,13 @@ const Strategy = ({ selectedProductId, onNavigate }: StrategyProps) => {
   };
 
   return (
-    <div className="space-y-8 p-6">
+    <div className="mx-auto max-w-7xl px-4 sm:px-6 lg:px-8 py-6">
       {/* Page Header */}
-      <div className="flex items-center justify-end">
+      <div className="flex items-center justify-between mb-8">
+        <div>
+          <h1 className="text-3xl font-bold leading-tight tracking-tight text-gray-900">Strategy</h1>
+          <p className="text-gray-600 mt-1">Define objectives, track alignment, and manage your strategic portfolio</p>
+        </div>
         <div className="flex items-center gap-2">
           <div className="relative">
             <Button
@@ -197,7 +201,7 @@ const Strategy = ({ selectedProductId, onNavigate }: StrategyProps) => {
         </div>
       </div>
 
-      <Tabs defaultValue="objectives" className="w-full mt-8">
+      <Tabs defaultValue="objectives" className="w-full">
         <TabsList className="grid w-full grid-cols-5">
           <TabsTrigger value="objectives" className="flex items-center">
             <Target className="w-4 h-4 mr-2" />
@@ -221,27 +225,24 @@ const Strategy = ({ selectedProductId, onNavigate }: StrategyProps) => {
           </TabsTrigger>
         </TabsList>
 
-        <TabsContent value="objectives" className="mt-8 space-y-8">
+        <TabsContent value="objectives" className="mt-8">
           <StrategicObjectivesHub />
-          <QuickActions currentModule="strategy" activeTab="objectives" onNavigate={() => {}} />
         </TabsContent>
 
-        <TabsContent value="alignment" className="mt-8 space-y-8">
+        <TabsContent value="alignment" className="mt-8">
           <AlignmentMapping />
         </TabsContent>
 
-        <TabsContent value="portfolio" className="mt-8 space-y-8">
+        <TabsContent value="portfolio" className="mt-8">
           <PortfolioHealthDashboard />
         </TabsContent>
 
-        <TabsContent value="resources" className="mt-8 space-y-8">
+        <TabsContent value="resources" className="mt-8">
           <ResourceManagement />
-          <QuickActions currentModule="strategy" activeTab="resources" onNavigate={() => {}} />
         </TabsContent>
 
-        <TabsContent value="reporting" className="mt-8 space-y-8">
+        <TabsContent value="reporting" className="mt-8">
           <ExecutiveReporting />
-          <QuickActions currentModule="strategy" activeTab="reporting" onNavigate={() => {}} />
         </TabsContent>
 
       </Tabs>
