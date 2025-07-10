@@ -1,266 +1,398 @@
-
-import { Calendar, Clock, User, Plus, Target, Layers, Brain, ExternalLink, ArrowRight } from 'lucide-react';
+import React, { useState } from 'react';
+import { 
+  Target, 
+  Layers, 
+  Clock, 
+  Plus, 
+  Filter, 
+  Share, 
+  Download, 
+  Users, 
+  ArrowRight, 
+  Brain, 
+  ExternalLink,
+  Calendar,
+  TrendingUp,
+  AlertTriangle,
+  CheckCircle,
+  Circle,
+  User,
+  MessageSquare,
+  Settings,
+  BarChart3
+} from 'lucide-react';
 import { Card, CardContent, CardHeader, CardTitle } from '@/components/ui/card';
 import { Button } from '@/components/ui/button';
 import { Tabs, TabsContent, TabsList, TabsTrigger } from '@/components/ui/tabs';
 import { Badge } from '@/components/ui/badge';
+import { Dialog, DialogContent, DialogHeader, DialogTitle, DialogTrigger } from '@/components/ui/dialog';
+import { Select, SelectContent, SelectItem, SelectTrigger, SelectValue } from '@/components/ui/select';
 
-const Roadmap = () => {
-  // Strategic roadmap - high-level outcomes and themes
-  const strategicRoadmap = [
+interface RoadmapProps {
+  selectedProductId?: string;
+  onNavigate?: (module: string) => void;
+}
+
+const Roadmap = ({ selectedProductId, onNavigate }: RoadmapProps) => {
+  const [viewMode, setViewMode] = useState('timeline');
+  const [filterBy, setFilterBy] = useState('all');
+  const [showCreateModal, setShowCreateModal] = useState(false);
+
+  // Strategic Roadmap Data (Quarterly/Yearly)
+  const strategicInitiatives = [
     {
-      quarter: 'Q2 2024',
-      theme: 'Product-Led Growth Foundation',
-      outcomes: [
-        { title: 'Increase User Activation', target: '40% activation rate', progress: 72, linkedDeliverables: 3 },
-        { title: 'Reduce Time-to-Value', target: '<60s first value', progress: 45, linkedDeliverables: 2 }
-      ]
+      id: 'si-001',
+      title: 'Product-Led Growth Expansion',
+      description: 'Scale self-service adoption across enterprise and SMB segments',
+      theme: 'Growth',
+      timeframe: 'Q3-Q4 2024',
+      progress: 72,
+      status: 'on-track',
+      owner: 'Product Team',
+      linkedOKRs: ['Increase activation by 40%', 'Reduce time-to-value < 60s'],
+      deliverables: 8,
+      capacity: { allocated: 85, required: 100 },
+      risks: ['Integration complexity', 'Resource constraints'],
+      metrics: {
+        userActivation: { current: 32, target: 40 },
+        timeToValue: { current: 75, target: 60 }
+      }
     },
     {
-      quarter: 'Q3 2024', 
-      theme: 'Unified Experience',
-      outcomes: [
-        { title: 'Cross-Product Integration', target: '50% cross-usage', progress: 23, linkedDeliverables: 4 },
-        { title: 'Enterprise Scalability', target: '99.9% uptime', progress: 67, linkedDeliverables: 3 }
-      ]
-    },
-    {
-      quarter: 'Q4 2024',
-      theme: 'AI-Powered Intelligence', 
-      outcomes: [
-        { title: 'Intelligent Automation', target: '75% auto-processing', progress: 12, linkedDeliverables: 5 },
-        { title: 'Predictive Insights', target: '90% accuracy', progress: 8, linkedDeliverables: 2 }
-      ]
+      id: 'si-002',
+      title: 'Unified Customer Experience',
+      description: 'Create seamless cross-product user journey with AI assistance',
+      theme: 'Experience',
+      timeframe: 'Q4 2024',
+      progress: 45,
+      status: 'needs-attention',
+      owner: 'UX Team',
+      linkedOKRs: ['Increase cross-product usage by 50%'],
+      deliverables: 5,
+      capacity: { allocated: 65, required: 80 },
+      risks: ['Design system alignment'],
+      metrics: {
+        crossUsage: { current: 28, target: 50 }
+      }
     }
   ];
 
-  // Delivery roadmap - specific features and implementations
+  // Delivery Roadmap Data (Features & Releases)
   const deliveryRoadmap = [
     {
-      name: 'Q2 2024',
-      features: [
-        { 
-          title: 'Self-Service Onboarding v2', 
-          status: 'in-progress', 
-          assignee: 'Alex Chen', 
-          priority: 'high',
-          linkedStrategic: 'Increase User Activation',
-          businessValue: 'high',
-          effort: '3 sprints',
-          aiSuggestion: 'Consider A/B testing welcome flows'
-        },
-        { 
-          title: 'Smart Feedback Processing', 
-          status: 'completed', 
-          assignee: 'Sarah Kim', 
-          priority: 'high',
-          linkedStrategic: 'Reduce Time-to-Value',
-          businessValue: 'high',
-          effort: '2 sprints'
-        },
-        { 
-          title: 'Mobile Experience Enhancement', 
-          status: 'planned', 
-          assignee: 'Mike Johnson', 
-          priority: 'medium',
-          linkedStrategic: 'Increase User Activation',
-          businessValue: 'medium',
-          effort: '1.5 sprints'
-        },
-      ],
+      id: 'dr-001',
+      title: 'Self-Service Onboarding v2',
+      type: 'feature',
+      status: 'in-progress',
+      priority: 'high',
+      release: 'Q3 2024',
+      assignee: 'Alex Chen',
+      team: 'Frontend',
+      effort: '5 story points',
+      businessValue: 'high',
+      linkedStrategic: 'si-001',
+      dependencies: [],
+      feedback: {
+        count: 23,
+        sentiment: 'positive'
+      },
+      progress: 65,
+      tasks: {
+        total: 12,
+        completed: 8,
+        inProgress: 3,
+        todo: 1
+      }
     },
     {
-      name: 'Q3 2024',
-      features: [
-        { 
-          title: 'Cross-Product Navigation', 
-          status: 'planned', 
-          assignee: 'Emily Rodriguez', 
-          priority: 'high',
-          linkedStrategic: 'Cross-Product Integration',
-          businessValue: 'high',
-          effort: '2 sprints',
-          aiSuggestion: 'Leverage user behavior data for optimal flow'
-        },
-        { 
-          title: 'Enterprise SSO Integration', 
-          status: 'planned', 
-          assignee: 'David Park', 
-          priority: 'high',
-          linkedStrategic: 'Enterprise Scalability',
-          businessValue: 'high',
-          effort: '3 sprints'
-        },
-        { 
-          title: 'Advanced Analytics Dashboard', 
-          status: 'planned', 
-          assignee: 'Lisa Wong', 
-          priority: 'medium',
-          linkedStrategic: 'Cross-Product Integration',
-          businessValue: 'medium',
-          effort: '2.5 sprints'
-        },
-      ],
+      id: 'dr-002',
+      title: 'Cross-Product Navigation',
+      type: 'feature',
+      status: 'planned',
+      priority: 'high',
+      release: 'Q4 2024',
+      assignee: 'Emily Rodriguez',
+      team: 'Platform',
+      effort: '8 story points',
+      businessValue: 'high',
+      linkedStrategic: 'si-002',
+      dependencies: ['dr-001'],
+      feedback: {
+        count: 15,
+        sentiment: 'mixed'
+      },
+      progress: 0,
+      tasks: {
+        total: 0,
+        completed: 0,
+        inProgress: 0,
+        todo: 0
+      }
+    },
+    {
+      id: 'dr-003',
+      title: 'AI-Powered Feedback Analysis',
+      type: 'epic',
+      status: 'planned',
+      priority: 'medium',
+      release: 'Q4 2024',
+      assignee: 'Sarah Kim',
+      team: 'AI/ML',
+      effort: '13 story points',
+      businessValue: 'medium',
+      linkedStrategic: 'si-001',
+      dependencies: [],
+      feedback: {
+        count: 8,
+        sentiment: 'positive'
+      },
+      progress: 10,
+      tasks: {
+        total: 3,
+        completed: 0,
+        inProgress: 1,
+        todo: 2
+      }
     }
   ];
 
-  // Current sprint with enhanced details
-  const currentSprint = {
-    name: 'Sprint 24',
-    startDate: '2024-01-15',
-    endDate: '2024-01-29',
-    progress: 65,
-    linkedStrategicOutcomes: 2,
-    aiRecommendations: 3,
-    tasks: [
-      { 
-        id: 1, 
-        title: 'Implement onboarding progress tracking', 
-        status: 'completed', 
-        assignee: 'Alex',
-        linkedStrategic: 'Increase User Activation',
-        businessImpact: 'high'
-      },
-      { 
-        id: 2, 
-        title: 'Add smart feedback categorization', 
-        status: 'in-progress', 
-        assignee: 'Sarah',
-        linkedStrategic: 'Reduce Time-to-Value',
-        businessImpact: 'high'
-      },
-      { 
-        id: 3, 
-        title: 'Optimize dashboard load times', 
-        status: 'in-progress', 
-        assignee: 'Mike',
-        linkedStrategic: 'Enterprise Scalability',
-        businessImpact: 'medium'
-      },
-      { 
-        id: 4, 
-        title: 'Design cross-product navigation', 
-        status: 'todo', 
-        assignee: 'Emily',
-        linkedStrategic: 'Cross-Product Integration',
-        businessImpact: 'high'
-      },
-    ],
-  };
+  // Integration Data (connecting to external tools)
+  const integrations = [
+    {
+      name: 'Jira',
+      status: 'connected',
+      lastSync: '2 minutes ago',
+      syncedItems: 45,
+      errors: 0
+    },
+    {
+      name: 'Azure DevOps',
+      status: 'connected',
+      lastSync: '5 minutes ago',
+      syncedItems: 23,
+      errors: 0
+    }
+  ];
 
   const getStatusColor = (status: string) => {
     switch (status) {
-      case 'completed':
-        return 'bg-green-100 text-green-700';
+      case 'completed': case 'on-track':
+        return 'bg-green-100 text-green-700 border-green-200';
       case 'in-progress':
-        return 'bg-blue-100 text-blue-700';
+        return 'bg-blue-100 text-blue-700 border-blue-200';
       case 'planned':
-        return 'bg-gray-100 text-gray-700';
-      case 'todo':
-        return 'bg-yellow-100 text-yellow-700';
+        return 'bg-gray-100 text-gray-700 border-gray-200';
+      case 'needs-attention':
+        return 'bg-yellow-100 text-yellow-700 border-yellow-200';
+      case 'at-risk':
+        return 'bg-red-100 text-red-700 border-red-200';
       default:
-        return 'bg-gray-100 text-gray-700';
+        return 'bg-gray-100 text-gray-700 border-gray-200';
     }
   };
 
   const getPriorityColor = (priority: string) => {
     switch (priority) {
       case 'high':
-        return 'bg-red-100 text-red-700';
+        return 'bg-red-100 text-red-700 border-red-200';
       case 'medium':
-        return 'bg-orange-100 text-orange-700';
+        return 'bg-orange-100 text-orange-700 border-orange-200';
       case 'low':
-        return 'bg-green-100 text-green-700';
+        return 'bg-green-100 text-green-700 border-green-200';
       default:
-        return 'bg-gray-100 text-gray-700';
+        return 'bg-gray-100 text-gray-700 border-gray-200';
     }
   };
 
   const getBusinessValueColor = (value: string) => {
     switch (value) {
       case 'high':
-        return 'bg-emerald-100 text-emerald-700';
+        return 'bg-emerald-100 text-emerald-700 border-emerald-200';
       case 'medium':
-        return 'bg-yellow-100 text-yellow-700';
+        return 'bg-yellow-100 text-yellow-700 border-yellow-200';
       case 'low':
-        return 'bg-slate-100 text-slate-700';
+        return 'bg-slate-100 text-slate-700 border-slate-200';
       default:
-        return 'bg-gray-100 text-gray-700';
+        return 'bg-gray-100 text-gray-700 border-gray-200';
     }
   };
 
   return (
     <div className="space-y-6">
+      {/* Header Actions */}
+      <div className="flex items-center justify-between">
+        <div className="flex items-center gap-4">
+          <Select value={viewMode} onValueChange={setViewMode}>
+            <SelectTrigger className="w-40">
+              <SelectValue />
+            </SelectTrigger>
+            <SelectContent>
+              <SelectItem value="timeline">Timeline View</SelectItem>
+              <SelectItem value="board">Board View</SelectItem>
+              <SelectItem value="list">List View</SelectItem>
+            </SelectContent>
+          </Select>
+          
+          <Select value={filterBy} onValueChange={setFilterBy}>
+            <SelectTrigger className="w-32">
+              <SelectValue />
+            </SelectTrigger>
+            <SelectContent>
+              <SelectItem value="all">All Items</SelectItem>
+              <SelectItem value="strategic">Strategic</SelectItem>
+              <SelectItem value="delivery">Delivery</SelectItem>
+              <SelectItem value="my-items">My Items</SelectItem>
+            </SelectContent>
+          </Select>
+        </div>
+
+        <div className="flex items-center gap-2">
+          <Button variant="outline" size="sm">
+            <Filter className="w-4 h-4 mr-2" />
+            Filters
+          </Button>
+          <Button variant="outline" size="sm">
+            <Share className="w-4 h-4 mr-2" />
+            Share
+          </Button>
+          <Button variant="outline" size="sm">
+            <Download className="w-4 h-4 mr-2" />
+            Export
+          </Button>
+          <Dialog open={showCreateModal} onOpenChange={setShowCreateModal}>
+            <DialogTrigger asChild>
+              <Button size="sm">
+                <Plus className="w-4 h-4 mr-2" />
+                Create Item
+              </Button>
+            </DialogTrigger>
+            <DialogContent>
+              <DialogHeader>
+                <DialogTitle>Create Roadmap Item</DialogTitle>
+              </DialogHeader>
+              <div className="p-4">
+                <p className="text-gray-600">Create new strategic initiative, feature, or release...</p>
+              </div>
+            </DialogContent>
+          </Dialog>
+        </div>
+      </div>
+
       <Tabs defaultValue="strategic" className="w-full">
-        <TabsList className="grid w-full grid-cols-3">
+        <TabsList className="grid w-full grid-cols-4">
           <TabsTrigger value="strategic" className="flex items-center">
             <Target className="w-4 h-4 mr-2" />
-            Strategic Roadmap
+            <span className="hidden sm:inline">Strategic</span>
           </TabsTrigger>
           <TabsTrigger value="delivery" className="flex items-center">
             <Layers className="w-4 h-4 mr-2" />
-            Delivery Roadmap
+            <span className="hidden sm:inline">Delivery</span>
           </TabsTrigger>
-          <TabsTrigger value="current" className="flex items-center">
-            <Clock className="w-4 h-4 mr-2" />
-            Current Sprint
+          <TabsTrigger value="capacity" className="flex items-center">
+            <Users className="w-4 h-4 mr-2" />
+            <span className="hidden sm:inline">Capacity</span>
+          </TabsTrigger>
+          <TabsTrigger value="integrations" className="flex items-center">
+            <ExternalLink className="w-4 h-4 mr-2" />
+            <span className="hidden sm:inline">Integrations</span>
           </TabsTrigger>
         </TabsList>
 
-        <TabsContent value="strategic" className="space-y-6">
+        <TabsContent value="strategic" className="mt-8 space-y-6">
+          {/* Strategic Roadmap */}
           <Card>
             <CardHeader>
               <CardTitle className="flex items-center justify-between">
                 <div className="flex items-center">
                   <Target className="w-5 h-5 mr-2 text-purple-600" />
-                  Strategic Outcomes & Themes
+                  Strategic Initiatives & Outcomes
                 </div>
-                <Button variant="outline" size="sm">
-                  <Brain className="w-4 h-4 mr-1" />
-                  AI Strategy Review
+                <Button variant="outline" size="sm" onClick={() => onNavigate?.('strategy')}>
+                  <ExternalLink className="w-4 h-4 mr-2" />
+                  View Strategy Hub
                 </Button>
               </CardTitle>
             </CardHeader>
             <CardContent>
               <div className="space-y-6">
-                {strategicRoadmap.map((quarter, index) => (
-                  <div key={index} className="border-l-4 border-purple-500 pl-6">
-                    <div className="flex justify-between items-center mb-4">
-                      <div>
-                        <h3 className="text-xl font-semibold text-slate-900">{quarter.quarter}</h3>
-                        <p className="text-purple-600 font-medium">{quarter.theme}</p>
+                {strategicInitiatives.map((initiative) => (
+                  <div key={initiative.id} className="p-6 bg-white border rounded-lg shadow-sm">
+                    <div className="flex items-start justify-between mb-4">
+                      <div className="flex-1">
+                        <h3 className="text-lg font-semibold text-gray-900">{initiative.title}</h3>
+                        <p className="text-gray-600 mt-1">{initiative.description}</p>
+                        <div className="flex items-center gap-4 mt-2">
+                          <Badge variant="outline" className="bg-purple-50">
+                            {initiative.theme}
+                          </Badge>
+                          <span className="text-sm text-gray-500">{initiative.timeframe}</span>
+                          <span className="text-sm text-gray-500">Owner: {initiative.owner}</span>
+                        </div>
+                      </div>
+                      <div className="flex items-center gap-2">
+                        <Badge variant="outline" className={getStatusColor(initiative.status)}>
+                          {initiative.status.replace('-', ' ')}
+                        </Badge>
+                        <span className="text-sm font-medium">{initiative.progress}%</span>
                       </div>
                     </div>
-                    
-                    <div className="space-y-4">
-                      {quarter.outcomes.map((outcome, outcomeIndex) => (
-                        <div key={outcomeIndex} className="p-4 bg-white border rounded-lg shadow-sm">
-                          <div className="flex justify-between items-start mb-3">
-                            <div>
-                              <h4 className="font-semibold text-slate-900">{outcome.title}</h4>
-                              <p className="text-sm text-slate-600 mt-1">Target: {outcome.target}</p>
-                            </div>
-                            <div className="flex items-center space-x-2">
-                              <Badge variant="outline" className="bg-blue-50">
-                                {outcome.linkedDeliverables} deliverables
-                              </Badge>
-                              <ArrowRight className="w-4 h-4 text-slate-400" />
-                            </div>
-                          </div>
-                          
-                          <div className="flex items-center justify-between">
-                            <div className="flex-1 mr-4">
-                              <div className="w-full bg-slate-200 rounded-full h-2">
-                                <div
-                                  className="bg-gradient-to-r from-purple-600 to-pink-600 h-2 rounded-full transition-all duration-300"
-                                  style={{ width: `${outcome.progress}%` }}
-                                ></div>
-                              </div>
-                            </div>
-                            <span className="text-sm font-medium text-slate-700">{outcome.progress}%</span>
-                          </div>
+
+                    {/* Progress Bar */}
+                    <div className="mb-4">
+                      <div className="w-full bg-gray-200 rounded-full h-2">
+                        <div
+                          className="bg-purple-600 h-2 rounded-full transition-all duration-300"
+                          style={{ width: `${initiative.progress}%` }}
+                        />
+                      </div>
+                    </div>
+
+                    {/* Metrics and KPIs */}
+                    <div className="grid grid-cols-1 md:grid-cols-3 gap-4 mb-4">
+                      <div className="p-3 bg-blue-50 rounded-lg">
+                        <div className="text-sm text-blue-700">Linked Deliverables</div>
+                        <div className="text-xl font-bold text-blue-900">{initiative.deliverables}</div>
+                      </div>
+                      <div className="p-3 bg-green-50 rounded-lg">
+                        <div className="text-sm text-green-700">Capacity Allocation</div>
+                        <div className="text-xl font-bold text-green-900">
+                          {initiative.capacity.allocated}%
                         </div>
-                      ))}
+                      </div>
+                      <div className="p-3 bg-orange-50 rounded-lg">
+                        <div className="text-sm text-orange-700">Active Risks</div>
+                        <div className="text-xl font-bold text-orange-900">{initiative.risks.length}</div>
+                      </div>
+                    </div>
+
+                    {/* OKRs */}
+                    <div className="mb-4">
+                      <h4 className="text-sm font-medium text-gray-700 mb-2">Linked OKRs:</h4>
+                      <div className="flex flex-wrap gap-2">
+                        {initiative.linkedOKRs.map((okr, index) => (
+                          <Badge key={index} variant="outline" className="bg-purple-50 text-purple-700">
+                            {okr}
+                          </Badge>
+                        ))}
+                      </div>
+                    </div>
+
+                    {/* Actions */}
+                    <div className="flex items-center justify-between">
+                      <div className="flex items-center gap-2">
+                        <Button variant="outline" size="sm">
+                          <ArrowRight className="w-4 h-4 mr-2" />
+                          View Deliverables
+                        </Button>
+                        <Button variant="outline" size="sm">
+                          <MessageSquare className="w-4 h-4 mr-2" />
+                          Comments
+                        </Button>
+                      </div>
+                      <Button variant="outline" size="sm">
+                        <Settings className="w-4 h-4 mr-2" />
+                        Edit
+                      </Button>
                     </div>
                   </div>
                 ))}
@@ -269,78 +401,116 @@ const Roadmap = () => {
           </Card>
         </TabsContent>
 
-        <TabsContent value="delivery" className="space-y-6">
+        <TabsContent value="delivery" className="mt-8 space-y-6">
+          {/* Delivery Roadmap */}
           <Card>
             <CardHeader>
               <CardTitle className="flex items-center justify-between">
                 <div className="flex items-center">
                   <Layers className="w-5 h-5 mr-2 text-blue-600" />
-                  Delivery Roadmap
+                  Features & Releases
                 </div>
-                <div className="flex space-x-2">
-                  <Button variant="outline" size="sm">
-                    <ExternalLink className="w-4 h-4 mr-1" />
-                    View Strategic
+                <div className="flex items-center gap-2">
+                  <Button variant="outline" size="sm" onClick={() => onNavigate?.('customer')}>
+                    <MessageSquare className="w-4 h-4 mr-2" />
+                    Customer Feedback
+                  </Button>
+                  <Button variant="outline" size="sm" onClick={() => onNavigate?.('sprints')}>
+                    <Clock className="w-4 h-4 mr-2" />
+                    Sprint Board
                   </Button>
                 </div>
               </CardTitle>
             </CardHeader>
             <CardContent>
-              <div className="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-3 gap-6">
-                {deliveryRoadmap.map((quarter, index) => (
-                  <div key={index} className="space-y-4">
-                    <h3 className="text-lg font-semibold text-slate-900 border-b pb-2">{quarter.name}</h3>
-                    {quarter.features.map((feature, featureIndex) => (
-                      <div key={featureIndex} className="p-4 bg-white border rounded-lg shadow-sm hover:shadow-md transition-shadow duration-200">
-                        <h4 className="font-medium text-slate-900 mb-2">{feature.title}</h4>
-                        
-                        <div className="flex items-center justify-between mb-2">
-                          <span className={`px-2 py-1 rounded-full text-xs font-medium ${getStatusColor(feature.status)}`}>
-                            {feature.status.replace('-', ' ')}
-                          </span>
-                          <span className={`px-2 py-1 rounded-full text-xs font-medium ${getPriorityColor(feature.priority)}`}>
-                            {feature.priority}
-                          </span>
+              <div className="space-y-4">
+                {deliveryRoadmap.map((item) => (
+                  <div key={item.id} className="p-4 bg-white border rounded-lg shadow-sm hover:shadow-md transition-shadow">
+                    <div className="flex items-start justify-between mb-3">
+                      <div className="flex-1">
+                        <div className="flex items-center gap-2 mb-2">
+                          <h3 className="text-lg font-medium text-gray-900">{item.title}</h3>
+                          <Badge variant="outline" className="text-xs">
+                            {item.type}
+                          </Badge>
                         </div>
-
-                        <div className="space-y-2 text-xs text-slate-600">
-                          <div className="flex justify-between">
-                            <span>Business Value:</span>
-                            <span className={`px-1 py-0.5 rounded text-xs ${getBusinessValueColor(feature.businessValue)}`}>
-                              {feature.businessValue}
-                            </span>
-                          </div>
-                          <div className="flex justify-between">
-                            <span>Effort:</span>
-                            <span>{feature.effort}</span>
-                          </div>
-                          {feature.linkedStrategic && (
-                            <div className="flex justify-between">
-                              <span>Strategic Link:</span>
-                              <span className="text-purple-600 font-medium">{feature.linkedStrategic}</span>
-                            </div>
-                          )}
+                        <div className="flex items-center gap-4 text-sm text-gray-600">
+                          <span>Release: {item.release}</span>
+                          <span>Team: {item.team}</span>
+                          <span>Effort: {item.effort}</span>
                         </div>
-
-                        <div className="flex items-center text-xs text-slate-500 mt-3">
-                          <User className="w-3 h-3 mr-1" />
-                          {feature.assignee}
-                        </div>
-
-                        {feature.aiSuggestion && (
-                          <div className="mt-2 p-2 bg-purple-50 border border-purple-200 rounded text-xs">
-                            <span className="flex items-center text-purple-700">
-                              <Brain className="w-3 h-3 mr-1" />
-                              AI: {feature.aiSuggestion}
-                            </span>
-                          </div>
-                        )}
                       </div>
-                    ))}
-                    <Button variant="outline" className="w-full">
-                      <Plus className="w-4 h-4 mr-2" />
-                      Add Feature
-                    </Button>
+                      <div className="flex items-center gap-2">
+                        <Badge variant="outline" className={getStatusColor(item.status)}>
+                          {item.status.replace('-', ' ')}
+                        </Badge>
+                        <Badge variant="outline" className={getPriorityColor(item.priority)}>
+                          {item.priority}
+                        </Badge>
+                      </div>
+                    </div>
+
+                    {/* Progress and Tasks */}
+                    <div className="grid grid-cols-1 md:grid-cols-3 gap-4 mb-3">
+                      <div className="p-2 bg-gray-50 rounded">
+                        <div className="text-xs text-gray-600">Progress</div>
+                        <div className="text-lg font-bold text-gray-900">{item.progress}%</div>
+                        <div className="w-full bg-gray-200 rounded-full h-1 mt-1">
+                          <div
+                            className="bg-blue-600 h-1 rounded-full"
+                            style={{ width: `${item.progress}%` }}
+                          />
+                        </div>
+                      </div>
+                      <div className="p-2 bg-green-50 rounded">
+                        <div className="text-xs text-green-700">Tasks Complete</div>
+                        <div className="text-lg font-bold text-green-900">
+                          {item.tasks.completed}/{item.tasks.total}
+                        </div>
+                      </div>
+                      <div className="p-2 bg-blue-50 rounded">
+                        <div className="text-xs text-blue-700">Customer Feedback</div>
+                        <div className="text-lg font-bold text-blue-900">{item.feedback.count}</div>
+                      </div>
+                    </div>
+
+                    {/* Strategic Link */}
+                    {item.linkedStrategic && (
+                      <div className="mb-3 p-2 bg-purple-50 border border-purple-200 rounded">
+                        <div className="text-xs text-purple-700 flex items-center">
+                          <ArrowRight className="w-3 h-3 mr-1" />
+                          Linked to: {strategicInitiatives.find(si => si.id === item.linkedStrategic)?.title}
+                        </div>
+                      </div>
+                    )}
+
+                    {/* Dependencies */}
+                    {item.dependencies.length > 0 && (
+                      <div className="mb-3">
+                        <div className="text-xs text-orange-700 flex items-center">
+                          <AlertTriangle className="w-3 h-3 mr-1" />
+                          Dependencies: {item.dependencies.join(', ')}
+                        </div>
+                      </div>
+                    )}
+
+                    {/* Actions */}
+                    <div className="flex items-center justify-between">
+                      <div className="flex items-center gap-2">
+                        <Button variant="outline" size="sm">
+                          <ExternalLink className="w-3 h-3 mr-1" />
+                          View in Jira
+                        </Button>
+                        <Button variant="outline" size="sm">
+                          <MessageSquare className="w-3 h-3 mr-1" />
+                          Feedback ({item.feedback.count})
+                        </Button>
+                      </div>
+                      <div className="flex items-center text-xs text-gray-500">
+                        <User className="w-3 h-3 mr-1" />
+                        {item.assignee}
+                      </div>
+                    </div>
                   </div>
                 ))}
               </div>
@@ -348,77 +518,118 @@ const Roadmap = () => {
           </Card>
         </TabsContent>
 
-        <TabsContent value="current" className="space-y-6">
-          {/* Enhanced Current Sprint */}
+        <TabsContent value="capacity" className="mt-8 space-y-6">
+          {/* Capacity Planning */}
           <Card>
             <CardHeader>
-              <CardTitle className="flex items-center justify-between">
-                <div className="flex items-center">
-                  <Clock className="w-5 h-5 mr-2 text-blue-600" />
-                  Current Sprint: {currentSprint.name}
-                </div>
-                <div className="text-sm text-slate-600">
-                  {currentSprint.startDate} - {currentSprint.endDate}
-                </div>
+              <CardTitle className="flex items-center">
+                <Users className="w-5 h-5 mr-2 text-green-600" />
+                Team Capacity & Resource Planning
               </CardTitle>
             </CardHeader>
             <CardContent>
-              <div className="grid grid-cols-1 md:grid-cols-3 gap-4 mb-6">
-                <div className="p-3 bg-blue-50 rounded-lg">
-                  <div className="text-2xl font-bold text-blue-900">{currentSprint.progress}%</div>
-                  <div className="text-sm text-blue-700">Sprint Progress</div>
+              <div className="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-3 gap-6">
+                <div className="p-4 bg-green-50 rounded-lg">
+                  <h3 className="font-medium text-green-900 mb-2">Frontend Team</h3>
+                  <div className="space-y-2">
+                    <div className="flex justify-between text-sm">
+                      <span>Capacity:</span>
+                      <span className="font-medium">85%</span>
+                    </div>
+                    <div className="w-full bg-green-200 rounded-full h-2">
+                      <div className="bg-green-600 h-2 rounded-full" style={{ width: '85%' }} />
+                    </div>
+                    <div className="text-xs text-green-700">3 active initiatives</div>
+                  </div>
                 </div>
-                <div className="p-3 bg-purple-50 rounded-lg">
-                  <div className="text-2xl font-bold text-purple-900">{currentSprint.linkedStrategicOutcomes}</div>
-                  <div className="text-sm text-purple-700">Strategic Links</div>
+
+                <div className="p-4 bg-blue-50 rounded-lg">
+                  <h3 className="font-medium text-blue-900 mb-2">Platform Team</h3>
+                  <div className="space-y-2">
+                    <div className="flex justify-between text-sm">
+                      <span>Capacity:</span>
+                      <span className="font-medium">65%</span>
+                    </div>
+                    <div className="w-full bg-blue-200 rounded-full h-2">
+                      <div className="bg-blue-600 h-2 rounded-full" style={{ width: '65%' }} />
+                    </div>
+                    <div className="text-xs text-blue-700">2 active initiatives</div>
+                  </div>
                 </div>
-                <div className="p-3 bg-emerald-50 rounded-lg">
-                  <div className="text-2xl font-bold text-emerald-900">{currentSprint.aiRecommendations}</div>
-                  <div className="text-sm text-emerald-700">AI Recommendations</div>
+
+                <div className="p-4 bg-orange-50 rounded-lg">
+                  <h3 className="font-medium text-orange-900 mb-2">AI/ML Team</h3>
+                  <div className="space-y-2">
+                    <div className="flex justify-between text-sm">
+                      <span>Capacity:</span>
+                      <span className="font-medium">90%</span>
+                    </div>
+                    <div className="w-full bg-orange-200 rounded-full h-2">
+                      <div className="bg-orange-600 h-2 rounded-full" style={{ width: '90%' }} />
+                    </div>
+                    <div className="text-xs text-orange-700">1 active initiative</div>
+                  </div>
                 </div>
               </div>
 
-              <div className="mb-4">
-                <div className="w-full bg-slate-200 rounded-full h-3">
-                  <div
-                    className="bg-blue-600 h-3 rounded-full transition-all duration-300"
-                    style={{ width: `${currentSprint.progress}%` }}
-                  ></div>
+              <div className="mt-6 p-4 bg-yellow-50 border border-yellow-200 rounded-lg">
+                <div className="flex items-center">
+                  <AlertTriangle className="w-5 h-5 text-yellow-600 mr-2" />
+                  <div>
+                    <h4 className="font-medium text-yellow-900">Capacity Alert</h4>
+                    <p className="text-sm text-yellow-700">AI/ML team is over-allocated by 10%. Consider redistributing or delaying lower-priority work.</p>
+                  </div>
                 </div>
               </div>
-              
-              <div className="grid grid-cols-1 md:grid-cols-2 gap-4">
-                {currentSprint.tasks.map((task) => (
-                  <div key={task.id} className="p-4 bg-slate-50 rounded-lg border">
-                    <h4 className="font-medium text-slate-900 mb-2">{task.title}</h4>
-                    <div className="flex items-center justify-between mb-2">
-                      <span className={`px-2 py-1 rounded-full text-xs font-medium ${getStatusColor(task.status)}`}>
-                        {task.status.replace('-', ' ')}
-                      </span>
-                      <div className="flex items-center text-xs text-slate-500">
-                        <User className="w-3 h-3 mr-1" />
-                        {task.assignee}
+            </CardContent>
+          </Card>
+        </TabsContent>
+
+        <TabsContent value="integrations" className="mt-8 space-y-6">
+          {/* Integrations */}
+          <Card>
+            <CardHeader>
+              <CardTitle className="flex items-center">
+                <ExternalLink className="w-5 h-5 mr-2 text-gray-600" />
+                Development Tool Integrations
+              </CardTitle>
+            </CardHeader>
+            <CardContent>
+              <div className="space-y-4">
+                {integrations.map((integration, index) => (
+                  <div key={index} className="flex items-center justify-between p-4 bg-gray-50 rounded-lg">
+                    <div className="flex items-center">
+                      <div className="w-10 h-10 bg-white rounded-lg border flex items-center justify-center mr-3">
+                        <ExternalLink className="w-5 h-5 text-gray-600" />
+                      </div>
+                      <div>
+                        <h3 className="font-medium text-gray-900">{integration.name}</h3>
+                        <p className="text-sm text-gray-600">
+                          Last sync: {integration.lastSync} • {integration.syncedItems} items synced
+                        </p>
                       </div>
                     </div>
-                    {task.linkedStrategic && (
-                      <div className="text-xs text-purple-600 mb-1">
-                        → {task.linkedStrategic}
-                      </div>
-                    )}
-                    <div className="flex justify-between items-center text-xs">
-                      <span className="text-slate-500">Impact:</span>
-                      <span className={`px-1 py-0.5 rounded ${getBusinessValueColor(task.businessImpact)}`}>
-                        {task.businessImpact}
-                      </span>
+                    <div className="flex items-center gap-2">
+                      <Badge variant="outline" className="bg-green-100 text-green-700">
+                        {integration.status}
+                      </Badge>
+                      <Button variant="outline" size="sm">
+                        Configure
+                      </Button>
                     </div>
                   </div>
                 ))}
+
+                <div className="p-4 border-2 border-dashed border-gray-300 rounded-lg text-center">
+                  <ExternalLink className="w-8 h-8 text-gray-400 mx-auto mb-2" />
+                  <h3 className="text-sm font-medium text-gray-900 mb-1">Add Integration</h3>
+                  <p className="text-xs text-gray-600 mb-3">Connect GitHub, Trello, Asana, or other tools</p>
+                  <Button variant="outline" size="sm">
+                    <Plus className="w-4 h-4 mr-2" />
+                    Add Integration
+                  </Button>
+                </div>
               </div>
-              
-              <Button className="mt-4 bg-blue-600 hover:bg-blue-700">
-                <Plus className="w-4 h-4 mr-2" />
-                Add Task
-              </Button>
             </CardContent>
           </Card>
         </TabsContent>
