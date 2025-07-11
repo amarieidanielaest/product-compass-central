@@ -19,14 +19,16 @@ import {
   User,
   MessageSquare,
   Settings,
-  BarChart3
+  BarChart3,
+  Edit
 } from 'lucide-react';
 import { Card, CardContent, CardHeader, CardTitle } from '@/components/ui/card';
 import { Button } from '@/components/ui/button';
 import { Tabs, TabsContent, TabsList, TabsTrigger } from '@/components/ui/tabs';
 import { Badge } from '@/components/ui/badge';
-import { Dialog, DialogContent, DialogHeader, DialogTitle, DialogTrigger } from '@/components/ui/dialog';
 import { Select, SelectContent, SelectItem, SelectTrigger, SelectValue } from '@/components/ui/select';
+import CreateRoadmapItemDialog from './CreateRoadmapItemDialog';
+import EditRoadmapItemDialog from './EditRoadmapItemDialog';
 
 interface RoadmapProps {
   selectedProductId?: string;
@@ -34,10 +36,6 @@ interface RoadmapProps {
 }
 
 const Roadmap = ({ selectedProductId, onNavigate }: RoadmapProps) => {
-  const [viewMode, setViewMode] = useState('timeline');
-  const [filterBy, setFilterBy] = useState('all');
-  const [showCreateModal, setShowCreateModal] = useState(false);
-
   // Strategic Roadmap Data (Quarterly/Yearly)
   const strategicInitiatives = [
     {
@@ -156,6 +154,14 @@ const Roadmap = ({ selectedProductId, onNavigate }: RoadmapProps) => {
     }
   ];
 
+  const [viewMode, setViewMode] = useState('timeline');
+  const [filterBy, setFilterBy] = useState('all');
+  const [showCreateModal, setShowCreateModal] = useState(false);
+  const [showEditModal, setShowEditModal] = useState(false);
+  const [editingItem, setEditingItem] = useState(null);
+  const [strategicItems, setStrategicItems] = useState(strategicInitiatives);
+  const [deliveryItems, setDeliveryItems] = useState(deliveryRoadmap);
+
   // Integration status for display (simplified)
   const integrationStatus = {
     jira: { connected: true, itemsCount: 45 },
@@ -205,6 +211,36 @@ const Roadmap = ({ selectedProductId, onNavigate }: RoadmapProps) => {
     }
   };
 
+  const handleCreateItem = (newItem: any) => {
+    if (newItem.type === 'strategic') {
+      setStrategicItems(prev => [...prev, newItem]);
+    } else {
+      setDeliveryItems(prev => [...prev, newItem]);
+    }
+  };
+
+  const handleEditItem = (item: any) => {
+    setEditingItem(item);
+    setShowEditModal(true);
+  };
+
+  const handleUpdateItem = (updatedItem: any) => {
+    if (updatedItem.type === 'strategic' || updatedItem.theme) {
+      setStrategicItems(prev => prev.map(item => 
+        item.id === updatedItem.id ? updatedItem : item
+      ));
+    } else {
+      setDeliveryItems(prev => prev.map(item => 
+        item.id === updatedItem.id ? updatedItem : item
+      ));
+    }
+  };
+
+  const handleDeleteItem = (itemId: string) => {
+    setStrategicItems(prev => prev.filter(item => item.id !== itemId));
+    setDeliveryItems(prev => prev.filter(item => item.id !== itemId));
+  };
+
   return (
     <div className="space-y-6">
       {/* Header Actions */}
@@ -247,22 +283,10 @@ const Roadmap = ({ selectedProductId, onNavigate }: RoadmapProps) => {
             <Download className="w-4 h-4 mr-2" />
             Export
           </Button>
-          <Dialog open={showCreateModal} onOpenChange={setShowCreateModal}>
-            <DialogTrigger asChild>
-              <Button size="sm">
-                <Plus className="w-4 h-4 mr-2" />
-                Create Item
-              </Button>
-            </DialogTrigger>
-            <DialogContent>
-              <DialogHeader>
-                <DialogTitle>Create Roadmap Item</DialogTitle>
-              </DialogHeader>
-              <div className="p-4">
-                <p className="text-gray-600">Create new strategic initiative, feature, or release...</p>
-              </div>
-            </DialogContent>
-          </Dialog>
+          <Button size="sm" onClick={() => setShowCreateModal(true)}>
+            <Plus className="w-4 h-4 mr-2" />
+            Create Item
+          </Button>
         </div>
       </div>
 
@@ -299,7 +323,7 @@ const Roadmap = ({ selectedProductId, onNavigate }: RoadmapProps) => {
             </CardHeader>
             <CardContent>
               <div className="space-y-6">
-                {strategicInitiatives.map((initiative) => (
+                {strategicItems.map((initiative) => (
                   <div key={initiative.id} className="p-6 bg-white border rounded-lg shadow-sm">
                     <div className="flex items-start justify-between mb-4">
                       <div className="flex-1">
@@ -373,8 +397,8 @@ const Roadmap = ({ selectedProductId, onNavigate }: RoadmapProps) => {
                           Comments
                         </Button>
                       </div>
-                      <Button variant="outline" size="sm">
-                        <Settings className="w-4 h-4 mr-2" />
+                      <Button variant="outline" size="sm" onClick={() => handleEditItem(initiative)}>
+                        <Edit className="w-4 h-4 mr-2" />
                         Edit
                       </Button>
                     </div>
@@ -412,7 +436,7 @@ const Roadmap = ({ selectedProductId, onNavigate }: RoadmapProps) => {
             </CardHeader>
             <CardContent>
               <div className="space-y-4">
-                {deliveryRoadmap.map((item) => (
+                {deliveryItems.map((item) => (
                   <div key={item.id} className="p-4 bg-white border rounded-lg shadow-sm hover:shadow-md transition-shadow">
                     <div className="flex items-start justify-between mb-3">
                       <div className="flex-1">
@@ -492,6 +516,10 @@ const Roadmap = ({ selectedProductId, onNavigate }: RoadmapProps) => {
                         <Button variant="outline" size="sm">
                           <MessageSquare className="w-3 h-3 mr-1" />
                           Feedback ({item.feedback.count})
+                        </Button>
+                        <Button variant="outline" size="sm" onClick={() => handleEditItem(item)}>
+                          <Edit className="w-4 h-4 mr-2" />
+                          Edit
                         </Button>
                       </div>
                       <div className="flex items-center text-xs text-gray-500">
@@ -573,6 +601,21 @@ const Roadmap = ({ selectedProductId, onNavigate }: RoadmapProps) => {
           </Card>
         </TabsContent>
       </Tabs>
+
+      {/* Dialogs */}
+      <CreateRoadmapItemDialog
+        open={showCreateModal}
+        onOpenChange={setShowCreateModal}
+        onItemCreated={handleCreateItem}
+      />
+      
+      <EditRoadmapItemDialog
+        open={showEditModal}
+        onOpenChange={setShowEditModal}
+        item={editingItem}
+        onItemUpdated={handleUpdateItem}
+        onItemDeleted={handleDeleteItem}
+      />
     </div>
   );
 };
