@@ -1,4 +1,4 @@
-import React, { useState } from 'react';
+import React, { useState, useMemo } from 'react';
 import { 
   Target, 
   Layers, 
@@ -20,7 +20,10 @@ import {
   MessageSquare,
   Settings,
   BarChart3,
-  Edit
+  Edit,
+  Grid,
+  List,
+  Calendar as CalendarIcon
 } from 'lucide-react';
 import { Card, CardContent, CardHeader, CardTitle } from '@/components/ui/card';
 import { Button } from '@/components/ui/button';
@@ -29,6 +32,8 @@ import { Badge } from '@/components/ui/badge';
 import { Select, SelectContent, SelectItem, SelectTrigger, SelectValue } from '@/components/ui/select';
 import CreateRoadmapItemDialog from './CreateRoadmapItemDialog';
 import EditRoadmapItemDialog from './EditRoadmapItemDialog';
+import CapacityManager from './CapacityManager';
+import ShareExportDialog from './ShareExportDialog';
 
 interface RoadmapProps {
   selectedProductId?: string;
@@ -161,6 +166,9 @@ const Roadmap = ({ selectedProductId, onNavigate }: RoadmapProps) => {
   const [editingItem, setEditingItem] = useState(null);
   const [strategicItems, setStrategicItems] = useState(strategicInitiatives);
   const [deliveryItems, setDeliveryItems] = useState(deliveryRoadmap);
+  const [showCapacityManager, setShowCapacityManager] = useState(false);
+  const [showShareDialog, setShowShareDialog] = useState(false);
+  const [showExportDialog, setShowExportDialog] = useState(false);
 
   // Integration status for display (simplified)
   const integrationStatus = {
@@ -241,6 +249,110 @@ const Roadmap = ({ selectedProductId, onNavigate }: RoadmapProps) => {
     setDeliveryItems(prev => prev.filter(item => item.id !== itemId));
   };
 
+  // Filter items based on current filter
+  const filteredStrategicItems = useMemo(() => {
+    return strategicItems.filter(item => {
+      if (filterBy === 'all') return true;
+      if (filterBy === 'strategic') return true;
+      if (filterBy === 'my-items') return item.owner === 'Product Team'; // In real app, check current user
+      return false;
+    });
+  }, [strategicItems, filterBy]);
+
+  const filteredDeliveryItems = useMemo(() => {
+    return deliveryItems.filter(item => {
+      if (filterBy === 'all') return true;
+      if (filterBy === 'delivery') return true;
+      if (filterBy === 'my-items') return item.assignee === 'Alex Chen'; // In real app, check current user
+      return false;
+    });
+  }, [deliveryItems, filterBy]);
+
+  const handleFeedbackClick = (item: any) => {
+    // Navigate to customer feedback with pre-filter for this item
+    onNavigate?.('customer');
+  };
+
+  const handleIntegrationClick = (item: any) => {
+    // In real app, this would open the item in the integrated tool
+    window.open(`https://company.atlassian.net/browse/${item.id}`, '_blank');
+  };
+
+  const renderItemsByViewMode = (items: any[], type: 'strategic' | 'delivery') => {
+    if (viewMode === 'board') {
+      const columns = type === 'strategic' 
+        ? ['planned', 'in-progress', 'on-track', 'completed']
+        : ['planned', 'in-progress', 'completed'];
+
+      return (
+        <div className="grid grid-cols-4 gap-4">
+          {columns.map(status => (
+            <div key={status} className="space-y-3">
+              <h4 className="font-medium capitalize text-gray-700 pb-2 border-b">
+                {status.replace('-', ' ')} ({items.filter(item => item.status === status).length})
+              </h4>
+              {items
+                .filter(item => item.status === status)
+                .map(item => (
+                  <div key={item.id} className="p-3 bg-white border rounded-lg shadow-sm">
+                    <h5 className="font-medium text-sm mb-2">{item.title}</h5>
+                    <div className="flex items-center gap-2 mb-2">
+                      <Badge variant="outline" className={getPriorityColor(item.priority)}>
+                        {item.priority}
+                      </Badge>
+                      {type === 'delivery' && (
+                        <span className="text-xs text-gray-500">{item.team}</span>
+                      )}
+                    </div>
+                    {item.progress !== undefined && (
+                      <div className="w-full bg-gray-200 rounded-full h-1">
+                        <div
+                          className="bg-blue-600 h-1 rounded-full"
+                          style={{ width: `${item.progress}%` }}
+                        />
+                      </div>
+                    )}
+                  </div>
+                ))}
+            </div>
+          ))}
+        </div>
+      );
+    }
+
+    if (viewMode === 'list') {
+      return (
+        <div className="space-y-2">
+          {items.map(item => (
+            <div key={item.id} className="flex items-center justify-between p-3 border rounded-lg hover:bg-gray-50">
+              <div className="flex items-center gap-3">
+                <div className="w-2 h-2 rounded-full bg-blue-600" />
+                <span className="font-medium">{item.title}</span>
+                <Badge variant="outline" className={getStatusColor(item.status)}>
+                  {item.status.replace('-', ' ')}
+                </Badge>
+                <Badge variant="outline" className={getPriorityColor(item.priority)}>
+                  {item.priority}
+                </Badge>
+              </div>
+              <div className="flex items-center gap-2">
+                {item.progress !== undefined && (
+                  <span className="text-sm text-gray-600">{item.progress}%</span>
+                )}
+                <Button variant="outline" size="sm" onClick={() => handleEditItem(item)}>
+                  <Edit className="w-3 h-3" />
+                </Button>
+              </div>
+            </div>
+          ))}
+        </div>
+      );
+    }
+
+    // Default timeline view - return null to use existing layout
+    return null;
+  };
+
   return (
     <div className="space-y-6">
       {/* Header Actions */}
@@ -275,11 +387,11 @@ const Roadmap = ({ selectedProductId, onNavigate }: RoadmapProps) => {
             <Filter className="w-4 h-4 mr-2" />
             Filters
           </Button>
-          <Button variant="outline" size="sm">
+          <Button variant="outline" size="sm" onClick={() => setShowShareDialog(true)}>
             <Share className="w-4 h-4 mr-2" />
             Share
           </Button>
-          <Button variant="outline" size="sm">
+          <Button variant="outline" size="sm" onClick={() => setShowExportDialog(true)}>
             <Download className="w-4 h-4 mr-2" />
             Export
           </Button>
@@ -322,8 +434,9 @@ const Roadmap = ({ selectedProductId, onNavigate }: RoadmapProps) => {
               </CardTitle>
             </CardHeader>
             <CardContent>
-              <div className="space-y-6">
-                {strategicItems.map((initiative) => (
+              {renderItemsByViewMode(filteredStrategicItems, 'strategic') || (
+                <div className="space-y-6">
+                  {filteredStrategicItems.map((initiative) => (
                   <div key={initiative.id} className="p-6 bg-white border rounded-lg shadow-sm">
                     <div className="flex items-start justify-between mb-4">
                       <div className="flex-1">
@@ -403,8 +516,9 @@ const Roadmap = ({ selectedProductId, onNavigate }: RoadmapProps) => {
                       </Button>
                     </div>
                   </div>
-                ))}
-              </div>
+                  ))}
+                </div>
+              )}
             </CardContent>
           </Card>
         </TabsContent>
@@ -435,8 +549,9 @@ const Roadmap = ({ selectedProductId, onNavigate }: RoadmapProps) => {
               </CardTitle>
             </CardHeader>
             <CardContent>
-              <div className="space-y-4">
-                {deliveryItems.map((item) => (
+              {renderItemsByViewMode(filteredDeliveryItems, 'delivery') || (
+                <div className="space-y-4">
+                  {filteredDeliveryItems.map((item) => (
                   <div key={item.id} className="p-4 bg-white border rounded-lg shadow-sm hover:shadow-md transition-shadow">
                     <div className="flex items-start justify-between mb-3">
                       <div className="flex-1">
@@ -509,11 +624,11 @@ const Roadmap = ({ selectedProductId, onNavigate }: RoadmapProps) => {
                     {/* Actions */}
                     <div className="flex items-center justify-between">
                       <div className="flex items-center gap-2">
-                        <Button variant="outline" size="sm">
+                        <Button variant="outline" size="sm" onClick={() => handleIntegrationClick(item)}>
                           <ExternalLink className="w-3 h-3 mr-1" />
                           View in Jira
                         </Button>
-                        <Button variant="outline" size="sm">
+                        <Button variant="outline" size="sm" onClick={() => handleFeedbackClick(item)}>
                           <MessageSquare className="w-3 h-3 mr-1" />
                           Feedback ({item.feedback.count})
                         </Button>
@@ -528,8 +643,9 @@ const Roadmap = ({ selectedProductId, onNavigate }: RoadmapProps) => {
                       </div>
                     </div>
                   </div>
-                ))}
-              </div>
+                  ))}
+                </div>
+              )}
             </CardContent>
           </Card>
         </TabsContent>
@@ -538,9 +654,15 @@ const Roadmap = ({ selectedProductId, onNavigate }: RoadmapProps) => {
           {/* Capacity Planning */}
           <Card>
             <CardHeader>
-              <CardTitle className="flex items-center">
-                <Users className="w-5 h-5 mr-2 text-green-600" />
-                Team Capacity & Resource Planning
+              <CardTitle className="flex items-center justify-between">
+                <div className="flex items-center">
+                  <Users className="w-5 h-5 mr-2 text-green-600" />
+                  Team Capacity & Resource Planning
+                </div>
+                <Button variant="outline" size="sm" onClick={() => setShowCapacityManager(true)}>
+                  <Settings className="w-4 h-4 mr-2" />
+                  Manage Capacity
+                </Button>
               </CardTitle>
             </CardHeader>
             <CardContent>
@@ -615,6 +737,25 @@ const Roadmap = ({ selectedProductId, onNavigate }: RoadmapProps) => {
         item={editingItem}
         onItemUpdated={handleUpdateItem}
         onItemDeleted={handleDeleteItem}
+      />
+
+      <CapacityManager
+        open={showCapacityManager}
+        onOpenChange={setShowCapacityManager}
+      />
+
+      <ShareExportDialog
+        open={showShareDialog}
+        onOpenChange={setShowShareDialog}
+        type="share"
+        roadmapData={{ strategicItems, deliveryItems }}
+      />
+
+      <ShareExportDialog
+        open={showExportDialog}
+        onOpenChange={setShowExportDialog}
+        type="export"
+        roadmapData={{ strategicItems, deliveryItems }}
       />
     </div>
   );
