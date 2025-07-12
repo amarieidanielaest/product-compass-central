@@ -17,6 +17,8 @@ import PortfolioHealthDashboard from './strategy/PortfolioHealthDashboard';
 import ResourceManagement from './strategy/ResourceManagement';
 import ExecutiveReporting from './strategy/ExecutiveReporting';
 import QuickActions from './QuickActions';
+import StrategicQuickCreate from './strategy/StrategicQuickCreate';
+import StrategicAnalyticsDashboard from './strategy/StrategicAnalyticsDashboard';
 
 interface StrategyProps {
   selectedProductId?: string;
@@ -30,6 +32,10 @@ const Strategy = ({ selectedProductId, onNavigate }: StrategyProps) => {
   const [editingInitiativeId, setEditingInitiativeId] = useState<string | null>(null);
   const [showAddInitiative, setShowAddInitiative] = useState(false);
   const [showAIInsights, setShowAIInsights] = useState(false);
+  
+  // Dialog states
+  const [showQuickCreate, setShowQuickCreate] = useState(false);
+  const [showAnalytics, setShowAnalytics] = useState(false);
 
   // Vision state
   const [visionTitle, setVisionTitle] = useState("Empowering product organizations through unified, AI-driven collaboration");
@@ -142,6 +148,12 @@ const Strategy = ({ selectedProductId, onNavigate }: StrategyProps) => {
     setStrategicInitiatives(prev => prev.filter(init => init.id !== id));
   };
 
+  const handleQuickCreateItem = (item: any) => {
+    console.log('Created strategic item:', item);
+    // In a real implementation, this would save to the backend
+    // and update the appropriate state based on the item type
+  };
+
   return (
     <div className="space-y-6">
       {/* Header Actions */}
@@ -186,11 +198,11 @@ const Strategy = ({ selectedProductId, onNavigate }: StrategyProps) => {
               </div>
             )}
           </div>
-          <Button variant="outline" size="sm">
+          <Button variant="outline" size="sm" onClick={() => setShowQuickCreate(true)}>
             <Plus className="w-4 h-4 mr-2" />
             Quick Create
           </Button>
-          <Button variant="outline" size="sm">
+          <Button variant="outline" size="sm" onClick={() => setShowAnalytics(true)}>
             <BarChart3 className="w-4 h-4 mr-2" />
             View Analytics
           </Button>
@@ -242,6 +254,18 @@ const Strategy = ({ selectedProductId, onNavigate }: StrategyProps) => {
         </TabsContent>
 
       </Tabs>
+
+      {/* Dialogs */}
+      <StrategicQuickCreate
+        isOpen={showQuickCreate}
+        onClose={() => setShowQuickCreate(false)}
+        onCreateItem={handleQuickCreateItem}
+      />
+      
+      <StrategicAnalyticsDashboard
+        isOpen={showAnalytics}
+        onClose={() => setShowAnalytics(false)}
+      />
     </div>
   );
 };
