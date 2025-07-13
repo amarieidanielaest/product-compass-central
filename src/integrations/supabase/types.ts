@@ -408,6 +408,42 @@ export type Database = {
         }
         Relationships: []
       }
+      methodology_templates: {
+        Row: {
+          created_at: string
+          default_columns: Json
+          default_config: Json | null
+          default_statuses: Json
+          description: string | null
+          id: string
+          is_system_template: boolean | null
+          methodology_type: string
+          name: string
+        }
+        Insert: {
+          created_at?: string
+          default_columns: Json
+          default_config?: Json | null
+          default_statuses: Json
+          description?: string | null
+          id?: string
+          is_system_template?: boolean | null
+          methodology_type: string
+          name: string
+        }
+        Update: {
+          created_at?: string
+          default_columns?: Json
+          default_config?: Json | null
+          default_statuses?: Json
+          description?: string | null
+          id?: string
+          is_system_template?: boolean | null
+          methodology_type?: string
+          name?: string
+        }
+        Relationships: []
+      }
       organization_memberships: {
         Row: {
           created_at: string | null
@@ -651,19 +687,73 @@ export type Database = {
           },
         ]
       }
+      projects: {
+        Row: {
+          created_at: string
+          description: string | null
+          end_date: string | null
+          id: string
+          methodology_config: Json | null
+          name: string
+          start_date: string | null
+          status: string
+          team_id: string | null
+          updated_at: string
+        }
+        Insert: {
+          created_at?: string
+          description?: string | null
+          end_date?: string | null
+          id?: string
+          methodology_config?: Json | null
+          name: string
+          start_date?: string | null
+          status?: string
+          team_id?: string | null
+          updated_at?: string
+        }
+        Update: {
+          created_at?: string
+          description?: string | null
+          end_date?: string | null
+          id?: string
+          methodology_config?: Json | null
+          name?: string
+          start_date?: string | null
+          status?: string
+          team_id?: string | null
+          updated_at?: string
+        }
+        Relationships: [
+          {
+            foreignKeyName: "projects_team_id_fkey"
+            columns: ["team_id"]
+            isOneToOne: false
+            referencedRelation: "teams"
+            referencedColumns: ["id"]
+          },
+        ]
+      }
       roadmap_items: {
         Row: {
+          acceptance_criteria: string | null
           author_id: string | null
           board_id: string | null
+          business_value_score: number | null
           category: string | null
           completion_date: string | null
           created_at: string | null
+          dependencies: Json | null
           description: string | null
+          due_date: string | null
+          effort_points: number | null
           estimated_date: string | null
           id: string
           organization_id: string | null
           priority: string | null
+          project_id: string | null
           sort_order: number | null
+          start_date: string | null
           status: string
           title: string
           updated_at: string | null
@@ -671,17 +761,24 @@ export type Database = {
           visibility: string | null
         }
         Insert: {
+          acceptance_criteria?: string | null
           author_id?: string | null
           board_id?: string | null
+          business_value_score?: number | null
           category?: string | null
           completion_date?: string | null
           created_at?: string | null
+          dependencies?: Json | null
           description?: string | null
+          due_date?: string | null
+          effort_points?: number | null
           estimated_date?: string | null
           id?: string
           organization_id?: string | null
           priority?: string | null
+          project_id?: string | null
           sort_order?: number | null
+          start_date?: string | null
           status?: string
           title: string
           updated_at?: string | null
@@ -689,17 +786,24 @@ export type Database = {
           visibility?: string | null
         }
         Update: {
+          acceptance_criteria?: string | null
           author_id?: string | null
           board_id?: string | null
+          business_value_score?: number | null
           category?: string | null
           completion_date?: string | null
           created_at?: string | null
+          dependencies?: Json | null
           description?: string | null
+          due_date?: string | null
+          effort_points?: number | null
           estimated_date?: string | null
           id?: string
           organization_id?: string | null
           priority?: string | null
+          project_id?: string | null
           sort_order?: number | null
+          start_date?: string | null
           status?: string
           title?: string
           updated_at?: string | null
@@ -726,6 +830,72 @@ export type Database = {
             columns: ["organization_id"]
             isOneToOne: false
             referencedRelation: "organizations"
+            referencedColumns: ["id"]
+          },
+          {
+            foreignKeyName: "roadmap_items_project_id_fkey"
+            columns: ["project_id"]
+            isOneToOne: false
+            referencedRelation: "projects"
+            referencedColumns: ["id"]
+          },
+        ]
+      }
+      sprints: {
+        Row: {
+          capacity: number | null
+          committed: number | null
+          completed: number | null
+          created_at: string
+          end_date: string
+          goal: string | null
+          id: string
+          methodology_type: string
+          name: string
+          project_id: string | null
+          start_date: string
+          status: string
+          updated_at: string
+          workflow_config: Json | null
+        }
+        Insert: {
+          capacity?: number | null
+          committed?: number | null
+          completed?: number | null
+          created_at?: string
+          end_date: string
+          goal?: string | null
+          id?: string
+          methodology_type?: string
+          name: string
+          project_id?: string | null
+          start_date: string
+          status?: string
+          updated_at?: string
+          workflow_config?: Json | null
+        }
+        Update: {
+          capacity?: number | null
+          committed?: number | null
+          completed?: number | null
+          created_at?: string
+          end_date?: string
+          goal?: string | null
+          id?: string
+          methodology_type?: string
+          name?: string
+          project_id?: string | null
+          start_date?: string
+          status?: string
+          updated_at?: string
+          workflow_config?: Json | null
+        }
+        Relationships: [
+          {
+            foreignKeyName: "sprints_project_id_fkey"
+            columns: ["project_id"]
+            isOneToOne: false
+            referencedRelation: "projects"
             referencedColumns: ["id"]
           },
         ]
@@ -958,6 +1128,242 @@ export type Database = {
             columns: ["user_id"]
             isOneToOne: false
             referencedRelation: "profiles"
+            referencedColumns: ["id"]
+          },
+        ]
+      }
+      work_item_comments: {
+        Row: {
+          author_id: string | null
+          comment_type: string | null
+          content: string
+          created_at: string
+          id: string
+          metadata: Json | null
+          work_item_id: string | null
+        }
+        Insert: {
+          author_id?: string | null
+          comment_type?: string | null
+          content: string
+          created_at?: string
+          id?: string
+          metadata?: Json | null
+          work_item_id?: string | null
+        }
+        Update: {
+          author_id?: string | null
+          comment_type?: string | null
+          content?: string
+          created_at?: string
+          id?: string
+          metadata?: Json | null
+          work_item_id?: string | null
+        }
+        Relationships: [
+          {
+            foreignKeyName: "work_item_comments_author_id_fkey"
+            columns: ["author_id"]
+            isOneToOne: false
+            referencedRelation: "profiles"
+            referencedColumns: ["id"]
+          },
+          {
+            foreignKeyName: "work_item_comments_work_item_id_fkey"
+            columns: ["work_item_id"]
+            isOneToOne: false
+            referencedRelation: "work_items"
+            referencedColumns: ["id"]
+          },
+        ]
+      }
+      work_item_dependencies: {
+        Row: {
+          created_at: string
+          dependency_type: string
+          from_item_id: string | null
+          id: string
+          to_item_id: string | null
+        }
+        Insert: {
+          created_at?: string
+          dependency_type?: string
+          from_item_id?: string | null
+          id?: string
+          to_item_id?: string | null
+        }
+        Update: {
+          created_at?: string
+          dependency_type?: string
+          from_item_id?: string | null
+          id?: string
+          to_item_id?: string | null
+        }
+        Relationships: [
+          {
+            foreignKeyName: "work_item_dependencies_from_item_id_fkey"
+            columns: ["from_item_id"]
+            isOneToOne: false
+            referencedRelation: "work_items"
+            referencedColumns: ["id"]
+          },
+          {
+            foreignKeyName: "work_item_dependencies_to_item_id_fkey"
+            columns: ["to_item_id"]
+            isOneToOne: false
+            referencedRelation: "work_items"
+            referencedColumns: ["id"]
+          },
+        ]
+      }
+      work_items: {
+        Row: {
+          acceptance_criteria: string | null
+          assignee_id: string | null
+          completed_date: string | null
+          created_at: string
+          custom_fields: Json | null
+          description: string | null
+          due_date: string | null
+          effort_estimate: number | null
+          effort_unit: string | null
+          id: string
+          item_type: string
+          linked_feedback_ids: string[] | null
+          parent_id: string | null
+          priority: string
+          reporter_id: string | null
+          roadmap_item_id: string | null
+          sprint_id: string | null
+          start_date: string | null
+          status: string
+          tags: string[] | null
+          title: string
+          updated_at: string
+        }
+        Insert: {
+          acceptance_criteria?: string | null
+          assignee_id?: string | null
+          completed_date?: string | null
+          created_at?: string
+          custom_fields?: Json | null
+          description?: string | null
+          due_date?: string | null
+          effort_estimate?: number | null
+          effort_unit?: string | null
+          id?: string
+          item_type?: string
+          linked_feedback_ids?: string[] | null
+          parent_id?: string | null
+          priority?: string
+          reporter_id?: string | null
+          roadmap_item_id?: string | null
+          sprint_id?: string | null
+          start_date?: string | null
+          status?: string
+          tags?: string[] | null
+          title: string
+          updated_at?: string
+        }
+        Update: {
+          acceptance_criteria?: string | null
+          assignee_id?: string | null
+          completed_date?: string | null
+          created_at?: string
+          custom_fields?: Json | null
+          description?: string | null
+          due_date?: string | null
+          effort_estimate?: number | null
+          effort_unit?: string | null
+          id?: string
+          item_type?: string
+          linked_feedback_ids?: string[] | null
+          parent_id?: string | null
+          priority?: string
+          reporter_id?: string | null
+          roadmap_item_id?: string | null
+          sprint_id?: string | null
+          start_date?: string | null
+          status?: string
+          tags?: string[] | null
+          title?: string
+          updated_at?: string
+        }
+        Relationships: [
+          {
+            foreignKeyName: "work_items_assignee_id_fkey"
+            columns: ["assignee_id"]
+            isOneToOne: false
+            referencedRelation: "profiles"
+            referencedColumns: ["id"]
+          },
+          {
+            foreignKeyName: "work_items_parent_id_fkey"
+            columns: ["parent_id"]
+            isOneToOne: false
+            referencedRelation: "work_items"
+            referencedColumns: ["id"]
+          },
+          {
+            foreignKeyName: "work_items_reporter_id_fkey"
+            columns: ["reporter_id"]
+            isOneToOne: false
+            referencedRelation: "profiles"
+            referencedColumns: ["id"]
+          },
+          {
+            foreignKeyName: "work_items_roadmap_item_id_fkey"
+            columns: ["roadmap_item_id"]
+            isOneToOne: false
+            referencedRelation: "roadmap_items"
+            referencedColumns: ["id"]
+          },
+          {
+            foreignKeyName: "work_items_sprint_id_fkey"
+            columns: ["sprint_id"]
+            isOneToOne: false
+            referencedRelation: "sprints"
+            referencedColumns: ["id"]
+          },
+        ]
+      }
+      workflow_columns: {
+        Row: {
+          color: string | null
+          column_type: string | null
+          created_at: string
+          id: string
+          name: string
+          position: number
+          sprint_id: string | null
+          wip_limit: number | null
+        }
+        Insert: {
+          color?: string | null
+          column_type?: string | null
+          created_at?: string
+          id?: string
+          name: string
+          position: number
+          sprint_id?: string | null
+          wip_limit?: number | null
+        }
+        Update: {
+          color?: string | null
+          column_type?: string | null
+          created_at?: string
+          id?: string
+          name?: string
+          position?: number
+          sprint_id?: string | null
+          wip_limit?: number | null
+        }
+        Relationships: [
+          {
+            foreignKeyName: "workflow_columns_sprint_id_fkey"
+            columns: ["sprint_id"]
+            isOneToOne: false
+            referencedRelation: "sprints"
             referencedColumns: ["id"]
           },
         ]
