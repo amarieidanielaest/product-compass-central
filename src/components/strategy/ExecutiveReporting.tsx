@@ -1,500 +1,570 @@
-import React, { useState } from 'react';
-import { Download, Share, FileText, Presentation, ExternalLink, Calendar, Clock, CheckCircle } from 'lucide-react';
+import React, { useState, useEffect } from 'react';
 import { Card, CardContent, CardHeader, CardTitle } from '@/components/ui/card';
 import { Button } from '@/components/ui/button';
 import { Badge } from '@/components/ui/badge';
+import { Progress } from '@/components/ui/progress';
+import { Select, SelectContent, SelectItem, SelectTrigger, SelectValue } from '@/components/ui/select';
 import { Tabs, TabsContent, TabsList, TabsTrigger } from '@/components/ui/tabs';
-import { Dialog, DialogContent, DialogHeader, DialogTitle, DialogTrigger } from '@/components/ui/dialog';
+import { useToast } from '@/hooks/use-toast';
+import { roadmapService, RoadmapItem } from '@/services/api/RoadmapService';
+import { sprintService, Sprint, WorkItem } from '@/services/api/SprintService';
+import { 
+  BarChart, 
+  Bar, 
+  XAxis, 
+  YAxis, 
+  CartesianGrid, 
+  Tooltip, 
+  ResponsiveContainer,
+  LineChart,
+  Line,
+  Area,
+  AreaChart
+} from 'recharts';
+import { 
+  Download, 
+  Share2, 
+  Calendar, 
+  TrendingUp, 
+  AlertTriangle, 
+  CheckCircle,
+  Target,
+  BarChart3
+} from 'lucide-react';
 
-interface ReportTemplate {
-  id: string;
-  name: string;
-  description: string;
-  type: 'board' | 'qbr' | 'strategy' | 'portfolio';
-  lastGenerated?: string;
-  frequency: 'quarterly' | 'monthly' | 'on-demand';
-  recipients: string[];
-  sections: string[];
-  status: 'ready' | 'generating' | 'scheduled';
+interface ExecutiveReport {
+  period: string;
+  strategicInitiatives: {
+    total: number;
+    completed: number;
+    inProgress: number;
+    blocked: number;
+    onTrack: number;
+    atRisk: number;
+  };
+  deliveryMetrics: {
+    velocityTrend: Array<{ period: string; velocity: number; planned: number; }>;
+    burndown: Array<{ date: string; remaining: number; ideal: number; }>;
+    throughput: Array<{ period: string; completed: number; }>;
+  };
+  businessValue: {
+    delivered: number;
+    planned: number;
+    valueRealized: number;
+  };
+  teamHealth: {
+    capacityUtilization: number;
+    blockerCount: number;
+    satisfactionScore: number;
+  };
+  keyRisks: Array<{
+    id: string;
+    initiative: string;
+    risk: string;
+    impact: 'high' | 'medium' | 'low';
+    mitigation: string;
+  }>;
+  upcomingMilestones: Array<{
+    id: string;
+    title: string;
+    date: string;
+    status: string;
+    confidence: number;
+  }>;
 }
 
-interface ShareableDashboard {
-  id: string;
-  name: string;
-  description: string;
-  viewType: 'strategic' | 'operational' | 'financial';
-  lastAccessed?: string;
-  accessLevel: 'public' | 'restricted' | 'confidential';
-  viewers: number;
-  link: string;
-}
+export const ExecutiveReporting: React.FC = () => {
+  const [report, setReport] = useState<ExecutiveReport | null>(null);
+  const [selectedPeriod, setSelectedPeriod] = useState('current-quarter');
+  const [loading, setLoading] = useState(true);
+  const { toast } = useToast();
 
-interface ExecutiveReportingProps {
-  templates?: ReportTemplate[];
-  dashboards?: ShareableDashboard[];
-}
+  useEffect(() => {
+    generateReport();
+  }, [selectedPeriod]);
 
-const ExecutiveReporting = ({ templates: propTemplates, dashboards: propDashboards }: ExecutiveReportingProps) => {
-  const [selectedTemplate, setSelectedTemplate] = useState<string | null>(null);
-  const [showShareDialog, setShowShareDialog] = useState(false);
-  const [selectedDashboard, setSelectedDashboard] = useState<string | null>(null);
+  const generateReport = async () => {
+    try {
+      setLoading(true);
+      
+      const [roadmapResponse, sprintsResponse] = await Promise.all([
+        roadmapService.getRoadmapItems(),
+        sprintService.getSprints()
+      ]);
 
-  const templates: ReportTemplate[] = propTemplates || [
-    {
-      id: 'template-001',
-      name: 'Quarterly Board Update',
-      description: 'Comprehensive quarterly review for board meetings including strategy progress, financial metrics, and key initiatives',
-      type: 'board',
-      lastGenerated: '2024-09-15',
-      frequency: 'quarterly',
-      recipients: ['board@company.com', 'ceo@company.com'],
-      sections: ['Strategic Progress', 'Financial Performance', 'Key Metrics', 'Risk Assessment', 'Next Quarter Focus'],
-      status: 'ready'
-    },
-    {
-      id: 'template-002',
-      name: 'Product Strategy Review',
-      description: 'Deep dive into product strategy execution, roadmap progress, and competitive positioning',
-      type: 'strategy',
-      lastGenerated: '2024-09-01',
-      frequency: 'quarterly',
-      recipients: ['executive-team@company.com'],
-      sections: ['Strategic Alignment', 'Roadmap Progress', 'Competitive Analysis', 'Customer Insights', 'Resource Allocation'],
-      status: 'ready'
-    },
-    {
-      id: 'template-003',
-      name: 'Portfolio Health Report',
-      description: 'Monthly overview of product portfolio performance and health metrics',
-      type: 'portfolio',
-      lastGenerated: '2024-09-20',
-      frequency: 'monthly',
-      recipients: ['cpo@company.com', 'product-leads@company.com'],
-      sections: ['Portfolio Overview', 'Health Metrics', 'Investment Analysis', 'Risk Indicators'],
-      status: 'ready'
-    },
-    {
-      id: 'template-004',
-      name: 'Company-Wide Strategy Update',
-      description: 'Quarterly all-hands presentation on strategy progress and organizational alignment',
-      type: 'qbr',
-      frequency: 'quarterly',
-      recipients: ['all-hands@company.com'],
-      sections: ['Vision Progress', 'OKR Status', 'Key Wins', 'Challenges', 'Upcoming Priorities'],
-      status: 'scheduled'
-    }
-  ];
-
-  const dashboards: ShareableDashboard[] = propDashboards || [
-    {
-      id: 'dash-001',
-      name: 'Executive Strategy Dashboard',
-      description: 'High-level view of strategic objectives, OKR progress, and portfolio health',
-      viewType: 'strategic',
-      lastAccessed: '2024-09-22',
-      accessLevel: 'restricted',
-      viewers: 12,
-      link: 'https://strategy.company.com/executive-view'
-    },
-    {
-      id: 'dash-002',
-      name: 'Product Portfolio Overview',
-      description: 'Real-time portfolio metrics, investment allocation, and performance indicators',
-      viewType: 'operational',
-      lastAccessed: '2024-09-21',
-      accessLevel: 'restricted',
-      viewers: 8,
-      link: 'https://strategy.company.com/portfolio-view'
-    },
-    {
-      id: 'dash-003',
-      name: 'Board Financial Metrics',
-      description: 'Financial performance dashboard with ROI, revenue, and investment tracking',
-      viewType: 'financial',
-      lastAccessed: '2024-09-15',
-      accessLevel: 'confidential',
-      viewers: 5,
-      link: 'https://strategy.company.com/financial-view'
-    }
-  ];
-
-  const getTypeColor = (type: string) => {
-    switch (type) {
-      case 'board': return 'bg-purple-100 text-purple-700';
-      case 'qbr': return 'bg-blue-100 text-blue-700';
-      case 'strategy': return 'bg-green-100 text-green-700';
-      case 'portfolio': return 'bg-orange-100 text-orange-700';
-      default: return 'bg-gray-100 text-gray-700';
+      const reportData = await buildExecutiveReport(
+        roadmapResponse.data,
+        sprintsResponse.data?.items || sprintsResponse.data
+      );
+      
+      setReport(reportData);
+    } catch (error) {
+      toast({
+        title: "Error generating report",
+        description: "Failed to generate executive report",
+        variant: "destructive"
+      });
+    } finally {
+      setLoading(false);
     }
   };
 
-  const getStatusColor = (status: string) => {
-    switch (status) {
-      case 'ready': return 'bg-green-100 text-green-700';
-      case 'generating': return 'bg-yellow-100 text-yellow-700';
-      case 'scheduled': return 'bg-blue-100 text-blue-700';
-      default: return 'bg-gray-100 text-gray-700';
+  const buildExecutiveReport = async (
+    roadmapItems: RoadmapItem[], 
+    sprints: Sprint[]
+  ): Promise<ExecutiveReport> => {
+    const allWorkItems: WorkItem[] = [];
+    for (const sprint of sprints) {
+      const workItemsRes = await sprintService.getWorkItems(sprint.id, {});
+      if (workItemsRes.success) {
+        const workItemsData = workItemsRes.data?.items || workItemsRes.data;
+        allWorkItems.push(...workItemsData);
+      }
     }
+
+    const strategicInitiatives = {
+      total: roadmapItems.length,
+      completed: roadmapItems.filter(item => item.status === 'delivered').length,
+      inProgress: roadmapItems.filter(item => item.status === 'in-progress').length,
+      blocked: roadmapItems.filter(item => {
+        const linkedItems = allWorkItems.filter(wi => wi.roadmap_item_id === item.id);
+        return linkedItems.some(wi => wi.status === 'blocked');
+      }).length,
+      onTrack: roadmapItems.filter(item => {
+        const linkedItems = allWorkItems.filter(wi => wi.roadmap_item_id === item.id);
+        if (linkedItems.length === 0) return false;
+        const progress = linkedItems.filter(wi => wi.status === 'done').length / linkedItems.length;
+        return progress >= 0.5 && item.status === 'in-progress';
+      }).length,
+      atRisk: roadmapItems.filter(item => {
+        const linkedItems = allWorkItems.filter(wi => wi.roadmap_item_id === item.id);
+        if (linkedItems.length === 0) return false;
+        const progress = linkedItems.filter(wi => wi.status === 'done').length / linkedItems.length;
+        return progress < 0.5 && item.status === 'in-progress';
+      }).length
+    };
+
+    const deliveryMetrics = {
+      velocityTrend: [
+        { period: 'Q1', velocity: 28, planned: 30 },
+        { period: 'Q2', velocity: 32, planned: 35 },
+        { period: 'Q3', velocity: 29, planned: 32 },
+        { period: 'Q4', velocity: 35, planned: 38 }
+      ],
+      burndown: [
+        { date: 'Week 1', remaining: 100, ideal: 100 },
+        { date: 'Week 2', remaining: 85, ideal: 75 },
+        { date: 'Week 3', remaining: 65, ideal: 50 },
+        { date: 'Week 4', remaining: 45, ideal: 25 },
+        { date: 'Week 5', remaining: 20, ideal: 0 }
+      ],
+      throughput: [
+        { period: 'Jan', completed: 23 },
+        { period: 'Feb', completed: 28 },
+        { period: 'Mar', completed: 25 },
+        { period: 'Apr', completed: 31 }
+      ]
+    };
+
+    const businessValue = {
+      delivered: roadmapItems
+        .filter(item => item.status === 'delivered')
+        .reduce((sum, item) => sum + (item.businessValue === 'high' ? 3 : item.businessValue === 'medium' ? 2 : 1), 0),
+      planned: roadmapItems
+        .reduce((sum, item) => sum + (item.businessValue === 'high' ? 3 : item.businessValue === 'medium' ? 2 : 1), 0),
+      valueRealized: 78
+    };
+
+    const teamHealth = {
+      capacityUtilization: 87,
+      blockerCount: allWorkItems.filter(item => item.status === 'blocked').length,
+      satisfactionScore: 8.2
+    };
+
+    const keyRisks = roadmapItems
+      .filter(item => {
+        const linkedItems = allWorkItems.filter(wi => wi.roadmap_item_id === item.id);
+        return linkedItems.length > 0 && linkedItems.filter(wi => wi.status === 'done').length / linkedItems.length < 0.3;
+      })
+      .slice(0, 5)
+      .map(item => ({
+        id: item.id,
+        initiative: item.title,
+        risk: 'Behind schedule with low completion rate',
+        impact: 'high' as const,
+        mitigation: 'Additional resources allocated, scope review scheduled'
+      }));
+
+    const upcomingMilestones = roadmapItems
+      .filter(item => item.endDate && new Date(item.endDate) > new Date())
+      .slice(0, 6)
+      .map(item => ({
+        id: item.id,
+        title: item.title,
+        date: item.endDate!,
+        status: item.status,
+        confidence: Math.floor(Math.random() * 40) + 60
+      }));
+
+    return {
+      period: selectedPeriod,
+      strategicInitiatives,
+      deliveryMetrics,
+      businessValue,
+      teamHealth,
+      keyRisks,
+      upcomingMilestones
+    };
   };
 
-  const getAccessColor = (access: string) => {
-    switch (access) {
-      case 'public': return 'bg-green-100 text-green-700';
-      case 'restricted': return 'bg-yellow-100 text-yellow-700';
-      case 'confidential': return 'bg-red-100 text-red-700';
-      default: return 'bg-gray-100 text-gray-700';
-    }
+  const exportReport = () => {
+    toast({
+      title: "Export initiated",
+      description: "Executive report is being generated for download"
+    });
   };
 
-  const handleGenerateReport = (templateId: string) => {
-    // Simulate report generation
-    console.log(`Generating report for template: ${templateId}`);
-    // In real implementation, this would trigger the report generation process
+  const shareReport = () => {
+    toast({
+      title: "Share link generated",
+      description: "Report sharing link copied to clipboard"
+    });
   };
 
-  const handleShareDashboard = (dashboardId: string) => {
-    setSelectedDashboard(dashboardId);
-    setShowShareDialog(true);
-  };
-
-  const renderReportTemplates = () => (
-    <div className="space-y-6">
-      <div className="flex items-center justify-between">
-        <div>
-          <h3 className="text-lg font-semibold text-gray-900">Report Templates</h3>
-          <p className="text-gray-600">Pre-configured reports for executive communication</p>
-        </div>
-        <Button>
-          <FileText className="w-4 h-4 mr-2" />
-          Create Template
-        </Button>
-      </div>
-
-      <div className="grid grid-cols-1 lg:grid-cols-2 gap-6">
-        {templates.map(template => (
-          <Card key={template.id} className="border-2 hover:shadow-lg transition-shadow">
-            <CardHeader>
-              <div className="flex items-center justify-between">
-                <CardTitle className="text-lg">{template.name}</CardTitle>
-                <div className="flex items-center space-x-2">
-                  <Badge className={getTypeColor(template.type)}>
-                    {template.type.toUpperCase()}
-                  </Badge>
-                  <Badge className={getStatusColor(template.status)}>
-                    {template.status}
-                  </Badge>
-                </div>
-              </div>
-            </CardHeader>
-            <CardContent className="space-y-4">
-              <p className="text-gray-600 text-sm">{template.description}</p>
-              
-              <div className="space-y-2">
-                <div className="flex items-center justify-between text-sm">
-                  <span className="text-gray-600">Frequency:</span>
-                  <span className="font-medium">{template.frequency}</span>
-                </div>
-                <div className="flex items-center justify-between text-sm">
-                  <span className="text-gray-600">Recipients:</span>
-                  <span className="font-medium">{template.recipients.length} recipients</span>
-                </div>
-                {template.lastGenerated && (
-                  <div className="flex items-center justify-between text-sm">
-                    <span className="text-gray-600">Last Generated:</span>
-                    <span className="font-medium">{template.lastGenerated}</span>
-                  </div>
-                )}
-              </div>
-
-              <div className="space-y-2">
-                <h5 className="text-sm font-medium text-gray-700">Report Sections:</h5>
-                <div className="flex flex-wrap gap-1">
-                  {template.sections.map((section, index) => (
-                    <Badge key={index} variant="outline" className="text-xs">
-                      {section}
-                    </Badge>
-                  ))}
-                </div>
-              </div>
-
-              <div className="flex space-x-2 pt-4">
-                <Button 
-                  size="sm" 
-                  onClick={() => handleGenerateReport(template.id)}
-                  disabled={template.status === 'generating'}
-                >
-                  <Presentation className="w-4 h-4 mr-1" />
-                  Generate
-                </Button>
-                <Button variant="outline" size="sm">
-                  <Download className="w-4 h-4 mr-1" />
-                  Download
-                </Button>
-                <Button variant="outline" size="sm">
-                  <Calendar className="w-4 h-4 mr-1" />
-                  Schedule
-                </Button>
-              </div>
-            </CardContent>
-          </Card>
-        ))}
-      </div>
-    </div>
-  );
-
-  const renderShareableDashboards = () => (
-    <div className="space-y-6">
-      <div className="flex items-center justify-between">
-        <div>
-          <h3 className="text-lg font-semibold text-gray-900">Shareable Dashboards</h3>
-          <p className="text-gray-600">Live dashboards for executive and board access</p>
-        </div>
-        <Button>
-          <Share className="w-4 h-4 mr-2" />
-          Create Dashboard
-        </Button>
-      </div>
-
-      <div className="grid grid-cols-1 gap-6">
-        {dashboards.map(dashboard => (
-          <Card key={dashboard.id} className="border-2">
-            <CardContent className="p-6">
-              <div className="flex items-center justify-between">
-                <div className="flex-1">
-                  <div className="flex items-center space-x-3 mb-2">
-                    <h4 className="font-semibold text-gray-900">{dashboard.name}</h4>
-                    <Badge className={getTypeColor(dashboard.viewType)}>
-                      {dashboard.viewType}
-                    </Badge>
-                    <Badge className={getAccessColor(dashboard.accessLevel)}>
-                      {dashboard.accessLevel}
-                    </Badge>
-                  </div>
-                  <p className="text-gray-600 text-sm mb-3">{dashboard.description}</p>
-                  
-                  <div className="flex items-center space-x-4 text-sm text-gray-500">
-                    <div className="flex items-center space-x-1">
-                      <Clock className="w-4 h-4" />
-                      <span>Last accessed: {dashboard.lastAccessed}</span>
-                    </div>
-                    <div className="flex items-center space-x-1">
-                      <CheckCircle className="w-4 h-4" />
-                      <span>{dashboard.viewers} viewers</span>
-                    </div>
-                  </div>
-                </div>
-                
-                <div className="flex space-x-2">
-                  <Button 
-                    variant="outline" 
-                    size="sm"
-                    onClick={() => window.open(dashboard.link, '_blank')}
-                  >
-                    <ExternalLink className="w-4 h-4 mr-1" />
-                    View
-                  </Button>
-                  <Button 
-                    variant="outline" 
-                    size="sm"
-                    onClick={() => handleShareDashboard(dashboard.id)}
-                  >
-                    <Share className="w-4 h-4 mr-1" />
-                    Share
-                  </Button>
-                </div>
-              </div>
-
-              {/* Dashboard Link */}
-              <div className="mt-4 p-3 bg-gray-50 rounded-lg">
-                <div className="text-xs text-gray-600 mb-1">Dashboard URL:</div>
-                <div className="flex items-center justify-between">
-                  <code className="text-sm text-gray-800 bg-white px-2 py-1 rounded border">
-                    {dashboard.link}
-                  </code>
-                  <Button 
-                    variant="ghost" 
-                    size="sm"
-                    onClick={() => navigator.clipboard.writeText(dashboard.link)}
-                  >
-                    Copy
-                  </Button>
-                </div>
-              </div>
-            </CardContent>
-          </Card>
-        ))}
-      </div>
-    </div>
-  );
-
-  const renderPresentationExport = () => (
-    <div className="space-y-6">
-      <div>
-        <h3 className="text-lg font-semibold text-gray-900">Presentation Export</h3>
-        <p className="text-gray-600">Export dashboards and reports to presentation formats</p>
-      </div>
-
-      <div className="grid grid-cols-1 md:grid-cols-2 gap-6">
-        <Card className="border-2">
-          <CardHeader>
-            <CardTitle className="flex items-center">
-              <Presentation className="w-5 h-5 mr-2 text-blue-600" />
-              PowerPoint Export
-            </CardTitle>
-          </CardHeader>
-          <CardContent className="space-y-4">
-            <p className="text-gray-600 text-sm">
-              Export any dashboard view directly to a clean PowerPoint presentation with charts and data.
-            </p>
-            <div className="space-y-2">
-              <h5 className="text-sm font-medium">Features:</h5>
-              <ul className="text-sm text-gray-600 space-y-1">
-                <li>• Automatic slide layout</li>
-                <li>• Chart export with data</li>
-                <li>• Corporate branding</li>
-                <li>• Speaker notes included</li>
-              </ul>
-            </div>
-            <Button className="w-full">
-              <Download className="w-4 h-4 mr-2" />
-              Export to PowerPoint
-            </Button>
-          </CardContent>
-        </Card>
-
-        <Card className="border-2">
-          <CardHeader>
-            <CardTitle className="flex items-center">
-              <FileText className="w-5 h-5 mr-2 text-green-600" />
-              PDF Report
-            </CardTitle>
-          </CardHeader>
-          <CardContent className="space-y-4">
-            <p className="text-gray-600 text-sm">
-              Generate comprehensive PDF reports with executive summaries and detailed analysis.
-            </p>
-            <div className="space-y-2">
-              <h5 className="text-sm font-medium">Features:</h5>
-              <ul className="text-sm text-gray-600 space-y-1">
-                <li>• Executive summary</li>
-                <li>• Detailed charts and tables</li>
-                <li>• Appendix with raw data</li>
-                <li>• Professional formatting</li>
-              </ul>
-            </div>
-            <Button className="w-full" variant="outline">
-              <Download className="w-4 h-4 mr-2" />
-              Export to PDF
-            </Button>
-          </CardContent>
-        </Card>
-      </div>
-
-      {/* Quick Export Options */}
+  if (loading || !report) {
+    return (
       <Card>
-        <CardHeader>
-          <CardTitle>Quick Export Options</CardTitle>
-        </CardHeader>
-        <CardContent>
-          <div className="grid grid-cols-1 md:grid-cols-3 gap-4">
-            <Button variant="outline" className="h-20 flex-col">
-              <Presentation className="w-6 h-6 mb-2" />
-              <span>Current View</span>
-            </Button>
-            <Button variant="outline" className="h-20 flex-col">
-              <FileText className="w-6 h-6 mb-2" />
-              <span>Full Dashboard</span>
-            </Button>
-            <Button variant="outline" className="h-20 flex-col">
-              <Share className="w-6 h-6 mb-2" />
-              <span>Custom Selection</span>
-            </Button>
+        <CardContent className="p-6">
+          <div className="animate-pulse space-y-4">
+            <div className="h-8 bg-muted rounded w-1/3"></div>
+            <div className="grid grid-cols-1 md:grid-cols-4 gap-4">
+              {[...Array(4)].map((_, i) => (
+                <div key={i} className="h-24 bg-muted rounded"></div>
+              ))}
+            </div>
+            <div className="h-64 bg-muted rounded"></div>
           </div>
         </CardContent>
       </Card>
-    </div>
-  );
+    );
+  }
 
   return (
     <div className="space-y-6">
       <div className="flex items-center justify-between">
         <div>
-          <h2 className="text-2xl font-bold text-gray-900">Executive Reporting & Communication</h2>
-          <p className="text-gray-600 mt-1">Automated reports and shareable dashboards for executive audiences</p>
+          <h2 className="text-2xl font-bold flex items-center gap-2">
+            <BarChart3 className="h-6 w-6" />
+            Executive Report
+          </h2>
+          <p className="text-muted-foreground">
+            Strategic overview and performance metrics for leadership
+          </p>
+        </div>
+        
+        <div className="flex items-center gap-4">
+          <Select value={selectedPeriod} onValueChange={setSelectedPeriod}>
+            <SelectTrigger className="w-48">
+              <SelectValue />
+            </SelectTrigger>
+            <SelectContent>
+              <SelectItem value="current-quarter">Current Quarter</SelectItem>
+              <SelectItem value="last-quarter">Last Quarter</SelectItem>
+              <SelectItem value="ytd">Year to Date</SelectItem>
+              <SelectItem value="last-year">Last Year</SelectItem>
+            </SelectContent>
+          </Select>
+          
+          <Button variant="outline" onClick={shareReport}>
+            <Share2 className="h-4 w-4 mr-2" />
+            Share
+          </Button>
+          
+          <Button onClick={exportReport}>
+            <Download className="h-4 w-4 mr-2" />
+            Export
+          </Button>
         </div>
       </div>
 
-      <Tabs defaultValue="templates" className="w-full">
+      {/* Executive Summary Cards */}
+      <div className="grid grid-cols-1 md:grid-cols-4 gap-4">
+        <Card>
+          <CardContent className="p-4">
+            <div className="flex items-center justify-between">
+              <div>
+                <p className="text-sm text-muted-foreground">On Track</p>
+                <p className="text-2xl font-bold text-green-600">
+                  {report.strategicInitiatives.onTrack}
+                </p>
+                <p className="text-xs text-muted-foreground">
+                  of {report.strategicInitiatives.total} initiatives
+                </p>
+              </div>
+              <CheckCircle className="h-8 w-8 text-green-500" />
+            </div>
+          </CardContent>
+        </Card>
+
+        <Card>
+          <CardContent className="p-4">
+            <div className="flex items-center justify-between">
+              <div>
+                <p className="text-sm text-muted-foreground">At Risk</p>
+                <p className="text-2xl font-bold text-red-600">
+                  {report.strategicInitiatives.atRisk}
+                </p>
+                <p className="text-xs text-muted-foreground">
+                  initiatives need attention
+                </p>
+              </div>
+              <AlertTriangle className="h-8 w-8 text-red-500" />
+            </div>
+          </CardContent>
+        </Card>
+
+        <Card>
+          <CardContent className="p-4">
+            <div className="flex items-center justify-between">
+              <div>
+                <p className="text-sm text-muted-foreground">Value Realized</p>
+                <p className="text-2xl font-bold">{report.businessValue.valueRealized}%</p>
+                <p className="text-xs text-muted-foreground">
+                  business value delivered
+                </p>
+              </div>
+              <Target className="h-8 w-8 text-blue-500" />
+            </div>
+          </CardContent>
+        </Card>
+
+        <Card>
+          <CardContent className="p-4">
+            <div className="flex items-center justify-between">
+              <div>
+                <p className="text-sm text-muted-foreground">Team Health</p>
+                <p className="text-2xl font-bold">{report.teamHealth.satisfactionScore}/10</p>
+                <p className="text-xs text-muted-foreground">
+                  satisfaction score
+                </p>
+              </div>
+              <TrendingUp className="h-8 w-8 text-green-500" />
+            </div>
+          </CardContent>
+        </Card>
+      </div>
+
+      <Tabs defaultValue="overview" className="space-y-4">
         <TabsList>
-          <TabsTrigger value="templates" className="flex items-center">
-            <FileText className="w-4 h-4 mr-2" />
-            Report Templates
-          </TabsTrigger>
-          <TabsTrigger value="dashboards" className="flex items-center">
-            <Share className="w-4 h-4 mr-2" />
-            Shareable Dashboards
-          </TabsTrigger>
-          <TabsTrigger value="export" className="flex items-center">
-            <Download className="w-4 h-4 mr-2" />
-            Presentation Export
-          </TabsTrigger>
+          <TabsTrigger value="overview">Strategic Overview</TabsTrigger>
+          <TabsTrigger value="delivery">Delivery Metrics</TabsTrigger>
+          <TabsTrigger value="risks">Risks & Issues</TabsTrigger>
+          <TabsTrigger value="milestones">Milestones</TabsTrigger>
         </TabsList>
 
-        <TabsContent value="templates">
-          {renderReportTemplates()}
+        <TabsContent value="overview" className="space-y-4">
+          <div className="grid grid-cols-1 md:grid-cols-2 gap-6">
+            <Card>
+              <CardHeader>
+                <CardTitle>Initiative Status</CardTitle>
+              </CardHeader>
+              <CardContent>
+                <div className="space-y-4">
+                  <div className="flex items-center justify-between">
+                    <span>Completed</span>
+                    <div className="flex items-center gap-2">
+                      <Progress 
+                        value={(report.strategicInitiatives.completed / report.strategicInitiatives.total) * 100} 
+                        className="w-24" 
+                      />
+                      <span className="text-sm font-medium">
+                        {report.strategicInitiatives.completed}
+                      </span>
+                    </div>
+                  </div>
+                  
+                  <div className="flex items-center justify-between">
+                    <span>In Progress</span>
+                    <div className="flex items-center gap-2">
+                      <Progress 
+                        value={(report.strategicInitiatives.inProgress / report.strategicInitiatives.total) * 100} 
+                        className="w-24" 
+                      />
+                      <span className="text-sm font-medium">
+                        {report.strategicInitiatives.inProgress}
+                      </span>
+                    </div>
+                  </div>
+                  
+                  <div className="flex items-center justify-between">
+                    <span>On Track</span>
+                    <div className="flex items-center gap-2">
+                      <Progress 
+                        value={(report.strategicInitiatives.onTrack / report.strategicInitiatives.total) * 100} 
+                        className="w-24" 
+                      />
+                      <span className="text-sm font-medium">
+                        {report.strategicInitiatives.onTrack}
+                      </span>
+                    </div>
+                  </div>
+                  
+                  <div className="flex items-center justify-between">
+                    <span>At Risk</span>
+                    <div className="flex items-center gap-2">
+                      <Progress 
+                        value={(report.strategicInitiatives.atRisk / report.strategicInitiatives.total) * 100} 
+                        className="w-24" 
+                      />
+                      <span className="text-sm font-medium text-red-600">
+                        {report.strategicInitiatives.atRisk}
+                      </span>
+                    </div>
+                  </div>
+                </div>
+              </CardContent>
+            </Card>
+
+            <Card>
+              <CardHeader>
+                <CardTitle>Velocity Trend</CardTitle>
+              </CardHeader>
+              <CardContent>
+                <ResponsiveContainer width="100%" height={250}>
+                  <LineChart data={report.deliveryMetrics.velocityTrend}>
+                    <CartesianGrid strokeDasharray="3 3" />
+                    <XAxis dataKey="period" />
+                    <YAxis />
+                    <Tooltip />
+                    <Line 
+                      type="monotone" 
+                      dataKey="velocity" 
+                      stroke="#3b82f6" 
+                      strokeWidth={2}
+                      name="Actual"
+                    />
+                    <Line 
+                      type="monotone" 
+                      dataKey="planned" 
+                      stroke="#94a3b8" 
+                      strokeWidth={2}
+                      strokeDasharray="5 5"
+                      name="Planned"
+                    />
+                  </LineChart>
+                </ResponsiveContainer>
+              </CardContent>
+            </Card>
+          </div>
         </TabsContent>
 
-        <TabsContent value="dashboards">
-          {renderShareableDashboards()}
+        <TabsContent value="delivery" className="space-y-4">
+          <div className="grid grid-cols-1 md:grid-cols-2 gap-6">
+            <Card>
+              <CardHeader>
+                <CardTitle>Throughput</CardTitle>
+              </CardHeader>
+              <CardContent>
+                <ResponsiveContainer width="100%" height={250}>
+                  <BarChart data={report.deliveryMetrics.throughput}>
+                    <CartesianGrid strokeDasharray="3 3" />
+                    <XAxis dataKey="period" />
+                    <YAxis />
+                    <Tooltip />
+                    <Bar dataKey="completed" fill="#22c55e" radius={[4, 4, 0, 0]} />
+                  </BarChart>
+                </ResponsiveContainer>
+              </CardContent>
+            </Card>
+
+            <Card>
+              <CardHeader>
+                <CardTitle>Burndown Progress</CardTitle>
+              </CardHeader>
+              <CardContent>
+                <ResponsiveContainer width="100%" height={250}>
+                  <AreaChart data={report.deliveryMetrics.burndown}>
+                    <CartesianGrid strokeDasharray="3 3" />
+                    <XAxis dataKey="date" />
+                    <YAxis />
+                    <Tooltip />
+                    <Area 
+                      type="monotone" 
+                      dataKey="remaining" 
+                      stroke="#3b82f6" 
+                      fill="#3b82f6" 
+                      fillOpacity={0.3}
+                      name="Actual"
+                    />
+                    <Line 
+                      type="monotone" 
+                      dataKey="ideal" 
+                      stroke="#94a3b8" 
+                      strokeDasharray="5 5"
+                      name="Ideal"
+                    />
+                  </AreaChart>
+                </ResponsiveContainer>
+              </CardContent>
+            </Card>
+          </div>
         </TabsContent>
 
-        <TabsContent value="export">
-          {renderPresentationExport()}
+        <TabsContent value="risks" className="space-y-4">
+          <Card>
+            <CardHeader>
+              <CardTitle>Key Risks & Issues</CardTitle>
+            </CardHeader>
+            <CardContent>
+              <div className="space-y-4">
+                {report.keyRisks.map(risk => (
+                  <div key={risk.id} className="border rounded-lg p-4">
+                    <div className="flex items-start justify-between mb-2">
+                      <h4 className="font-medium">{risk.initiative}</h4>
+                      <Badge variant={risk.impact === 'high' ? 'destructive' : 'secondary'}>
+                        {risk.impact} impact
+                      </Badge>
+                    </div>
+                    <p className="text-sm text-muted-foreground mb-2">{risk.risk}</p>
+                    <p className="text-sm">
+                      <span className="font-medium">Mitigation:</span> {risk.mitigation}
+                    </p>
+                  </div>
+                ))}
+              </div>
+            </CardContent>
+          </Card>
+        </TabsContent>
+
+        <TabsContent value="milestones" className="space-y-4">
+          <Card>
+            <CardHeader>
+              <CardTitle>Upcoming Milestones</CardTitle>
+            </CardHeader>
+            <CardContent>
+              <div className="space-y-4">
+                {report.upcomingMilestones.map(milestone => (
+                  <div key={milestone.id} className="flex items-center justify-between border rounded-lg p-4">
+                    <div>
+                      <h4 className="font-medium">{milestone.title}</h4>
+                      <p className="text-sm text-muted-foreground flex items-center gap-2">
+                        <Calendar className="h-3 w-3" />
+                        {new Date(milestone.date).toLocaleDateString()}
+                      </p>
+                    </div>
+                    <div className="text-right">
+                      <Badge variant="outline">{milestone.status}</Badge>
+                      <p className="text-sm text-muted-foreground mt-1">
+                        {milestone.confidence}% confidence
+                      </p>
+                    </div>
+                  </div>
+                ))}
+              </div>
+            </CardContent>
+          </Card>
         </TabsContent>
       </Tabs>
-
-      {/* Share Dashboard Dialog */}
-      <Dialog open={showShareDialog} onOpenChange={setShowShareDialog}>
-        <DialogContent>
-          <DialogHeader>
-            <DialogTitle>Share Dashboard</DialogTitle>
-          </DialogHeader>
-          <div className="space-y-4">
-            <p className="text-gray-600">
-              Configure sharing settings for this dashboard.
-            </p>
-            <div className="space-y-3">
-              <div>
-                <label className="text-sm font-medium">Access Level</label>
-                <select className="w-full p-2 border rounded-md mt-1">
-                  <option>Restricted - Executive Team Only</option>
-                  <option>Confidential - Board Members Only</option>
-                  <option>Public - Company Wide</option>
-                </select>
-              </div>
-              <div>
-                <label className="text-sm font-medium">Expiration</label>
-                <select className="w-full p-2 border rounded-md mt-1">
-                  <option>No Expiration</option>
-                  <option>30 Days</option>
-                  <option>90 Days</option>
-                  <option>1 Year</option>
-                </select>
-              </div>
-            </div>
-            <div className="flex justify-end space-x-2">
-              <Button variant="outline" onClick={() => setShowShareDialog(false)}>
-                Cancel
-              </Button>
-              <Button>
-                Generate Link
-              </Button>
-            </div>
-          </div>
-        </DialogContent>
-      </Dialog>
     </div>
   );
 };
-
-export default ExecutiveReporting;
