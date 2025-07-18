@@ -149,9 +149,9 @@ const AdaptableSprintBoard = ({
     }
   };
 
-  const loadSprints = async () => {
+  const loadSprints = async (projectId?: string) => {
     try {
-      const response = await sprintService.getSprints({ project_id: selectedProject });
+      const response = await sprintService.getSprints({ project_id: projectId || selectedProject });
       if (response.success && response.data) {
         const sprintItems = Array.isArray(response.data) ? response.data : response.data.data || [];
         setSprints(sprintItems);
@@ -414,122 +414,114 @@ const AdaptableSprintBoard = ({
   }
 
   return (
-    <div className="space-y-6">
+    <div className="h-full flex flex-col space-y-4 p-6">
       {/* Header with controls */}
-      <div className="flex flex-col lg:flex-row gap-4 items-start lg:items-center justify-between">
-        <div className="flex flex-wrap items-center gap-3">
-          {/* Team selector */}
-          <Select value={selectedTeam} onValueChange={setSelectedTeam}>
-            <SelectTrigger className="w-[180px]">
-              <SelectValue placeholder="Select team" />
-            </SelectTrigger>
-            <SelectContent>
-              {teams.map(team => (
-                <SelectItem key={team.id} value={team.id}>
-                  <div className="flex items-center gap-2">
-                    <Users className="w-4 h-4" />
-                    {team.name}
-                  </div>
-                </SelectItem>
-              ))}
-            </SelectContent>
-          </Select>
-
-          {/* Project selector */}
-          <Select value={selectedProject} onValueChange={setSelectedProject}>
-            <SelectTrigger className="w-[180px]">
-              <SelectValue placeholder="Select project" />
-            </SelectTrigger>
-            <SelectContent>
-              {projects.map(project => (
-                <SelectItem key={project.id} value={project.id}>
-                  <div className="flex items-center gap-2">
-                    <Target className="w-4 h-4" />
-                    {project.name}
-                  </div>
-                </SelectItem>
-              ))}
-            </SelectContent>
-          </Select>
-
-          {/* Sprint selector */}
-          <Select value={selectedSprint} onValueChange={setSelectedSprint}>
-            <SelectTrigger className="w-[200px]">
-              <SelectValue placeholder="Select sprint" />
-            </SelectTrigger>
-            <SelectContent>
-              {sprints.map(sprint => (
-                <SelectItem key={sprint.id} value={sprint.id}>
-                  <div className="flex items-center gap-2">
-                    <Calendar className="w-4 h-4" />
-                    {sprint.name}
-                    <Badge variant="outline" className={`ml-2 ${
-                      sprint.status === 'active' ? 'text-green-700 bg-green-50' : 
-                      sprint.status === 'completed' ? 'text-blue-700 bg-blue-50' :
-                      'text-gray-700 bg-gray-50'
-                    }`}>
-                      {sprint.status}
-                    </Badge>
-                  </div>
-                </SelectItem>
-              ))}
-            </SelectContent>
-          </Select>
+      <div className="flex flex-col space-y-4">
+        <div className="flex flex-col sm:flex-row gap-4 items-start sm:items-center justify-between">
+          <h1 className="text-2xl font-bold">Sprint Board</h1>
+          
+          <div className="flex flex-wrap items-center gap-2">
+            <Button variant="outline" size="sm">
+              <BarChart3 className="w-4 h-4 mr-2" />
+              <span className="hidden sm:inline">Analytics</span>
+            </Button>
+            <Button variant="outline" size="sm">
+              <Settings className="w-4 h-4 mr-2" />
+              <span className="hidden sm:inline">Settings</span>
+            </Button>
+            <Button onClick={() => setShowCreateWorkItem(true)}>
+              <Plus className="w-4 h-4 mr-2" />
+              Add Work Item
+            </Button>
+          </div>
         </div>
 
-        <div className="flex items-center gap-2">
-          {/* View type selector */}
-          <Select value={viewConfig.type} onValueChange={(type) => setViewConfig(prev => ({ ...prev, type: type as any }))}>
-            <SelectTrigger className="w-[140px]">
-              <SelectValue />
-            </SelectTrigger>
-            <SelectContent>
-              <SelectItem value="board">
-                <div className="flex items-center gap-2">
-                  <Kanban className="w-4 h-4" />
-                  Board
-                </div>
-              </SelectItem>
-              <SelectItem value="list">
-                <div className="flex items-center gap-2">
-                  <List className="w-4 h-4" />
-                  List
-                </div>
-              </SelectItem>
-              <SelectItem value="timeline">
-                <div className="flex items-center gap-2">
-                  <CalendarIcon className="w-4 h-4" />
-                  Timeline
-                </div>
-              </SelectItem>
-              <SelectItem value="gantt">
-                <div className="flex items-center gap-2">
-                  <BarChart3 className="w-4 h-4" />
-                  Gantt
-                </div>
-              </SelectItem>
-            </SelectContent>
-          </Select>
+        {/* Selectors Row */}
+        <div className="flex flex-col sm:flex-row gap-3 items-start sm:items-center">
+          {/* Team selector */}
+          <div className="w-full sm:w-auto">
+            <Select value={selectedTeam} onValueChange={setSelectedTeam}>
+              <SelectTrigger className="w-full sm:w-[180px]">
+                <SelectValue placeholder="Select team" />
+              </SelectTrigger>
+              <SelectContent>
+                {teams.map(team => (
+                  <SelectItem key={team.id} value={team.id}>
+                    <div className="flex items-center gap-2">
+                      <Users className="w-4 h-4" />
+                      {team.name}
+                    </div>
+                  </SelectItem>
+                ))}
+              </SelectContent>
+            </Select>
+          </div>
 
-          <Button variant="outline" size="sm">
-            <Filter className="w-4 h-4 mr-2" />
-            Filter
-          </Button>
+          {/* Project selector */}
+          <div className="w-full sm:w-auto">
+            <Select value={selectedProject} onValueChange={setSelectedProject}>
+              <SelectTrigger className="w-full sm:w-[180px]">
+                <SelectValue placeholder="Select project" />
+              </SelectTrigger>
+              <SelectContent>
+                {projects.map(project => (
+                  <SelectItem key={project.id} value={project.id}>
+                    <div className="flex items-center gap-2">
+                      <Target className="w-4 h-4" />
+                      {project.name}
+                    </div>
+                  </SelectItem>
+                ))}
+              </SelectContent>
+            </Select>
+          </div>
 
-          <Button variant="outline" size="sm" onClick={() => setShowAnalytics(true)}>
-            <BarChart3 className="w-4 h-4 mr-2" />
-            Analytics
-          </Button>
+          {/* Sprint selector */}
+          <div className="w-full sm:w-auto">
+            <Select value={selectedSprint} onValueChange={setSelectedSprint}>
+              <SelectTrigger className="w-full sm:w-[180px]">
+                <SelectValue placeholder="Select sprint" />
+              </SelectTrigger>
+              <SelectContent>
+                {sprints.map(sprint => (
+                  <SelectItem key={sprint.id} value={sprint.id}>
+                    <div className="flex items-center gap-2">
+                      <Calendar className="w-4 h-4" />
+                      {sprint.name}
+                    </div>
+                  </SelectItem>
+                ))}
+              </SelectContent>
+            </Select>
+          </div>
 
-          <Button variant="outline" size="sm" onClick={() => setShowSprintSettings(true)}>
-            <Settings className="w-4 h-4 mr-2" />
-            Settings
-          </Button>
+          {sprints.length > 0 && (
+            <Separator orientation="vertical" className="hidden sm:block h-6" />
+          )}
 
-          <Button onClick={() => setShowCreateWorkItem(true)}>
-            <Plus className="w-4 h-4 mr-2" />
-            Add Work Item
-          </Button>
+          {/* View controls */}
+          <div className="flex items-center gap-2">
+            <Button 
+              variant={viewConfig.type === 'board' ? 'default' : 'outline'} 
+              size="sm"
+              onClick={() => setViewConfig(prev => ({ ...prev, type: 'board' }))}
+            >
+              <Columns className="w-4 h-4 mr-1" />
+              Board
+            </Button>
+            <Button 
+              variant={viewConfig.type === 'list' ? 'default' : 'outline'} 
+              size="sm"
+              onClick={() => setViewConfig(prev => ({ ...prev, type: 'list' }))}
+            >
+              <List className="w-4 h-4 mr-1" />
+              List
+            </Button>
+            <Button variant="outline" size="sm">
+              <Filter className="w-4 h-4 mr-1" />
+              Filter
+            </Button>
+          </div>
         </div>
       </div>
 
@@ -614,95 +606,120 @@ const AdaptableSprintBoard = ({
 
       {/* Main board/list view */}
       {viewConfig.type === 'board' && workflowColumns.length > 0 && (
-        <div className="flex gap-6 overflow-x-auto pb-4">
-          {workflowColumns
-            .sort((a, b) => a.position - b.position)
-            .map((column) => (
-              <BoardColumn
-                key={column.id}
-                column={column}
-                workItems={groupedWorkItems[column.name] || []}
-                onDrop={handleDrop}
-                onDragOver={(e) => handleDragOver(e, column.name)}
-                onCreateWorkItem={handleCreateWorkItemWithStatus}
-                onEditWorkItem={setEditingWorkItem}
-                onDeleteWorkItem={handleDeleteWorkItem}
-                onViewWorkItem={(item) => console.log('View item:', item)}
-                onMoveWorkItem={(item) => console.log('Move item:', item)}
-                onDragStartWorkItem={handleDragStart}
-                selectedWorkItems={selectedWorkItems}
-                onSelectWorkItem={handleSelectWorkItem}
-                isDragOver={dragOverColumn === column.name}
-              />
-            ))}
+        <div className="flex-1 overflow-hidden">
+          <div className="flex gap-4 overflow-x-auto h-full pb-4">
+            {workflowColumns
+              .sort((a, b) => a.position - b.position)
+              .map((column) => (
+                <div key={column.id} className="flex-shrink-0 w-80">
+                  <BoardColumn
+                    column={column}
+                    workItems={groupedWorkItems[column.name] || []}
+                    onDrop={handleDrop}
+                    onDragOver={(e) => handleDragOver(e, column.name)}
+                    onCreateWorkItem={handleCreateWorkItemWithStatus}
+                    onEditWorkItem={setEditingWorkItem}
+                    onDeleteWorkItem={handleDeleteWorkItem}
+                    onViewWorkItem={(item) => console.log('View item:', item)}
+                    onMoveWorkItem={(item) => console.log('Move item:', item)}
+                    onDragStartWorkItem={handleDragStart}
+                    selectedWorkItems={selectedWorkItems}
+                    onSelectWorkItem={handleSelectWorkItem}
+                    isDragOver={dragOverColumn === column.name}
+                  />
+                </div>
+              ))}
+          </div>
         </div>
       )}
 
       {/* List view */}
       {viewConfig.type === 'list' && (
-        <Card>
-          <CardHeader>
-            <CardTitle>Work Items</CardTitle>
-          </CardHeader>
-          <CardContent>
-            <div className="space-y-2">
-              {filteredWorkItems.map((item) => {
-                const ItemIcon = getItemTypeIcon(item.item_type);
-                return (
-                  <div key={item.id} className="flex items-center justify-between p-3 border rounded-lg hover:bg-gray-50">
-                    <div className="flex items-center gap-3">
-                      <ItemIcon className="w-4 h-4 text-gray-500" />
-                      <span className="font-medium">{item.title}</span>
-                      <Badge variant="outline" style={{ backgroundColor: getStatusColor(item.status), color: 'white' }}>
-                        {item.status}
-                      </Badge>
-                      <Badge className={getPriorityColor(item.priority)} variant="outline">
-                        {item.priority}
-                      </Badge>
-                      {item.effort_estimate > 0 && (
-                        <span className="text-sm text-gray-500">
-                          {item.effort_estimate} {item.effort_unit}
+        <div className="flex-1">
+          <Card className="h-full">
+            <CardHeader>
+              <CardTitle>Work Items</CardTitle>
+            </CardHeader>
+            <CardContent className="h-full overflow-y-auto">
+              <div className="space-y-2">
+                {filteredWorkItems.map((item) => {
+                  const ItemIcon = getItemTypeIcon(item.item_type);
+                  return (
+                    <div key={item.id} className="flex items-center justify-between p-3 border rounded-lg hover:bg-muted/50 transition-colors">
+                      <div className="flex items-center gap-3 flex-1 min-w-0">
+                        <ItemIcon className="w-4 h-4 text-muted-foreground flex-shrink-0" />
+                        <span className="font-medium truncate">{item.title}</span>
+                        <Badge variant="outline" style={{ backgroundColor: getStatusColor(item.status), color: 'white' }}>
+                          {item.status}
+                        </Badge>
+                        <Badge className={getPriorityColor(item.priority)} variant="outline">
+                          {item.priority}
+                        </Badge>
+                        {item.effort_estimate > 0 && (
+                          <span className="text-sm text-muted-foreground flex-shrink-0">
+                            {item.effort_estimate} {item.effort_unit}
+                          </span>
+                        )}
+                      </div>
+                      <div className="flex items-center gap-2 flex-shrink-0">
+                        <span className="text-sm text-muted-foreground hidden sm:block">
+                          {item.assignee?.name || 'Unassigned'}
                         </span>
-                      )}
+                        <Button variant="outline" size="sm" onClick={() => setEditingWorkItem(item)}>
+                          <Edit className="w-3 h-3" />
+                        </Button>
+                      </div>
                     </div>
-                    <div className="flex items-center gap-2">
-                      <span className="text-sm text-gray-500">
-                        {item.assignee?.name || 'Unassigned'}
-                      </span>
-                      <Button variant="outline" size="sm" onClick={() => {}}>
-                        <Edit className="w-3 h-3" />
-                      </Button>
-                    </div>
+                  );
+                })}
+                {filteredWorkItems.length === 0 && (
+                  <div className="text-center py-8">
+                    <p className="text-muted-foreground">No work items found</p>
                   </div>
-                );
-              })}
-            </div>
-          </CardContent>
-        </Card>
+                )}
+              </div>
+            </CardContent>
+          </Card>
+        </div>
       )}
 
       {/* No sprint selected state */}
       {!selectedSprint && !loading && (
-        <Card>
-          <CardContent className="p-8 text-center">
-            <Layout className="w-12 h-12 text-gray-400 mx-auto mb-4" />
-            <h3 className="text-lg font-medium text-gray-900 mb-2">Start with a Sprint Board</h3>
-            <p className="text-gray-600 mb-6">
-              Create a new sprint or select an existing one to start managing your work items with our adaptable board
-            </p>
-            <div className="flex gap-3 justify-center">
-              <Button onClick={() => setShowMethodologyTemplates(true)}>
-                <Grid className="w-4 h-4 mr-2" />
-                Create New Sprint
-              </Button>
-              {sprints.length > 0 && (
-                <Button variant="outline" onClick={() => setSelectedSprint(sprints[0].id)}>
-                  Use Existing Sprint
+        <div className="flex-1 flex items-center justify-center">
+          <Card className="w-full max-w-md mx-auto">
+            <CardContent className="p-8 text-center">
+              <Layout className="w-16 h-16 text-muted-foreground mx-auto mb-6" />
+              <h3 className="text-xl font-semibold mb-2">Start with a Sprint Board</h3>
+              <p className="text-muted-foreground mb-6">
+                Create a new sprint or select an existing one to start managing your work items with our adaptable board
+              </p>
+              <div className="flex flex-col sm:flex-row gap-3 justify-center">
+                <Button 
+                  onClick={() => setShowMethodologyTemplates(true)}
+                  disabled={!selectedProject}
+                  className="w-full sm:w-auto"
+                >
+                  <Grid className="w-4 h-4 mr-2" />
+                  Create New Sprint
                 </Button>
+                {sprints.length > 0 && (
+                  <Button 
+                    variant="outline" 
+                    onClick={() => setSelectedSprint(sprints[0].id)}
+                    className="w-full sm:w-auto"
+                  >
+                    Use Existing Sprint
+                  </Button>
+                )}
+              </div>
+              {!selectedProject && (
+                <p className="text-sm text-amber-600 mt-4">
+                  Please select a project first to create a sprint
+                </p>
               )}
-            </div>
-          </CardContent>
-        </Card>
+            </CardContent>
+          </Card>
+        </div>
       )}
 
       {/* Dialogs */}
@@ -733,8 +750,50 @@ const AdaptableSprintBoard = ({
                 </Button>
               </div>
               <MethodologyTemplates
-                onSelectTemplate={(template) => {
-                  console.log('Selected template:', template);
+                onSelectTemplate={async (template) => {
+                  try {
+                    // Create a new sprint based on the template
+                    const newSprint: Omit<Sprint, 'id' | 'created_at' | 'updated_at'> = {
+                      name: `${template.name} Sprint ${sprints.length + 1}`,
+                      goal: `Sprint using ${template.name} methodology`,
+                      project_id: selectedProject,
+                      start_date: new Date().toISOString().split('T')[0],
+                      end_date: new Date(Date.now() + 14 * 24 * 60 * 60 * 1000).toISOString().split('T')[0],
+                      status: 'planned',
+                      capacity: 40,
+                      committed: 0,
+                      completed: 0,
+                      methodology_type: template.methodology_type as 'scrum' | 'kanban' | 'waterfall',
+                      workflow_config: template.default_config
+                    };
+
+                    const response = await sprintService.createSprint(newSprint);
+                    if (response.success) {
+                      // Create workflow columns for this sprint
+                      const columns = template.default_columns.map(col => ({
+                        ...col,
+                        sprint_id: response.data.id,
+                        id: `${response.data.id}-${col.name.toLowerCase().replace(/\s+/g, '-')}`
+                      }));
+                      
+                      await sprintService.updateWorkflowColumns(response.data.id, columns);
+                      
+                      // Refresh data
+                      setSelectedSprint(response.data.id);
+                      await loadSprints(selectedProject);
+                      
+                      toast({
+                        title: "Sprint created",
+                        description: `${template.name} sprint has been created successfully`,
+                      });
+                    }
+                  } catch (error) {
+                    toast({
+                      title: "Error creating sprint",
+                      description: "Failed to create sprint from template",
+                      variant: "destructive",
+                    });
+                  }
                   setShowMethodologyTemplates(false);
                 }}
               />
