@@ -94,7 +94,7 @@ export const ExecutiveReporting: React.FC = () => {
 
       const reportData = await buildExecutiveReport(
         roadmapResponse.data,
-        sprintsResponse.data?.items || sprintsResponse.data
+        sprintsResponse.data?.data || []
       );
       
       setReport(reportData);
@@ -115,9 +115,9 @@ export const ExecutiveReporting: React.FC = () => {
   ): Promise<ExecutiveReport> => {
     const allWorkItems: WorkItem[] = [];
     for (const sprint of sprints) {
-      const workItemsRes = await sprintService.getWorkItems(sprint.id, {});
+      const workItemsRes = await sprintService.getWorkItems({ sprint_id: sprint.id }, { page: 1, limit: 100 });
       if (workItemsRes.success) {
-        const workItemsData = workItemsRes.data?.items || workItemsRes.data;
+        const workItemsData = workItemsRes.data?.data || [];
         allWorkItems.push(...workItemsData);
       }
     }

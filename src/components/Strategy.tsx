@@ -12,10 +12,10 @@ import { H1, H2, H3, H4, Body, BodySmall, Muted } from '@/components/ui/typograp
 import { PageContainer, PageContent, Section, Grid, Stack } from '@/components/PageLayout';
 import OKRAlignmentWidget from './widgets/OKRAlignmentWidget';
 import StrategicObjectivesHub from './strategy/StrategicObjectivesHub';
-import AlignmentMapping from './strategy/AlignmentMapping';
-import PortfolioHealthDashboard from './strategy/PortfolioHealthDashboard';
+import { AlignmentMapping } from './strategy/AlignmentMapping';
+import { PortfolioHealthDashboard } from './strategy/PortfolioHealthDashboard';
 import ResourceManagement from './strategy/ResourceManagement';
-import ExecutiveReporting from './strategy/ExecutiveReporting';
+import { ExecutiveReporting } from './strategy/ExecutiveReporting';
 import QuickActions from './QuickActions';
 import StrategicQuickCreate from './strategy/StrategicQuickCreate';
 import StrategicAnalyticsDashboard from './strategy/StrategicAnalyticsDashboard';
