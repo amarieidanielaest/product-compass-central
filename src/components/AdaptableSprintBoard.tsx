@@ -414,37 +414,20 @@ const AdaptableSprintBoard = ({
   }
 
   return (
-    <div className="h-full flex flex-col space-y-4 p-6">
-      {/* Header with controls */}
-      <div className="flex flex-col space-y-4">
-        <div className="flex flex-col sm:flex-row gap-4 items-start sm:items-center justify-between">
-          <h1 className="text-2xl font-bold">Sprint Board</h1>
+    <div className="h-full flex flex-col space-y-6 p-6">
+      {/* Header with title, dropdowns, and controls */}
+      <div className="flex flex-col lg:flex-row lg:items-center justify-between gap-4">
+        {/* Left side: Title and dropdowns */}
+        <div className="flex flex-col sm:flex-row sm:items-center gap-4">
+          <h1 className="text-2xl font-bold whitespace-nowrap">Sprint Board</h1>
           
-          <div className="flex flex-wrap items-center gap-2">
-            <Button variant="outline" size="sm">
-              <BarChart3 className="w-4 h-4 mr-2" />
-              <span className="hidden sm:inline">Analytics</span>
-            </Button>
-            <Button variant="outline" size="sm">
-              <Settings className="w-4 h-4 mr-2" />
-              <span className="hidden sm:inline">Settings</span>
-            </Button>
-            <Button onClick={() => setShowCreateWorkItem(true)}>
-              <Plus className="w-4 h-4 mr-2" />
-              Add Work Item
-            </Button>
-          </div>
-        </div>
-
-        {/* Selectors Row */}
-        <div className="flex flex-col sm:flex-row gap-3 items-start sm:items-center">
-          {/* Team selector */}
-          <div className="w-full sm:w-auto">
+          <div className="flex flex-wrap items-center gap-3">
+            {/* Team selector */}
             <Select value={selectedTeam} onValueChange={setSelectedTeam}>
-              <SelectTrigger className="w-full sm:w-[180px]">
+              <SelectTrigger className="w-[180px] bg-background">
                 <SelectValue placeholder="Select team" />
               </SelectTrigger>
-              <SelectContent>
+              <SelectContent className="z-50 bg-background">
                 {teams.map(team => (
                   <SelectItem key={team.id} value={team.id}>
                     <div className="flex items-center gap-2">
@@ -455,15 +438,13 @@ const AdaptableSprintBoard = ({
                 ))}
               </SelectContent>
             </Select>
-          </div>
 
-          {/* Project selector */}
-          <div className="w-full sm:w-auto">
+            {/* Project selector */}
             <Select value={selectedProject} onValueChange={setSelectedProject}>
-              <SelectTrigger className="w-full sm:w-[180px]">
+              <SelectTrigger className="w-[180px] bg-background">
                 <SelectValue placeholder="Select project" />
               </SelectTrigger>
-              <SelectContent>
+              <SelectContent className="z-50 bg-background">
                 {projects.map(project => (
                   <SelectItem key={project.id} value={project.id}>
                     <div className="flex items-center gap-2">
@@ -474,15 +455,13 @@ const AdaptableSprintBoard = ({
                 ))}
               </SelectContent>
             </Select>
-          </div>
 
-          {/* Sprint selector */}
-          <div className="w-full sm:w-auto">
+            {/* Sprint selector */}
             <Select value={selectedSprint} onValueChange={setSelectedSprint}>
-              <SelectTrigger className="w-full sm:w-[180px]">
+              <SelectTrigger className="w-[180px] bg-background">
                 <SelectValue placeholder="Select sprint" />
               </SelectTrigger>
-              <SelectContent>
+              <SelectContent className="z-50 bg-background">
                 {sprints.map(sprint => (
                   <SelectItem key={sprint.id} value={sprint.id}>
                     <div className="flex items-center gap-2">
@@ -494,34 +473,54 @@ const AdaptableSprintBoard = ({
               </SelectContent>
             </Select>
           </div>
+        </div>
 
-          {sprints.length > 0 && (
-            <Separator orientation="vertical" className="hidden sm:block h-6" />
-          )}
-
-          {/* View controls */}
-          <div className="flex items-center gap-2">
+        {/* Right side: View controls and actions */}
+        <div className="flex flex-wrap items-center gap-2">
+          {/* View type buttons */}
+          <div className="flex items-center border rounded-md">
             <Button 
-              variant={viewConfig.type === 'board' ? 'default' : 'outline'} 
+              variant={viewConfig.type === 'board' ? 'default' : 'ghost'} 
               size="sm"
+              className="rounded-r-none border-r"
               onClick={() => setViewConfig(prev => ({ ...prev, type: 'board' }))}
             >
               <Columns className="w-4 h-4 mr-1" />
               Board
             </Button>
             <Button 
-              variant={viewConfig.type === 'list' ? 'default' : 'outline'} 
+              variant={viewConfig.type === 'list' ? 'default' : 'ghost'} 
               size="sm"
+              className="rounded-l-none"
               onClick={() => setViewConfig(prev => ({ ...prev, type: 'list' }))}
             >
               <List className="w-4 h-4 mr-1" />
               List
             </Button>
-            <Button variant="outline" size="sm">
-              <Filter className="w-4 h-4 mr-1" />
-              Filter
-            </Button>
           </div>
+
+          <Separator orientation="vertical" className="h-6" />
+
+          {/* Filter and action buttons */}
+          <Button variant="outline" size="sm">
+            <Filter className="w-4 h-4 mr-2" />
+            Filter
+          </Button>
+
+          <Button variant="outline" size="sm">
+            <BarChart3 className="w-4 h-4 mr-2" />
+            <span className="hidden sm:inline">Analytics</span>
+          </Button>
+
+          <Button variant="outline" size="sm">
+            <Settings className="w-4 h-4 mr-2" />
+            <span className="hidden sm:inline">Settings</span>
+          </Button>
+
+          <Button onClick={() => setShowCreateWorkItem(true)}>
+            <Plus className="w-4 h-4 mr-2" />
+            Add Work Item
+          </Button>
         </div>
       </div>
 
