@@ -414,113 +414,137 @@ const AdaptableSprintBoard = ({
   }
 
   return (
-    <div className="h-full flex flex-col space-y-6 p-6">
-      {/* Header with title, dropdowns, and controls */}
-      <div className="flex flex-col lg:flex-row lg:items-center justify-between gap-4">
-        {/* Left side: Title and dropdowns */}
-        <div className="flex flex-col sm:flex-row sm:items-center gap-4">
-          <h1 className="text-2xl font-bold whitespace-nowrap">Sprint Board</h1>
-          
-          <div className="flex flex-wrap items-center gap-3">
-            {/* Team selector */}
-            <Select value={selectedTeam} onValueChange={setSelectedTeam}>
-              <SelectTrigger className="w-[180px] bg-background">
-                <SelectValue placeholder="Select team" />
-              </SelectTrigger>
-              <SelectContent className="z-50 bg-background">
-                {teams.map(team => (
-                  <SelectItem key={team.id} value={team.id}>
-                    <div className="flex items-center gap-2">
-                      <Users className="w-4 h-4" />
-                      {team.name}
-                    </div>
-                  </SelectItem>
-                ))}
-              </SelectContent>
-            </Select>
+    <div className="h-full flex flex-col p-6">
+      {/* Single header with title and controls */}
+      <div className="flex flex-col space-y-4 mb-6">
+        {/* First row: Title, selectors, settings, and add work item */}
+        <div className="flex items-center justify-between gap-4">
+          <div className="flex items-center gap-4 min-w-0">
+            <h1 className="text-2xl font-bold flex-shrink-0">Sprint Board</h1>
+            
+            <div className="hidden md:flex items-center gap-3">
+              {/* Team selector */}
+              <Select value={selectedTeam} onValueChange={setSelectedTeam}>
+                <SelectTrigger className="w-[140px] bg-background">
+                  <SelectValue placeholder="Team" />
+                </SelectTrigger>
+                <SelectContent className="z-50 bg-background">
+                  {teams.map(team => (
+                    <SelectItem key={team.id} value={team.id}>
+                      <div className="flex items-center gap-2">
+                        <Users className="w-4 h-4" />
+                        <span className="truncate">{team.name}</span>
+                      </div>
+                    </SelectItem>
+                  ))}
+                </SelectContent>
+              </Select>
 
-            {/* Project selector */}
-            <Select value={selectedProject} onValueChange={setSelectedProject}>
-              <SelectTrigger className="w-[180px] bg-background">
-                <SelectValue placeholder="Select project" />
-              </SelectTrigger>
-              <SelectContent className="z-50 bg-background">
-                {projects.map(project => (
-                  <SelectItem key={project.id} value={project.id}>
-                    <div className="flex items-center gap-2">
-                      <Target className="w-4 h-4" />
-                      {project.name}
-                    </div>
-                  </SelectItem>
-                ))}
-              </SelectContent>
-            </Select>
+              {/* Project selector */}
+              <Select value={selectedProject} onValueChange={setSelectedProject}>
+                <SelectTrigger className="w-[140px] bg-background">
+                  <SelectValue placeholder="Project" />
+                </SelectTrigger>
+                <SelectContent className="z-50 bg-background">
+                  {projects.map(project => (
+                    <SelectItem key={project.id} value={project.id}>
+                      <div className="flex items-center gap-2">
+                        <Target className="w-4 h-4" />
+                        <span className="truncate">{project.name}</span>
+                      </div>
+                    </SelectItem>
+                  ))}
+                </SelectContent>
+              </Select>
 
-            {/* Sprint selector */}
-            <Select value={selectedSprint} onValueChange={setSelectedSprint}>
-              <SelectTrigger className="w-[180px] bg-background">
-                <SelectValue placeholder="Select sprint" />
-              </SelectTrigger>
-              <SelectContent className="z-50 bg-background">
-                {sprints.map(sprint => (
-                  <SelectItem key={sprint.id} value={sprint.id}>
-                    <div className="flex items-center gap-2">
-                      <Calendar className="w-4 h-4" />
-                      {sprint.name}
-                    </div>
-                  </SelectItem>
-                ))}
-              </SelectContent>
-            </Select>
+              {/* Sprint selector */}
+              <Select value={selectedSprint} onValueChange={setSelectedSprint}>
+                <SelectTrigger className="w-[140px] bg-background">
+                  <SelectValue placeholder="Sprint" />
+                </SelectTrigger>
+                <SelectContent className="z-50 bg-background">
+                  {sprints.map(sprint => (
+                    <SelectItem key={sprint.id} value={sprint.id}>
+                      <div className="flex items-center gap-2">
+                        <Calendar className="w-4 h-4" />
+                        <span className="truncate">{sprint.name}</span>
+                      </div>
+                    </SelectItem>
+                  ))}
+                </SelectContent>
+              </Select>
+            </div>
+
+            {/* Mobile: Collapsed selectors */}
+            <div className="md:hidden">
+              <Button variant="outline" size="sm" className="gap-2">
+                <MoreHorizontal className="w-4 h-4" />
+                <span className="hidden sm:inline">Selectors</span>
+              </Button>
+            </div>
+          </div>
+
+          {/* Right side: Settings and Add Work Item */}
+          <div className="flex items-center gap-2 flex-shrink-0">
+            <Button 
+              variant="outline" 
+              size="sm"
+              onClick={() => setShowSprintSettings(true)}
+              className="hidden sm:flex"
+            >
+              <Settings className="w-4 h-4" />
+              <span className="hidden lg:inline ml-2">Settings</span>
+            </Button>
+            
+            <Button 
+              onClick={() => setShowCreateWorkItem(true)}
+              size="sm"
+              className="gap-2"
+            >
+              <Plus className="w-4 h-4" />
+              <span className="hidden sm:inline">Add Work Item</span>
+            </Button>
           </div>
         </div>
 
-        {/* Right side: View controls and actions */}
-        <div className="flex flex-wrap items-center gap-2">
-          {/* View type buttons */}
-          <div className="flex items-center border rounded-md">
-            <Button 
-              variant={viewConfig.type === 'board' ? 'default' : 'ghost'} 
-              size="sm"
-              className="rounded-r-none border-r"
-              onClick={() => setViewConfig(prev => ({ ...prev, type: 'board' }))}
-            >
-              <Columns className="w-4 h-4 mr-1" />
-              Board
+        {/* Second row: View controls and filters aligned right */}
+        <div className="flex justify-end">
+          <div className="flex items-center gap-2">
+            {/* View toggle */}
+            <div className="flex items-center border rounded-md">
+              <Button 
+                variant={viewConfig.type === 'board' ? 'default' : 'ghost'} 
+                size="sm"
+                className="rounded-r-none border-r px-3"
+                onClick={() => setViewConfig(prev => ({ ...prev, type: 'board' }))}
+              >
+                <Columns className="w-4 h-4" />
+                <span className="hidden sm:inline ml-1">Board</span>
+              </Button>
+              <Button 
+                variant={viewConfig.type === 'list' ? 'default' : 'ghost'} 
+                size="sm"
+                className="rounded-l-none px-3"
+                onClick={() => setViewConfig(prev => ({ ...prev, type: 'list' }))}
+              >
+                <List className="w-4 h-4" />
+                <span className="hidden sm:inline ml-1">List</span>
+              </Button>
+            </div>
+
+            <Separator orientation="vertical" className="h-6" />
+
+            {/* Filter and Analytics buttons */}
+            <Button variant="outline" size="sm">
+              <Filter className="w-4 h-4" />
+              <span className="hidden sm:inline ml-2">Filter</span>
             </Button>
-            <Button 
-              variant={viewConfig.type === 'list' ? 'default' : 'ghost'} 
-              size="sm"
-              className="rounded-l-none"
-              onClick={() => setViewConfig(prev => ({ ...prev, type: 'list' }))}
-            >
-              <List className="w-4 h-4 mr-1" />
-              List
+
+            <Button variant="outline" size="sm">
+              <BarChart3 className="w-4 h-4" />
+              <span className="hidden sm:inline ml-2">Analytics</span>
             </Button>
           </div>
-
-          <Separator orientation="vertical" className="h-6" />
-
-          {/* Filter and action buttons */}
-          <Button variant="outline" size="sm">
-            <Filter className="w-4 h-4 mr-2" />
-            Filter
-          </Button>
-
-          <Button variant="outline" size="sm">
-            <BarChart3 className="w-4 h-4 mr-2" />
-            <span className="hidden sm:inline">Analytics</span>
-          </Button>
-
-          <Button variant="outline" size="sm">
-            <Settings className="w-4 h-4 mr-2" />
-            <span className="hidden sm:inline">Settings</span>
-          </Button>
-
-          <Button onClick={() => setShowCreateWorkItem(true)}>
-            <Plus className="w-4 h-4 mr-2" />
-            Add Work Item
-          </Button>
         </div>
       </div>
 
