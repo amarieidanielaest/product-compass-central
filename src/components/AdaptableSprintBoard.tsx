@@ -420,7 +420,7 @@ const AdaptableSprintBoard = ({
         {/* First row: Title, selectors, settings, and add work item */}
         <div className="flex items-center justify-between gap-4">
           <div className="flex items-center gap-4 min-w-0">
-            <h1 className="text-2xl font-bold flex-shrink-0">Sprint Board</h1>
+            
             
             <div className="hidden md:flex items-center gap-3">
               {/* Team selector */}
