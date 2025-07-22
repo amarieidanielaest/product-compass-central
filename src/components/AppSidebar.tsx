@@ -1,7 +1,7 @@
 import { useState, useEffect } from 'react';
 import { 
   BarChart3, Target, Map, MessageSquare, Home, FileText, Kanban, Package, 
-  ChevronDown, Settings, ChevronLeft, ChevronRight
+  ChevronDown, Settings, ChevronLeft, ChevronRight, BookOpen, Users
 } from 'lucide-react';
 import {
   Sidebar,
@@ -61,6 +61,8 @@ const AppSidebar = ({ activeModule, setActiveModule, selectedProductId, onProduc
     { id: 'customer', name: 'Customer Board', icon: MessageSquare, badge: '5', category: 'core' },
     { id: 'prd', name: 'PRD Generator', icon: FileText, badge: null, category: 'core' },
     { id: 'products', name: 'Products', icon: Package, badge: null, category: 'core' },
+    { id: 'knowledge', name: 'Knowledge Center', icon: BookOpen, badge: null, category: 'core' },
+    { id: 'users', name: 'User Management', icon: Users, badge: null, category: 'core' },
     
     // Settings & Administration
     { id: 'settings', name: 'Settings', icon: Settings, badge: null, category: 'settings' },

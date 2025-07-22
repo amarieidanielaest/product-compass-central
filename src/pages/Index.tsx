@@ -28,6 +28,8 @@ const Index = () => {
       sprints: 'Sprint Board',
       prd: 'PRD Generator',
       customer: 'Customer Board',
+      knowledge: 'Knowledge Center',
+      users: 'User Management',
       settings: 'Settings',
     };
     return moduleNames[moduleId] || moduleId;
@@ -75,6 +77,10 @@ const Index = () => {
         return <PRDGenerator />;
       case 'customer':
         return <CustomerBoard selectedProductId={selectedProductId} onNavigate={setActiveModule} />;
+      case 'knowledge':
+        return <KnowledgeCenter />;
+      case 'users':
+        return <UserManagement />;
       case 'settings':
         return <Settings currentTeamId={selectedProductId} />;
       default:
