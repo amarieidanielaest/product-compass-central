@@ -40,8 +40,8 @@ const PageHeader = ({ title, subtitle, breadcrumbs }: PageHeaderProps) => {
   return (
     <header className="sticky top-0 z-50 w-full border-b bg-background/95 backdrop-blur supports-[backdrop-filter]:bg-background/60">
       <div className="w-full max-w-[1600px] mx-auto px-6 lg:px-8">
-        <div className="flex h-16 items-center justify-between">
-          {/* Left side - Breadcrumbs */}
+        <div className="flex h-14 items-center justify-between">
+          {/* Left side - Breadcrumbs & Title */}
           <div className="flex items-center gap-4 min-w-0">
             <Breadcrumb>
               <BreadcrumbList>
@@ -57,12 +57,12 @@ const PageHeader = ({ title, subtitle, breadcrumbs }: PageHeaderProps) => {
                       {breadcrumb.href ? (
                         <BreadcrumbLink 
                           href={breadcrumb.href}
-                          className="text-muted-foreground hover:text-foreground transition-colors"
+                          className="text-muted-foreground hover:text-foreground transition-colors text-sm"
                         >
                           {breadcrumb.label}
                         </BreadcrumbLink>
                       ) : (
-                        <BreadcrumbPage className="font-medium text-foreground">
+                        <BreadcrumbPage className="font-semibold text-foreground text-sm">
                           {breadcrumb.label}
                         </BreadcrumbPage>
                       )}
@@ -76,14 +76,14 @@ const PageHeader = ({ title, subtitle, breadcrumbs }: PageHeaderProps) => {
           {/* Right side - Actions */}
           <div className="flex items-center gap-2">
             {/* Global Search */}
-            <div className="hidden md:flex items-center gap-2 max-w-sm">
+            <div className="hidden lg:flex items-center gap-2">
               <div className="relative">
                 <Search className="absolute left-3 top-1/2 transform -translate-y-1/2 text-muted-foreground w-4 h-4" />
                 <Input
                   placeholder="Search..."
-                  className="pl-10 h-9 w-72 bg-muted/50 border-border/50 focus:border-primary focus:ring-1 focus:ring-primary/20"
+                  className="pl-10 h-8 w-64 bg-muted/50 border-border/50 focus:border-primary focus:ring-1 focus:ring-primary/20 text-sm"
                 />
-                <kbd className="absolute right-3 top-1/2 transform -translate-y-1/2 pointer-events-none inline-flex h-5 select-none items-center gap-1 rounded border bg-muted px-1.5 font-mono text-[10px] font-medium text-muted-foreground opacity-100">
+                <kbd className="absolute right-3 top-1/2 transform -translate-y-1/2 pointer-events-none inline-flex h-4 select-none items-center gap-1 rounded border bg-muted px-1.5 font-mono text-[10px] font-medium text-muted-foreground opacity-100">
                   ⌘K
                 </kbd>
               </div>
@@ -94,7 +94,7 @@ const PageHeader = ({ title, subtitle, breadcrumbs }: PageHeaderProps) => {
               <TooltipProvider>
                 <Tooltip>
                   <TooltipTrigger asChild>
-                    <Button variant="ghost" size="icon" className="h-9 w-9">
+                    <Button variant="ghost" size="icon" className="h-8 w-8">
                       <Plus className="h-4 w-4" />
                     </Button>
                   </TooltipTrigger>
@@ -107,7 +107,7 @@ const PageHeader = ({ title, subtitle, breadcrumbs }: PageHeaderProps) => {
               <TooltipProvider>
                 <Tooltip>
                   <TooltipTrigger asChild>
-                    <Button variant="ghost" size="icon" className="h-9 w-9 relative">
+                    <Button variant="ghost" size="icon" className="h-8 w-8 relative">
                       <Bell className="h-4 w-4" />
                       <span className="absolute -top-1 -right-1 h-2 w-2 bg-destructive rounded-full"></span>
                     </Button>
@@ -122,7 +122,7 @@ const PageHeader = ({ title, subtitle, breadcrumbs }: PageHeaderProps) => {
             {/* Profile */}
             <DropdownMenu>
               <DropdownMenuTrigger asChild>
-                <Button variant="ghost" className="h-9 px-2 gap-2">
+                <Button variant="ghost" className="h-8 px-2 gap-2">
                   <Avatar className="h-6 w-6">
                     <AvatarImage src="/placeholder-avatar.jpg" alt="User" />
                     <AvatarFallback className="bg-primary text-primary-foreground text-xs">
@@ -148,16 +148,6 @@ const PageHeader = ({ title, subtitle, breadcrumbs }: PageHeaderProps) => {
                 </DropdownMenuItem>
               </DropdownMenuContent>
             </DropdownMenu>
-          </div>
-        </div>
-        
-        {/* Page Title Section */}
-        <div className="pb-6 pt-2">
-          <div className="flex flex-col gap-1">
-            <h1 className="text-2xl font-bold tracking-tight text-foreground">{title}</h1>
-            {subtitle && (
-              <p className="text-muted-foreground">{subtitle}</p>
-            )}
           </div>
         </div>
       </div>

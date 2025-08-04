@@ -103,7 +103,7 @@ const Index = () => {
             breadcrumbs={getBreadcrumbs()}
           />
           <main className="flex-1 overflow-auto bg-background">
-            <div className="w-full max-w-[1600px] mx-auto px-6 lg:px-8 py-8">
+            <div className="w-full max-w-[1600px] mx-auto px-6 lg:px-8 py-6">
               {renderModule()}
             </div>
           </main>

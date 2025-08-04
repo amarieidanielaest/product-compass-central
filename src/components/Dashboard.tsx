@@ -90,29 +90,29 @@ const Dashboard = ({ selectedProductId, onNavigate }: DashboardProps) => {
     };
 
     return (
-      <Card className="relative overflow-hidden">
-        <CardContent className="p-6">
+      <Card className="relative overflow-hidden border-0 shadow-sm bg-card/50 backdrop-blur-sm hover:shadow-md transition-all duration-200">
+        <CardContent className="p-4">
           <div className="flex items-center justify-between">
-            <div className="space-y-3">
-              <p className="text-sm font-medium text-muted-foreground">{title}</p>
+            <div className="space-y-2">
+              <p className="text-xs font-medium text-muted-foreground uppercase tracking-wide">{title}</p>
               <div className="space-y-1">
-                <p className="text-3xl font-bold text-foreground">
+                <p className="text-2xl font-bold text-foreground">
                   {typeof value === 'number' ? formatNumber(value) : value}
                 </p>
-                <div className={`flex items-center space-x-1 text-sm ${
+                <div className={`flex items-center space-x-1 text-xs ${
                   isPositive ? 'text-emerald-600' : 'text-red-600'
                 }`}>
                   {isPositive ? (
-                    <ArrowUpRight className="w-4 h-4" />
+                    <ArrowUpRight className="w-3 h-3" />
                   ) : (
-                    <ArrowDownRight className="w-4 h-4" />
+                    <ArrowDownRight className="w-3 h-3" />
                   )}
                   <span className="font-medium">{change}</span>
                 </div>
               </div>
             </div>
-            <div className={`w-12 h-12 rounded-xl ${colorMap[color] || colorMap.primary} flex items-center justify-center`}>
-              <Icon className="w-6 h-6 text-white" />
+            <div className={`w-10 h-10 rounded-lg ${colorMap[color] || colorMap.primary} flex items-center justify-center shadow-sm`}>
+              <Icon className="w-5 h-5 text-white" />
             </div>
           </div>
         </CardContent>
@@ -121,11 +121,11 @@ const Dashboard = ({ selectedProductId, onNavigate }: DashboardProps) => {
   };
 
   return (
-    <div className="space-y-8">
+    <div className="space-y-6">
       {/* Header Controls */}
       <div className="flex flex-col sm:flex-row sm:items-center justify-between gap-4">
         <div>
-          <p className="text-muted-foreground">
+          <p className="text-muted-foreground text-sm">
             Welcome back! Here's what's happening with your product.
           </p>
         </div>
@@ -139,7 +139,7 @@ const Dashboard = ({ selectedProductId, onNavigate }: DashboardProps) => {
       </div>
 
       {/* Key Metrics Grid */}
-      <div className="grid grid-cols-1 sm:grid-cols-2 lg:grid-cols-4 gap-6">
+      <div className="grid grid-cols-1 sm:grid-cols-2 xl:grid-cols-4 gap-4">
         <MetricCard
           title="Total Users"
           value={2847}
@@ -171,37 +171,37 @@ const Dashboard = ({ selectedProductId, onNavigate }: DashboardProps) => {
       </div>
 
       {/* Charts Grid */}
-      <div className="grid grid-cols-1 xl:grid-cols-3 gap-6">
+      <div className="grid grid-cols-1 xl:grid-cols-3 gap-4">
         {/* User Growth Chart */}
-        <Card className="xl:col-span-2">
-          <CardHeader>
+        <Card className="xl:col-span-2 border-0 shadow-sm bg-card/50 backdrop-blur-sm">
+          <CardHeader className="pb-4">
             <div className="flex items-center justify-between">
               <div>
-                <CardTitle className="text-xl">User Growth</CardTitle>
-                <p className="text-sm text-muted-foreground mt-1">
+                <CardTitle className="text-lg font-semibold">User Growth</CardTitle>
+                <p className="text-xs text-muted-foreground mt-1">
                   Monthly active users and retention rates
                 </p>
               </div>
-              <Badge variant="secondary" className="text-xs">
+              <Badge variant="secondary" className="text-xs h-6">
                 Last 6 months
               </Badge>
             </div>
           </CardHeader>
-          <CardContent>
-            <div className="h-80">
+          <CardContent className="pt-0">
+            <div className="h-72">
               <ChartContainer config={chartConfig}>
                 <ResponsiveContainer width="100%" height="100%">
                   <RechartsLineChart data={userGrowthData} margin={{ top: 5, right: 30, left: 20, bottom: 5 }}>
                     <XAxis 
                       dataKey="month" 
                       stroke="hsl(var(--muted-foreground))" 
-                      fontSize={12}
+                      fontSize={11}
                       axisLine={false}
                       tickLine={false}
                     />
                     <YAxis 
                       stroke="hsl(var(--muted-foreground))" 
-                      fontSize={12}
+                      fontSize={11}
                       axisLine={false}
                       tickLine={false}
                     />
@@ -210,17 +210,17 @@ const Dashboard = ({ selectedProductId, onNavigate }: DashboardProps) => {
                       type="monotone" 
                       dataKey="users" 
                       stroke="hsl(var(--primary))" 
-                      strokeWidth={3}
-                      dot={{ fill: "hsl(var(--primary))", strokeWidth: 2, r: 5 }}
-                      activeDot={{ r: 7 }}
+                      strokeWidth={2.5}
+                      dot={{ fill: "hsl(var(--primary))", strokeWidth: 2, r: 4 }}
+                      activeDot={{ r: 6 }}
                     />
                     <Line 
                       type="monotone" 
                       dataKey="retention" 
                       stroke="hsl(var(--accent))" 
-                      strokeWidth={3}
-                      dot={{ fill: "hsl(var(--accent))", strokeWidth: 2, r: 5 }}
-                      activeDot={{ r: 7 }}
+                      strokeWidth={2.5}
+                      dot={{ fill: "hsl(var(--accent))", strokeWidth: 2, r: 4 }}
+                      activeDot={{ r: 6 }}
                     />
                   </RechartsLineChart>
                 </ResponsiveContainer>
@@ -230,28 +230,28 @@ const Dashboard = ({ selectedProductId, onNavigate }: DashboardProps) => {
         </Card>
 
         {/* Feature Adoption Chart */}
-        <Card>
-          <CardHeader>
-            <CardTitle className="text-xl">Feature Adoption</CardTitle>
-            <p className="text-sm text-muted-foreground">
+        <Card className="border-0 shadow-sm bg-card/50 backdrop-blur-sm">
+          <CardHeader className="pb-4">
+            <CardTitle className="text-lg font-semibold">Feature Adoption</CardTitle>
+            <p className="text-xs text-muted-foreground">
               Usage rates across core features
             </p>
           </CardHeader>
-          <CardContent>
-            <div className="h-80">
+          <CardContent className="pt-0">
+            <div className="h-72">
               <ChartContainer config={chartConfig}>
                 <ResponsiveContainer width="100%" height="100%">
                   <BarChart data={featureAdoptionData} margin={{ top: 5, right: 30, left: 20, bottom: 5 }}>
                     <XAxis 
                       dataKey="feature" 
                       stroke="hsl(var(--muted-foreground))" 
-                      fontSize={11}
+                      fontSize={10}
                       axisLine={false}
                       tickLine={false}
                     />
                     <YAxis 
                       stroke="hsl(var(--muted-foreground))" 
-                      fontSize={12}
+                      fontSize={11}
                       axisLine={false}
                       tickLine={false}
                     />
@@ -259,7 +259,7 @@ const Dashboard = ({ selectedProductId, onNavigate }: DashboardProps) => {
                     <Bar 
                       dataKey="adoption" 
                       fill="hsl(var(--primary))" 
-                      radius={[8, 8, 0, 0]}
+                      radius={[6, 6, 0, 0]}
                     />
                   </BarChart>
                 </ResponsiveContainer>
@@ -270,57 +270,57 @@ const Dashboard = ({ selectedProductId, onNavigate }: DashboardProps) => {
       </div>
 
       {/* Quick Actions */}
-      <Card>
-        <CardHeader>
-          <CardTitle className="flex items-center gap-2">
+      <Card className="border-0 shadow-sm bg-card/50 backdrop-blur-sm">
+        <CardHeader className="pb-4">
+          <CardTitle className="flex items-center gap-2 text-lg font-semibold">
             <BarChart3 className="w-5 h-5" />
             Quick Actions
           </CardTitle>
-          <p className="text-sm text-muted-foreground">
+          <p className="text-xs text-muted-foreground">
             Navigate to your most used features
           </p>
         </CardHeader>
-        <CardContent>
-          <div className="grid grid-cols-1 sm:grid-cols-2 lg:grid-cols-4 gap-4">
+        <CardContent className="pt-0">
+          <div className="grid grid-cols-2 lg:grid-cols-4 gap-3">
             <Button 
               variant="outline" 
-              className="h-24 flex-col gap-3 p-4 hover:bg-accent/50 transition-all group"
+              className="h-20 flex-col gap-2 p-3 hover:bg-accent/50 transition-all group border-0 bg-background/50"
               onClick={() => onNavigate?.('sprints')}
             >
-              <div className="w-10 h-10 rounded-lg bg-primary/10 group-hover:bg-primary/20 flex items-center justify-center transition-colors">
-                <BarChart3 className="w-5 h-5 text-primary" />
+              <div className="w-8 h-8 rounded-md bg-primary/10 group-hover:bg-primary/20 flex items-center justify-center transition-colors">
+                <BarChart3 className="w-4 h-4 text-primary" />
               </div>
-              <span className="font-medium">Sprint Board</span>
+              <span className="text-xs font-medium">Sprint Board</span>
             </Button>
             <Button 
               variant="outline" 
-              className="h-24 flex-col gap-3 p-4 hover:bg-accent/50 transition-all group"
+              className="h-20 flex-col gap-2 p-3 hover:bg-accent/50 transition-all group border-0 bg-background/50"
               onClick={() => onNavigate?.('customer')}
             >
-              <div className="w-10 h-10 rounded-lg bg-primary/10 group-hover:bg-primary/20 flex items-center justify-center transition-colors">
-                <Users className="w-5 h-5 text-primary" />
+              <div className="w-8 h-8 rounded-md bg-primary/10 group-hover:bg-primary/20 flex items-center justify-center transition-colors">
+                <Users className="w-4 h-4 text-primary" />
               </div>
-              <span className="font-medium">Customer Board</span>
+              <span className="text-xs font-medium">Customer Board</span>
             </Button>
             <Button 
               variant="outline" 
-              className="h-24 flex-col gap-3 p-4 hover:bg-accent/50 transition-all group"
+              className="h-20 flex-col gap-2 p-3 hover:bg-accent/50 transition-all group border-0 bg-background/50"
               onClick={() => onNavigate?.('roadmap')}
             >
-              <div className="w-10 h-10 rounded-lg bg-primary/10 group-hover:bg-primary/20 flex items-center justify-center transition-colors">
-                <Target className="w-5 h-5 text-primary" />
+              <div className="w-8 h-8 rounded-md bg-primary/10 group-hover:bg-primary/20 flex items-center justify-center transition-colors">
+                <Target className="w-4 h-4 text-primary" />
               </div>
-              <span className="font-medium">Roadmap</span>
+              <span className="text-xs font-medium">Roadmap</span>
             </Button>
             <Button 
               variant="outline" 
-              className="h-24 flex-col gap-3 p-4 hover:bg-accent/50 transition-all group"
+              className="h-20 flex-col gap-2 p-3 hover:bg-accent/50 transition-all group border-0 bg-background/50"
               onClick={() => onNavigate?.('strategy')}
             >
-              <div className="w-10 h-10 rounded-lg bg-primary/10 group-hover:bg-primary/20 flex items-center justify-center transition-colors">
-                <Activity className="w-5 h-5 text-primary" />
+              <div className="w-8 h-8 rounded-md bg-primary/10 group-hover:bg-primary/20 flex items-center justify-center transition-colors">
+                <Activity className="w-4 h-4 text-primary" />
               </div>
-              <span className="font-medium">Strategy</span>
+              <span className="text-xs font-medium">Strategy</span>
             </Button>
           </div>
         </CardContent>

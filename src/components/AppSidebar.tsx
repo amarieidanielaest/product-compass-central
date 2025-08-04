@@ -82,13 +82,13 @@ const AppSidebar = ({ activeModule, setActiveModule, selectedProductId, onProduc
   return (
     <Sidebar 
       collapsible="icon"
-      className="border-r bg-sidebar"
+      className="border-r bg-sidebar w-60"
     >
-      <SidebarHeader className="p-4 border-b">
+      <SidebarHeader className="p-3 border-b">
         <div className="flex items-center justify-between">
           <div className="flex items-center gap-2">
-            <div className="w-8 h-8 rounded-lg bg-primary flex items-center justify-center">
-              <svg viewBox="0 0 30 20" className="w-5 h-3">
+            <div className="w-7 h-7 rounded-lg bg-primary flex items-center justify-center">
+              <svg viewBox="0 0 30 20" className="w-4 h-3">
                 <defs>
                   <linearGradient id="loomWave" x1="0%" y1="0%" x2="100%" y2="0%">
                     <stop offset="0%" style={{stopColor:'white', stopOpacity:1}} />
@@ -101,11 +101,11 @@ const AppSidebar = ({ activeModule, setActiveModule, selectedProductId, onProduc
               </svg>
             </div>
             {!isCollapsed && (
-              <span className="font-bold text-lg text-sidebar-foreground">Loom</span>
+              <span className="font-bold text-base text-sidebar-foreground">Loom</span>
             )}
           </div>
           
-          <SidebarTrigger className="h-8 w-8">
+          <SidebarTrigger className="h-7 w-7">
             {isCollapsed ? (
               <ChevronRight className="h-4 w-4" />
             ) : (
@@ -116,15 +116,15 @@ const AppSidebar = ({ activeModule, setActiveModule, selectedProductId, onProduc
         
         {/* Product Selector */}
         {!isCollapsed && (
-          <div className="mt-4">
+          <div className="mt-3">
             <DropdownMenu open={isProductMenuOpen} onOpenChange={setIsProductMenuOpen}>
               <DropdownMenuTrigger asChild>
-                <Button variant="outline" size="sm" className="w-full justify-between">
+                <Button variant="outline" size="sm" className="w-full justify-between h-8 text-xs">
                   <div className="flex items-center gap-2">
-                    <Package className="w-4 h-4" />
+                    <Package className="w-3 h-3" />
                     <span className="truncate">{getCurrentProduct()}</span>
                   </div>
-                  <ChevronDown className="w-4 h-4" />
+                  <ChevronDown className="w-3 h-3" />
                 </Button>
               </DropdownMenuTrigger>
               <DropdownMenuContent className="w-56">
@@ -137,11 +137,11 @@ const AppSidebar = ({ activeModule, setActiveModule, selectedProductId, onProduc
                         onProductChange?.(product.id);
                         setIsProductMenuOpen(false);
                       }}
-                      className="flex items-center justify-between"
+                      className="flex items-center justify-between text-sm"
                     >
                       <span>{product.name}</span>
                       {product.status === 'beta' && (
-                        <Badge variant="secondary">Beta</Badge>
+                        <Badge variant="secondary" className="text-xs">Beta</Badge>
                       )}
                       {selectedProductId === product.id && (
                         <div className="w-2 h-2 bg-primary rounded-full" />
@@ -149,7 +149,7 @@ const AppSidebar = ({ activeModule, setActiveModule, selectedProductId, onProduc
                     </DropdownMenuItem>
                   ))}
                   <DropdownMenuSeparator />
-                  <DropdownMenuItem onClick={() => setActiveModule('products')}>
+                  <DropdownMenuItem onClick={() => setActiveModule('products')} className="text-sm">
                     <Settings className="w-4 h-4 mr-2" />
                     Manage Products
                   </DropdownMenuItem>
@@ -160,9 +160,9 @@ const AppSidebar = ({ activeModule, setActiveModule, selectedProductId, onProduc
         )}
       </SidebarHeader>
 
-      <SidebarContent className="p-4">
+      <SidebarContent className="p-3">
         <SidebarGroup>
-          <SidebarGroupLabel className={cn("text-xs uppercase tracking-wider text-sidebar-foreground/60 mb-3", isCollapsed && "sr-only")}>
+          <SidebarGroupLabel className={cn("text-xs uppercase tracking-wide text-sidebar-foreground/60 mb-2", isCollapsed && "sr-only")}>
             Navigation
           </SidebarGroupLabel>
           <SidebarGroupContent>
@@ -176,7 +176,7 @@ const AppSidebar = ({ activeModule, setActiveModule, selectedProductId, onProduc
                     <SidebarMenuButton
                       onClick={() => setActiveModule(module.id)}
                       className={cn(
-                        "h-10 px-3 rounded-lg font-medium transition-all duration-200",
+                        "h-9 px-3 rounded-md text-sm font-medium transition-all duration-200",
                         isActive 
                           ? "bg-sidebar-accent text-sidebar-accent-foreground shadow-sm" 
                           : "text-sidebar-foreground hover:bg-sidebar-accent/50 hover:text-sidebar-accent-foreground",
@@ -185,7 +185,7 @@ const AppSidebar = ({ activeModule, setActiveModule, selectedProductId, onProduc
                       tooltip={isCollapsed ? module.name : undefined}
                     >
                       <Icon className={cn(
-                        "h-5 w-5",
+                        "h-4 w-4",
                         isCollapsed ? "mx-auto" : "mr-3"
                       )} />
                       
@@ -195,7 +195,7 @@ const AppSidebar = ({ activeModule, setActiveModule, selectedProductId, onProduc
                             {module.name}
                           </span>
                           {module.badge && (
-                            <Badge variant="secondary" className="ml-2 text-xs h-5 px-2">
+                            <Badge variant="secondary" className="ml-2 text-xs h-4 px-1.5">
                               {module.badge}
                             </Badge>
                           )}
