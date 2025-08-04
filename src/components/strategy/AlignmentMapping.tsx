@@ -37,14 +37,14 @@ export const AlignmentMapping: React.FC<AlignmentMappingProps> = ({
       setLoading(true);
       const [roadmapResponse, workItemsResponse] = await Promise.all([
         roadmapService.getRoadmapItems(),
-        sprintId ? sprintService.getWorkItems({ sprint_id: sprintId }, { page: 1, limit: 50 }) : Promise.resolve({ success: true, data: { data: [], total: 0, page: 1, limit: 50, totalPages: 0 } })
+        sprintId ? sprintService.getWorkItems(sprintId) : Promise.resolve({ success: true, data: [] })
       ]);
 
       if (roadmapResponse.success) {
         setRoadmapItems(roadmapResponse.data);
       }
       if (workItemsResponse.success) {
-        setWorkItems(workItemsResponse.data?.data || []);
+        setWorkItems(workItemsResponse.data || []);
       }
     } catch (error) {
       toast({

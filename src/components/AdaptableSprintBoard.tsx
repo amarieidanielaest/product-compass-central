@@ -112,14 +112,19 @@ const AdaptableSprintBoard = ({
     const loadInitialData = async () => {
       try {
         setLoading(true);
+        console.log('Loading teams...');
         const teamsResponse = await sprintService.getTeams();
+        console.log('Teams response:', teamsResponse);
         if (teamsResponse.success && teamsResponse.data) {
           setTeams(teamsResponse.data);
+          console.log('Teams loaded:', teamsResponse.data);
           if (!selectedTeam && teamsResponse.data.length > 0) {
             setSelectedTeam(teamsResponse.data[0].id);
+            console.log('Auto-selected team:', teamsResponse.data[0].id);
           }
         }
       } catch (error) {
+        console.error('Error loading teams:', error);
         toast({
           title: "Error loading teams",
           description: "Failed to load team data",
@@ -174,13 +179,12 @@ const AdaptableSprintBoard = ({
 
   const loadSprints = async (projectId?: string) => {
     try {
-      const response = await sprintService.getSprints({ project_id: projectId || selectedProject });
+      const response = await sprintService.getSprints(projectId || selectedProject);
       if (response.success && response.data) {
-        const sprintItems = Array.isArray(response.data) ? response.data : response.data.data || [];
-        setSprints(sprintItems);
+        setSprints(response.data);
         // Auto-select active sprint or latest sprint
-        const activeSprint = sprintItems.find(s => s.status === 'active');
-        const targetSprint = activeSprint || sprintItems[0];
+        const activeSprint = response.data.find(s => s.status === 'active');
+        const targetSprint = activeSprint || response.data[0];
         if (targetSprint && !selectedSprint) {
           setSelectedSprint(targetSprint.id);
         }
@@ -197,10 +201,9 @@ const AdaptableSprintBoard = ({
   const loadSprintData = async () => {
     try {
       // Load work items
-      const workItemsResponse = await sprintService.getWorkItems({ sprint_id: selectedSprint });
+      const workItemsResponse = await sprintService.getWorkItems(selectedSprint);
       if (workItemsResponse.success && workItemsResponse.data) {
-        const workItemsList = Array.isArray(workItemsResponse.data) ? workItemsResponse.data : workItemsResponse.data.data || [];
-        setWorkItems(workItemsList);
+        setWorkItems(workItemsResponse.data);
       }
 
       // Load workflow columns

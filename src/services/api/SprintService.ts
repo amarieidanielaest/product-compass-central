@@ -124,173 +124,92 @@ export interface WorkItemFilters {
   item_type?: string[];
 }
 
-class SprintApiService extends BaseApiService {
-  constructor() {
-    super('');
-  }
+class SprintApiService {
+  private async callEdgeFunction(method: string, path: string, data?: any): Promise<ApiResponse<any>> {
+    try {
+      const { data: result, error } = await supabase.functions.invoke('sprint-api', {
+        body: { method, path, data }
+      });
 
-  private async callEdgeFunction(endpoint: string, options: RequestInit = {}) {
-    const { data, error } = await supabase.functions.invoke('sprint-api', {
-      body: {
-        method: options.method || 'GET',
-        path: endpoint,
-        ...options.body ? { data: JSON.parse(options.body as string) } : {}
-      }
-    });
-
-    if (error) throw error;
-    return { data, error: null };
+      if (error) throw error;
+      return { data: result, errors: null, success: true };
+    } catch (error) {
+      return { data: null, errors: [(error as Error).message], success: false };
+    }
   }
 
   // Team management
   async getTeams(): Promise<ApiResponse<Team[]>> {
-    try {
-      const { data } = await supabase.functions.invoke('sprint-api', {
-        body: { method: 'GET', path: 'teams' }
-      });
-      return { data, errors: null, success: true };
-    } catch (error) {
-      return { data: null, errors: [(error as Error).message], success: false };
-    }
+    return this.callEdgeFunction('GET', 'teams');
   }
 
   async createTeam(team: Omit<Team, 'id' | 'created_at' | 'updated_at'>): Promise<ApiResponse<Team>> {
-    return this.makeRequest<Team>('/teams', {
-      method: 'POST',
-      body: JSON.stringify(team),
-    });
+    return this.callEdgeFunction('POST', 'teams', team);
   }
 
   // Project management
-  async getProjects(teamId?: string): Promise<ApiResponse<Project[]>> {
-    const params = teamId ? `?team_id=${teamId}` : '';
-    return this.makeRequest<Project[]>(`/projects${params}`);
+  async getProjects(teamId: string): Promise<ApiResponse<Project[]>> {
+    return this.callEdgeFunction('GET', `teams/${teamId}/projects`);
   }
 
   async createProject(project: Omit<Project, 'id' | 'created_at' | 'updated_at'>): Promise<ApiResponse<Project>> {
-    return this.makeRequest<Project>('/projects', {
-      method: 'POST',
-      body: JSON.stringify(project),
-    });
+    return this.callEdgeFunction('POST', 'projects', project);
   }
 
   // Sprint management
-  async getSprints(
-    filters: SprintFilters = {},
-    pagination: PaginationParams = { page: 1, limit: 10 }
-  ): Promise<ApiResponse<PaginatedResponse<Sprint>>> {
-    const queryParams = new URLSearchParams({
-      page: pagination.page.toString(),
-      limit: pagination.limit.toString(),
-      ...Object.entries(filters).reduce((acc, [key, value]) => {
-        if (Array.isArray(value)) {
-          acc[key] = value.join(',');
-        } else if (typeof value === 'object' && value !== null) {
-          acc[key] = JSON.stringify(value);
-        } else if (value !== undefined) {
-          acc[key] = value.toString();
-        }
-        return acc;
-      }, {} as Record<string, string>)
-    });
-
-    return this.makeRequest<PaginatedResponse<Sprint>>(`/?${queryParams}`);
+  async getSprints(projectId: string): Promise<ApiResponse<Sprint[]>> {
+    return this.callEdgeFunction('GET', `projects/${projectId}/sprints`);
   }
 
   async getSprint(id: string): Promise<ApiResponse<Sprint>> {
-    return this.makeRequest<Sprint>(`/${id}`);
+    return this.callEdgeFunction('GET', `sprints/${id}`);
   }
 
   async createSprint(sprint: Omit<Sprint, 'id' | 'created_at' | 'updated_at'>): Promise<ApiResponse<Sprint>> {
-    return this.makeRequest<Sprint>('/', {
-      method: 'POST',
-      body: JSON.stringify(sprint),
-    });
+    return this.callEdgeFunction('POST', 'sprints', sprint);
   }
 
   async updateSprint(id: string, updates: Partial<Sprint>): Promise<ApiResponse<Sprint>> {
-    return this.makeRequest<Sprint>(`/${id}`, {
-      method: 'PATCH',
-      body: JSON.stringify(updates),
-    });
+    return this.callEdgeFunction('PUT', `sprints/${id}`, updates);
   }
 
   async deleteSprint(id: string): Promise<ApiResponse<void>> {
-    return this.makeRequest<void>(`/${id}`, {
-      method: 'DELETE',
-    });
+    return this.callEdgeFunction('DELETE', `sprints/${id}`);
   }
 
   // Work item management
-  async getWorkItems(
-    filters: WorkItemFilters = {},
-    pagination: PaginationParams = { page: 1, limit: 50 }
-  ): Promise<ApiResponse<PaginatedResponse<WorkItem>>> {
-    const queryParams = new URLSearchParams({
-      page: pagination.page.toString(),
-      limit: pagination.limit.toString(),
-      ...Object.entries(filters).reduce((acc, [key, value]) => {
-        if (Array.isArray(value)) {
-          acc[key] = value.join(',');
-        } else if (value !== undefined) {
-          acc[key] = value.toString();
-        }
-        return acc;
-      }, {} as Record<string, string>)
-    });
-
-    return this.makeRequest<PaginatedResponse<WorkItem>>(`/work-items?${queryParams}`);
+  async getWorkItems(sprintId: string): Promise<ApiResponse<WorkItem[]>> {
+    return this.callEdgeFunction('GET', `sprints/${sprintId}/work-items`);
   }
 
   async createWorkItem(workItem: Omit<WorkItem, 'id' | 'created_at' | 'updated_at'>): Promise<ApiResponse<WorkItem>> {
-    return this.makeRequest<WorkItem>('/work-items', {
-      method: 'POST',
-      body: JSON.stringify(workItem),
-    });
+    return this.callEdgeFunction('POST', 'work-items', workItem);
   }
 
   async updateWorkItem(id: string, updates: Partial<WorkItem>): Promise<ApiResponse<WorkItem>> {
-    return this.makeRequest<WorkItem>(`/work-items/${id}`, {
-      method: 'PATCH',
-      body: JSON.stringify(updates),
-    });
+    return this.callEdgeFunction('PUT', `work-items/${id}`, updates);
   }
 
   async deleteWorkItem(id: string): Promise<ApiResponse<void>> {
-    return this.makeRequest<void>(`/work-items/${id}`, {
-      method: 'DELETE',
-    });
+    return this.callEdgeFunction('DELETE', `work-items/${id}`);
   }
 
   // Workflow column management
   async getWorkflowColumns(sprintId: string): Promise<ApiResponse<WorkflowColumn[]>> {
-    try {
-      const { data } = await supabase.functions.invoke('sprint-api', {
-        body: { method: 'GET', path: `sprints/${sprintId}/columns` }
-      });
-      return { data, errors: null, success: true };
-    } catch (error) {
-      return { data: null, errors: [(error as Error).message], success: false };
-    }
+    return this.callEdgeFunction('GET', `sprints/${sprintId}/columns`);
   }
 
   async updateWorkflowColumns(sprintId: string, columns: Partial<WorkflowColumn>[]): Promise<ApiResponse<WorkflowColumn[]>> {
-    return this.makeRequest<WorkflowColumn[]>(`/${sprintId}/columns`, {
-      method: 'PUT',
-      body: JSON.stringify(columns),
-    });
+    return this.callEdgeFunction('PUT', `sprints/${sprintId}/columns`, columns);
   }
 
   // Methodology templates
   async getMethodologyTemplates(): Promise<ApiResponse<MethodologyTemplate[]>> {
-    return this.makeRequest<MethodologyTemplate[]>('/methodology-templates');
+    return this.callEdgeFunction('GET', 'methodology-templates');
   }
 
   async createSprintFromTemplate(templateId: string, sprintData: Partial<Sprint>): Promise<ApiResponse<Sprint>> {
-    return this.makeRequest<Sprint>('/create-from-template', {
-      method: 'POST',
-      body: JSON.stringify({ template_id: templateId, sprint_data: sprintData }),
-    });
+    return this.callEdgeFunction('POST', 'create-from-template', { template_id: templateId, sprint_data: sprintData });
   }
 
   // Analytics and metrics
@@ -302,7 +221,7 @@ class SprintApiService extends BaseApiService {
     blocked_items: number;
     wip_violations: number;
   }>> {
-    return this.makeRequest(`/${sprintId}/metrics`);
+    return this.callEdgeFunction('GET', `sprints/${sprintId}/metrics`);
   }
 
   async getTeamVelocity(teamId: string, sprints: number = 6): Promise<ApiResponse<{
@@ -310,36 +229,25 @@ class SprintApiService extends BaseApiService {
     velocity_trend: Array<{ sprint: string; velocity: number; }>;
     predictability_score: number;
   }>> {
-    return this.makeRequest(`/teams/${teamId}/velocity?sprints=${sprints}`);
+    return this.callEdgeFunction('GET', `teams/${teamId}/velocity?sprints=${sprints}`);
   }
 
   // Dependencies
   async createDependency(dependency: Omit<WorkItemDependency, 'id' | 'created_at'>): Promise<ApiResponse<WorkItemDependency>> {
-    return this.makeRequest<WorkItemDependency>('/dependencies', {
-      method: 'POST',
-      body: JSON.stringify(dependency),
-    });
+    return this.callEdgeFunction('POST', 'dependencies', dependency);
   }
 
   async deleteDependency(id: string): Promise<ApiResponse<void>> {
-    return this.makeRequest<void>(`/dependencies/${id}`, {
-      method: 'DELETE',
-    });
+    return this.callEdgeFunction('DELETE', `dependencies/${id}`);
   }
 
   // Bulk operations
   async bulkUpdateWorkItems(updates: Array<{ id: string; updates: Partial<WorkItem> }>): Promise<ApiResponse<WorkItem[]>> {
-    return this.makeRequest<WorkItem[]>('/work-items/bulk-update', {
-      method: 'PATCH',
-      body: JSON.stringify({ updates }),
-    });
+    return this.callEdgeFunction('PATCH', 'work-items/bulk-update', { updates });
   }
 
   async moveWorkItemsToSprint(workItemIds: string[], targetSprintId: string): Promise<ApiResponse<WorkItem[]>> {
-    return this.makeRequest<WorkItem[]>('/work-items/move-to-sprint', {
-      method: 'PATCH',
-      body: JSON.stringify({ work_item_ids: workItemIds, target_sprint_id: targetSprintId }),
-    });
+    return this.callEdgeFunction('PATCH', 'work-items/move-to-sprint', { work_item_ids: workItemIds, target_sprint_id: targetSprintId });
   }
 }
 

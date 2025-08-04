@@ -59,23 +59,22 @@ export const PortfolioHealthDashboard: React.FC = () => {
       setLoading(true);
       const [roadmapResponse, sprintsResponse] = await Promise.all([
         roadmapService.getRoadmapItems(),
-        sprintService.getSprints()
+        sprintService.getSprints('default-project-id')
       ]);
 
       if (roadmapResponse.success) {
         setRoadmapItems(roadmapResponse.data);
       }
       if (sprintsResponse.success) {
-        const sprintsData = sprintsResponse.data?.data || [];
+        const sprintsData = sprintsResponse.data || [];
         setSprints(sprintsData);
         
         // Load work items for all sprints
         const allWorkItems: WorkItem[] = [];
         for (const sprint of sprintsData) {
-          const workItemsRes = await sprintService.getWorkItems({ sprint_id: sprint.id }, { page: 1, limit: 100 });
+          const workItemsRes = await sprintService.getWorkItems(sprint.id);
           if (workItemsRes.success) {
-            const workItemsData = workItemsRes.data?.data || [];
-            allWorkItems.push(...workItemsData);
+            allWorkItems.push(...workItemsRes.data);
           }
         }
         setWorkItems(allWorkItems);
