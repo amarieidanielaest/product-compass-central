@@ -88,9 +88,22 @@ const AppSidebar = ({ activeModule, setActiveModule, selectedProductId, onProduc
         {/* Logo */}
         <div className="flex items-center justify-between mb-4">
           <div className="flex items-center">
-            <img src={loomLogo} alt="Loom" className="w-6 h-6 mr-2" />
+            <div className="w-6 h-6 mr-2 flex items-center justify-center">
+              <svg viewBox="0 0 30 20" className="w-6 h-4">
+                <defs>
+                  <linearGradient id="loomWave" x1="0%" y1="0%" x2="100%" y2="0%">
+                    <stop offset="0%" style={{stopColor:'hsl(var(--primary))', stopOpacity:1}} />
+                    <stop offset="50%" style={{stopColor:'hsl(var(--primary-glow))', stopOpacity:1}} />
+                    <stop offset="100%" style={{stopColor:'hsl(var(--accent))', stopOpacity:1}} />
+                  </linearGradient>
+                </defs>
+                <path d="M0 8 Q5 3 10 8 T20 8 T30 8" stroke="url(#loomWave)" strokeWidth="2" fill="none" strokeLinecap="round"/>
+                <path d="M0 12 Q5 7 10 12 T20 12 T30 12" stroke="url(#loomWave)" strokeWidth="1.5" fill="none" strokeLinecap="round" opacity="0.7"/>
+                <path d="M0 16 Q5 11 10 16 T20 16 T30 16" stroke="url(#loomWave)" strokeWidth="1" fill="none" strokeLinecap="round" opacity="0.5"/>
+              </svg>
+            </div>
             {!isCollapsed && (
-              <span className="font-semibold text-sm">Loom</span>
+              <span className="font-headline font-semibold text-sm">Loom</span>
             )}
           </div>
           

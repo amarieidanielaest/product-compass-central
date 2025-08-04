@@ -1,0 +1,21 @@
+<svg viewBox="0 0 200 50" xmlns="http://www.w3.org/2000/svg">
+  <!-- Loom logo with wave-like symbol -->
+  <defs>
+    <linearGradient id="loomGradient" x1="0%" y1="0%" x2="100%" y2="0%">
+      <stop offset="0%" style="stop-color:#0891b2;stop-opacity:1" />
+      <stop offset="50%" style="stop-color:#06b6d4;stop-opacity:1" />
+      <stop offset="100%" style="stop-color:#14b8a6;stop-opacity:1" />
+    </linearGradient>
+  </defs>
+  
+  <!-- Wave symbol -->
+  <g transform="translate(10, 10)">
+    <!-- Main wave curves -->
+    <path d="M0 15 Q7 5 15 15 T30 15" stroke="url(#loomGradient)" stroke-width="3" fill="none" stroke-linecap="round"/>
+    <path d="M0 20 Q7 10 15 20 T30 20" stroke="url(#loomGradient)" stroke-width="2.5" fill="none" stroke-linecap="round" opacity="0.8"/>
+    <path d="M0 25 Q7 15 15 25 T30 25" stroke="url(#loomGradient)" stroke-width="2" fill="none" stroke-linecap="round" opacity="0.6"/>
+  </g>
+  
+  <!-- Loom text -->
+  <text x="55" y="32" font-family="Alice, serif" font-size="24" font-weight="400" fill="url(#loomGradient)">Loom</text>
+</svg>

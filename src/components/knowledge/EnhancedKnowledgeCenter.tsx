@@ -278,7 +278,7 @@ export const EnhancedKnowledgeCenter = () => {
             />
             
             <div className="flex items-center gap-4 mt-4 flex-wrap">
-              <Select value={sortBy} onValueChange={setSortBy}>
+              <Select value={sortBy} onValueChange={(value: string) => setSortBy(value as any)}>
                 <SelectTrigger className="w-40">
                   <SelectValue placeholder="Sort by" />
                 </SelectTrigger>
@@ -310,7 +310,7 @@ export const EnhancedKnowledgeCenter = () => {
                 </SelectContent>
               </Select>
 
-              <Select value={filterBy} onValueChange={setFilterBy}>
+              <Select value={filterBy} onValueChange={(value: string) => setFilterBy(value as any)}>
                 <SelectTrigger className="w-40">
                   <SelectValue placeholder="Filter" />
                 </SelectTrigger>

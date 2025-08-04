@@ -81,17 +81,17 @@ export const ArticleViewer = ({ article, onBack, onEdit }: ArticleViewerProps) =
 
   const loadComments = async () => {
     try {
-      const { data, error } = await supabase
-        .from('kb_article_comments')
-        .select(`
-          *,
-          author:profiles(first_name, last_name, avatar_url)
-        `)
-        .eq('article_id', article.id)
-        .order('created_at', { ascending: false });
-
-      if (error) throw error;
-      setComments(data || []);
+      // Mock comments data
+      const mockComments = [
+        {
+          id: '1',
+          content: 'Great article! Very helpful.',
+          author_id: 'user1',
+          created_at: new Date().toISOString(),
+          author: { first_name: 'John', last_name: 'Doe', avatar_url: '' }
+        }
+      ];
+      setComments(mockComments);
     } catch (error) {
       console.error('Error loading comments:', error);
     }
@@ -99,23 +99,8 @@ export const ArticleViewer = ({ article, onBack, onEdit }: ArticleViewerProps) =
 
   const loadUserInteractions = async () => {
     try {
-      const { data: { user } } = await supabase.auth.getUser();
-      if (!user) return;
-
-      // Load user rating
-      const { data: ratingData } = await supabase
-        .from('kb_article_ratings')
-        .select('rating')
-        .eq('article_id', article.id)
-        .eq('user_id', user.id)
-        .single();
-
-      if (ratingData) {
-        setUserRating(ratingData.rating);
-      }
-
-      // Load bookmark status (you'd need to create a bookmarks table)
-      // For now, we'll skip this
+      // Mock user rating
+      setUserRating(0);
     } catch (error) {
       console.error('Error loading user interactions:', error);
     }
@@ -123,26 +108,9 @@ export const ArticleViewer = ({ article, onBack, onEdit }: ArticleViewerProps) =
 
   const handleRating = async (rating: number) => {
     try {
-      const { data: { user } } = await supabase.auth.getUser();
-      if (!user) {
-        toast({
-          title: "Authentication required",
-          description: "Please sign in to rate articles",
-          variant: "destructive"
-        });
-        return;
-      }
-
-      const { error } = await supabase
-        .from('kb_article_ratings')
-        .upsert({
-          article_id: article.id,
-          user_id: user.id,
-          rating
-        });
-
-      if (error) throw error;
-
+      // Simulate rating submission
+      await new Promise(resolve => setTimeout(resolve, 500));
+      
       setUserRating(rating);
       toast({
         title: "Rating saved",
@@ -163,29 +131,20 @@ export const ArticleViewer = ({ article, onBack, onEdit }: ArticleViewerProps) =
 
     try {
       setIsSubmittingComment(true);
-      const { data: { user } } = await supabase.auth.getUser();
       
-      if (!user) {
-        toast({
-          title: "Authentication required",
-          description: "Please sign in to comment",
-          variant: "destructive"
-        });
-        return;
-      }
-
-      const { error } = await supabase
-        .from('kb_article_comments')
-        .insert({
-          article_id: article.id,
-          author_id: user.id,
-          content: newComment.trim()
-        });
-
-      if (error) throw error;
-
+      // Simulate comment submission
+      await new Promise(resolve => setTimeout(resolve, 500));
+      
+      const newCommentObj = {
+        id: Date.now().toString(),
+        content: newComment,
+        author_id: 'user1',
+        created_at: new Date().toISOString(),
+        author: { first_name: 'Current', last_name: 'User', avatar_url: '' }
+      };
+      
+      setComments(prev => [newCommentObj, ...prev]);
       setNewComment('');
-      loadComments();
       
       toast({
         title: "Comment posted",

@@ -17,20 +17,21 @@
     --popover: 0 0% 100%;
     --popover-foreground: 0 0% 13%;
 
-    /* Primary Intelligence Gradient - Deep Purple */
-    --primary: 267 89% 44%; /* #6A11CB Deep Purple */
-    --primary-foreground: 0 0% 98%;
+    /* Loom Primary - Teal/Turquoise */
+    --primary: 176 100% 35%; /* #00B4A6 Teal */
+    --primary-foreground: 0 0% 100%;
+    --primary-glow: 176 100% 45%; /* Lighter teal for effects */
 
-    /* Grounding Clarity Neutrals */
-    --secondary: 0 0% 93%; /* Grey 200 #EEEEEE */
-    --secondary-foreground: 0 0% 13%;
+    /* Secondary - Teal variations */
+    --secondary: 176 20% 95%; /* Light teal grey */
+    --secondary-foreground: 176 50% 20%;
 
-    --muted: 0 0% 93%;
-    --muted-foreground: 0 0% 74%; /* Grey 400 #BDBDBD */
+    --muted: 176 15% 96%;
+    --muted-foreground: 215.4 16.3% 46.9%;
 
-    /* Vibrant Action Accents - Teal */
-    --accent: 173 100% 47%; /* #1DE9B6 Teal Success */
-    --accent-foreground: 0 0% 13%;
+    /* Accent - Complementary teal */
+    --accent: 176 40% 90%;
+    --accent-foreground: 176 100% 25%;
 
     /* Coral Primary Action */
     --coral: 16 100% 66%; /* #FF7F50 Coral */
@@ -51,9 +52,9 @@
     --destructive: 349 78% 56%; /* Using vibrant magenta */
     --destructive-foreground: 0 0% 98%;
 
-    --border: 0 0% 93%;
-    --input: 0 0% 93%;
-    --ring: 267 89% 44%;
+    --border: 176 20% 88%;
+    --input: 176 20% 92%;
+    --ring: 176 100% 35%;
 
     --radius: 0.75rem;
 
@@ -79,17 +80,18 @@
     --popover: 0 0% 10%;
     --popover-foreground: 0 0% 98%;
 
-    --primary: 267 89% 55%; /* Slightly brighter purple */
-    --primary-foreground: 0 0% 98%;
+    --primary: 176 100% 45%; /* Brighter teal for dark mode */
+    --primary-foreground: 222.2 47.4% 11.2%;
+    --primary-glow: 176 100% 55%;
 
-    --secondary: 0 0% 15%;
-    --secondary-foreground: 0 0% 98%;
+    --secondary: 176 20% 15%;
+    --secondary-foreground: 176 40% 85%;
 
-    --muted: 0 0% 15%;
-    --muted-foreground: 0 0% 65%;
+    --muted: 176 15% 12%;
+    --muted-foreground: 215 20.2% 65.1%;
 
-    --accent: 173 100% 55%; /* Brighter teal for dark mode */
-    --accent-foreground: 0 0% 8%;
+    --accent: 176 30% 20%;
+    --accent-foreground: 176 40% 90%;
 
     --coral: 16 100% 66%;
     --coral-foreground: 0 0% 100%;
@@ -107,9 +109,9 @@
     --destructive: 349 78% 65%;
     --destructive-foreground: 0 0% 98%;
 
-    --border: 0 0% 20%;
-    --input: 0 0% 20%;
-    --ring: 267 89% 55%;
+    --border: 176 20% 18%;
+    --input: 176 20% 18%;
+    --ring: 176 100% 45%;
 
     --sidebar-background: 0 0% 8%;
     --sidebar-foreground: 0 0% 98%;
@@ -158,11 +160,14 @@
 
   /* Typography classes */
   .font-headline {
-    font-family: 'Plus Jakarta Sans', sans-serif;
+    font-family: 'Alice', serif;
+    font-weight: 400;
+    letter-spacing: -0.01em;
   }
   
   .font-body {
-    font-family: 'Figtree', sans-serif;
+    font-family: 'Lato', system-ui, sans-serif;
+    line-height: 1.6;
   }
 
   /* SaaS Trend: Rounded Design System */

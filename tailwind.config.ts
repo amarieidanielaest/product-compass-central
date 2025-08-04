@@ -81,9 +81,11 @@ export default {
 				'warm-orange': 'hsl(var(--warm-orange))'
 			},
 			fontFamily: {
-				headline: ['Plus Jakarta Sans', 'sans-serif'],
-				body: ['Figtree', 'sans-serif'],
-				sans: ['Figtree', 'sans-serif'], // Default to Figtree
+				alice: ['Alice', 'serif'],
+				lato: ['Lato', 'system-ui', 'sans-serif'],
+				headline: ['Alice', 'serif'],
+				body: ['Lato', 'system-ui', 'sans-serif'],
+				sans: ['Lato', 'system-ui', 'sans-serif'],
 			},
 			borderRadius: {
 				lg: 'var(--radius)',

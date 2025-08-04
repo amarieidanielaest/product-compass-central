@@ -219,7 +219,7 @@ export const SmartSearch = ({ onSearch, placeholder = "Search...", suggestions =
                           {suggestion.type}
                         </Badge>
                       </div>
-                      {suggestion.description && (
+                      {'description' in suggestion && suggestion.description && (
                         <p className="text-sm text-muted-foreground mt-1">
                           {suggestion.description}
                         </p>
