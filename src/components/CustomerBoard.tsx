@@ -299,87 +299,93 @@ const CustomerBoard = ({ selectedProductId, onNavigate }: CustomerBoardProps) =>
   }
 
   return (
-    <div className="space-y-6">
+    <div className="space-y-4 sm:space-y-6">
       {/* Header with actions */}
-      <div className="flex flex-col sm:flex-row justify-between items-start sm:items-center gap-4">
-        <div className="flex items-center space-x-4 text-sm text-slate-600">
-          <span className="flex items-center">
-            <MessageSquare className="w-4 h-4 mr-1" />
-            {feedbackLoading ? '...' : filteredTickets.length} feedback items
-          </span>
-          <span className="flex items-center">
-            <Brain className="w-4 h-4 mr-1 text-purple-600" />
-            AI-powered insights
-          </span>
-        </div>
-        <div className="flex space-x-2">
-          <Button 
-            variant="outline"
-            onClick={() => setShowAIProcessor(true)}
-            className="bg-gradient-to-r from-purple-50 to-pink-50 border-purple-200"
-          >
-            <Zap className="w-4 h-4 mr-2" />
-            Smart Process
-          </Button>
-          <Button 
-            onClick={() => setIsCreateDialogOpen(true)}
-            className="bg-gradient-to-r from-purple-600 to-pink-600 hover:from-purple-700 hover:to-pink-700"
-          >
-            <Plus className="w-4 h-4 mr-2" />
-            Add Feedback
-          </Button>
+      <div className="flex flex-col gap-4">
+        <div className="flex flex-col sm:flex-row justify-between items-start sm:items-center gap-4">
+          <div className="flex flex-col sm:flex-row sm:items-center space-y-2 sm:space-y-0 sm:space-x-4 text-sm text-slate-600">
+            <span className="flex items-center">
+              <MessageSquare className="w-4 h-4 mr-1" />
+              {feedbackLoading ? '...' : filteredTickets.length} feedback items
+            </span>
+            <span className="flex items-center">
+              <Brain className="w-4 h-4 mr-1 text-purple-600" />
+              AI-powered insights
+            </span>
+          </div>
+          <div className="flex flex-col sm:flex-row gap-2 w-full sm:w-auto">
+            <Button 
+              variant="outline"
+              onClick={() => setShowAIProcessor(true)}
+              className="bg-gradient-to-r from-purple-50 to-pink-50 border-purple-200 w-full sm:w-auto"
+              size="sm"
+            >
+              <Zap className="w-4 h-4 mr-2" />
+              Smart Process
+            </Button>
+            <Button 
+              onClick={() => setIsCreateDialogOpen(true)}
+              className="bg-gradient-to-r from-purple-600 to-pink-600 hover:from-purple-700 hover:to-pink-700 w-full sm:w-auto"
+              size="sm"
+            >
+              <Plus className="w-4 h-4 mr-2" />
+              Add Feedback
+            </Button>
+          </div>
         </div>
       </div>
 
-      <div className="grid grid-cols-1 lg:grid-cols-4 gap-6">
+      <div className="grid grid-cols-1 xl:grid-cols-4 gap-4 lg:gap-6">
         {/* Main Content */}
-        <div className="lg:col-span-3">
+        <div className="xl:col-span-3">
           <Tabs value={activeView} onValueChange={setActiveView}>
-            <div className="flex flex-col sm:flex-row justify-between items-start sm:items-center gap-4 mb-6">
-              <TabsList>
+            <div className="flex flex-col gap-4 mb-6">
+              <TabsList className="self-start">
                 <TabsTrigger value="board">Board View</TabsTrigger>
                 <TabsTrigger value="insights">AI Insights</TabsTrigger>
               </TabsList>
 
               {/* Filters */}
-              <div className="flex space-x-2">
-                <div className="relative">
+              <div className="flex flex-col sm:flex-row gap-2 sm:gap-3">
+                <div className="relative flex-1 sm:flex-initial">
                   <Search className="absolute left-3 top-1/2 transform -translate-y-1/2 text-slate-400 w-4 h-4" />
                   <Input
                     placeholder="Search feedback..."
                     value={searchTerm}
                     onChange={(e) => setSearchTerm(e.target.value)}
-                    className="pl-10 w-64"
+                    className="pl-10 w-full sm:w-64"
                   />
                 </div>
-                <Select value={filterStatus} onValueChange={setFilterStatus}>
-                  <SelectTrigger className="w-32">
-                    <SelectValue />
-                  </SelectTrigger>
-                  <SelectContent>
-                    <SelectItem value="all">All Status</SelectItem>
-                    <SelectItem value="open">Open</SelectItem>
-                    <SelectItem value="in-progress">In Progress</SelectItem>
-                    <SelectItem value="planned">Planned</SelectItem>
-                    <SelectItem value="resolved">Resolved</SelectItem>
-                  </SelectContent>
-                </Select>
-                <Select value={filterPriority} onValueChange={setFilterPriority}>
-                  <SelectTrigger className="w-32">
-                    <SelectValue />
-                  </SelectTrigger>
-                  <SelectContent>
-                    <SelectItem value="all">All Priority</SelectItem>
-                    <SelectItem value="critical">Critical</SelectItem>
-                    <SelectItem value="high">High</SelectItem>
-                    <SelectItem value="medium">Medium</SelectItem>
-                    <SelectItem value="low">Low</SelectItem>
-                  </SelectContent>
-                </Select>
+                <div className="flex gap-2">
+                  <Select value={filterStatus} onValueChange={setFilterStatus}>
+                    <SelectTrigger className="w-full sm:w-36">
+                      <SelectValue placeholder="All Status" />
+                    </SelectTrigger>
+                    <SelectContent>
+                      <SelectItem value="all">All Status</SelectItem>
+                      <SelectItem value="open">Open</SelectItem>
+                      <SelectItem value="in-progress">In Progress</SelectItem>
+                      <SelectItem value="planned">Planned</SelectItem>
+                      <SelectItem value="resolved">Resolved</SelectItem>
+                    </SelectContent>
+                  </Select>
+                  <Select value={filterPriority} onValueChange={setFilterPriority}>
+                    <SelectTrigger className="w-full sm:w-36">
+                      <SelectValue placeholder="All Priority" />
+                    </SelectTrigger>
+                    <SelectContent>
+                      <SelectItem value="all">All Priority</SelectItem>
+                      <SelectItem value="critical">Critical</SelectItem>
+                      <SelectItem value="high">High</SelectItem>
+                      <SelectItem value="medium">Medium</SelectItem>
+                      <SelectItem value="low">Low</SelectItem>
+                    </SelectContent>
+                  </Select>
+                </div>
               </div>
             </div>
 
-            <TabsContent value="board" className="space-y-4">
+            <TabsContent value="board" className="space-y-3 sm:space-y-4">
               {feedbackLoading && (
                 <div className="flex items-center justify-center p-8">
                   <div className="flex items-center space-x-2">
@@ -400,31 +406,38 @@ const CustomerBoard = ({ selectedProductId, onNavigate }: CustomerBoardProps) =>
                 </Card>
               )}
               
-              {filteredTickets.map((ticket) => (
-                <Card key={ticket.id} className="hover:shadow-md transition-shadow cursor-pointer" onClick={() => setSelectedTicket(ticket)}>
-                  <CardContent className="p-4">
-                    <div className="flex items-start justify-between">
-                      <div className="space-y-1">
-                        <CardTitle className="text-lg font-semibold">{ticket.title}</CardTitle>
-                        <p className="text-sm text-slate-600">{ticket.description.substring(0, 100)}...</p>
+              <div className="space-y-3 sm:space-y-4">
+                {filteredTickets.map((ticket) => (
+                  <Card key={ticket.id} className="hover:shadow-md transition-shadow cursor-pointer" onClick={() => setSelectedTicket(ticket)}>
+                    <CardContent className="p-3 sm:p-4">
+                      <div className="flex flex-col sm:flex-row sm:items-start justify-between gap-3">
+                        <div className="space-y-2 flex-1 min-w-0">
+                          <CardTitle className="text-base sm:text-lg font-semibold leading-tight">{ticket.title}</CardTitle>
+                          <p className="text-sm text-slate-600 line-clamp-2">{ticket.description.substring(0, 150)}...</p>
+                          <div className="flex flex-wrap items-center gap-3 text-xs sm:text-sm text-slate-500">
+                            <span className="flex items-center">
+                              <User className="w-3 h-3 sm:w-4 sm:h-4 mr-1" />
+                              <span className="truncate">{ticket.customer}</span>
+                            </span>
+                            <span className="flex items-center">
+                              <Clock className="w-3 h-3 sm:w-4 sm:h-4 mr-1" />
+                              {ticket.created}
+                            </span>
+                          </div>
+                        </div>
+                        <div className="flex sm:flex-col gap-2">
+                          <Badge className={`${getPriorityColor(ticket.priority)} text-xs`}>
+                            {ticket.priority}
+                          </Badge>
+                          <Badge className={`${getStatusColor(ticket.status)} text-xs`}>
+                            {ticket.status}
+                          </Badge>
+                        </div>
                       </div>
-                      <Badge className={getPriorityColor(ticket.priority)}>
-                        {ticket.priority}
-                      </Badge>
-                    </div>
-                    <div className="flex items-center space-x-2 mt-2 text-slate-500">
-                      <span className="flex items-center">
-                        <User className="w-4 h-4 mr-1" />
-                        {ticket.customer}
-                      </span>
-                      <span className="flex items-center">
-                        <Clock className="w-4 h-4 mr-1" />
-                        {ticket.created}
-                      </span>
-                    </div>
-                  </CardContent>
-                </Card>
-              ))}
+                    </CardContent>
+                  </Card>
+                ))}
+              </div>
             </TabsContent>
 
             <TabsContent value="insights">
@@ -436,38 +449,38 @@ const CustomerBoard = ({ selectedProductId, onNavigate }: CustomerBoardProps) =>
           </Tabs>
         </div>
 
-        {/* AI-Enhanced Sidebar */}
-        <div className="space-y-6">
+        {/* AI-Enhanced Sidebar - Hidden on mobile/tablet */}
+        <div className="hidden xl:block space-y-4 lg:space-y-6">
           {/* Quick Stats with AI Enhancement */}
           <Card>
             <CardHeader>
-              <CardTitle className="text-lg flex items-center">
-                <TrendingUp className="w-5 h-5 mr-2 text-green-600" />
+              <CardTitle className="text-base lg:text-lg flex items-center">
+                <TrendingUp className="w-4 h-4 lg:w-5 lg:h-5 mr-2 text-green-600" />
                 AI-Powered Stats
               </CardTitle>
             </CardHeader>
-            <CardContent className="space-y-4">
+            <CardContent className="space-y-3 lg:space-y-4">
               <div className="flex justify-between items-center">
-                <span className="text-slate-600">Sentiment Score</span>
-                <Badge className="bg-green-100 text-green-800">
+                <span className="text-sm text-slate-600">Sentiment Score</span>
+                <Badge className="bg-green-100 text-green-800 text-xs">
                   {insightsLoading ? '...' : '+8.2'}
                 </Badge>
               </div>
               <div className="flex justify-between items-center">
-                <span className="text-slate-600">Priority Tickets</span>
-                <span className="font-semibold text-red-600">
+                <span className="text-sm text-slate-600">Priority Tickets</span>
+                <span className="font-semibold text-red-600 text-sm">
                   {insightsLoading ? '...' : 
                    feedbackInsights?.byPriority?.critical + feedbackInsights?.byPriority?.high || 
                    filteredTickets.filter(t => t.priority === 'critical' || t.priority === 'high').length}
                 </span>
               </div>
               <div className="flex justify-between items-center">
-                <span className="text-slate-600">Auto-processed</span>
-                <Badge className="bg-purple-100 text-purple-800">67%</Badge>
+                <span className="text-sm text-slate-600">Auto-processed</span>
+                <Badge className="bg-purple-100 text-purple-800 text-xs">67%</Badge>
               </div>
               <div className="flex justify-between items-center">
-                <span className="text-slate-600">Themes Detected</span>
-                <span className="font-semibold">
+                <span className="text-sm text-slate-600">Themes Detected</span>
+                <span className="font-semibold text-sm">
                   {insightsLoading ? '...' : feedbackInsights?.topThemes?.length || 12}
                 </span>
               </div>
@@ -476,20 +489,20 @@ const CustomerBoard = ({ selectedProductId, onNavigate }: CustomerBoardProps) =>
 
           <Card>
             <CardHeader>
-              <CardTitle className="text-lg">
+              <CardTitle className="text-base lg:text-lg">
                 Quick Actions
               </CardTitle>
             </CardHeader>
             <CardContent className="space-y-2">
-              <Button variant="outline" className="w-full justify-start">
+              <Button variant="outline" className="w-full justify-start text-sm" size="sm">
                 <Plus className="w-4 h-4 mr-2" />
                 Add New Feedback
               </Button>
-              <Button variant="outline" className="w-full justify-start">
+              <Button variant="outline" className="w-full justify-start text-sm" size="sm">
                 <Filter className="w-4 h-4 mr-2" />
                 Filter Feedback
               </Button>
-              <Button variant="outline" className="w-full justify-start">
+              <Button variant="outline" className="w-full justify-start text-sm" size="sm">
                 <Star className="w-4 h-4 mr-2" />
                 View Prioritized
               </Button>
@@ -498,11 +511,11 @@ const CustomerBoard = ({ selectedProductId, onNavigate }: CustomerBoardProps) =>
         </div>
       </div>
 
-      {/* Smart Feedback Processor Modal */}
+      {/* Smart Feedback Processor Modal - Responsive */}
       {showAIProcessor && (
-        <div className="fixed inset-0 bg-black/50 flex items-center justify-center z-50 p-4">
-          <div className="bg-white rounded-lg max-w-2xl w-full max-h-[80vh] overflow-auto">
-            <div className="p-6">
+        <div className="fixed inset-0 bg-black/50 flex items-center justify-center z-50 p-2 sm:p-4">
+          <div className="bg-white rounded-lg w-full max-w-2xl max-h-[90vh] sm:max-h-[80vh] overflow-auto">
+            <div className="p-4 sm:p-6">
               <h3 className="text-lg font-semibold mb-4">Smart Feedback Processing</h3>
               <div className="space-y-4">
                 <div>
@@ -510,7 +523,7 @@ const CustomerBoard = ({ selectedProductId, onNavigate }: CustomerBoardProps) =>
                     Raw Feedback Text
                   </label>
                   <textarea
-                    className="w-full p-3 border border-slate-300 rounded-md"
+                    className="w-full p-3 border border-slate-300 rounded-md text-sm"
                     rows={4}
                     placeholder="Paste customer feedback here..."
                     value={rawFeedbackText}
@@ -525,8 +538,8 @@ const CustomerBoard = ({ selectedProductId, onNavigate }: CustomerBoardProps) =>
                   />
                 )}
               </div>
-              <div className="flex justify-end space-x-2 mt-6">
-                <Button variant="outline" onClick={() => setShowAIProcessor(false)}>
+              <div className="flex flex-col sm:flex-row justify-end gap-2 sm:space-x-2 mt-6">
+                <Button variant="outline" onClick={() => setShowAIProcessor(false)} className="w-full sm:w-auto">
                   Cancel
                 </Button>
               </div>
