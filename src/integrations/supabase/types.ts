@@ -10,7 +10,7 @@ export type Database = {
   // Allows to automatically instanciate createClient with right options
   // instead of createClient<Database, { PostgrestVersion: 'XX' }>(URL, KEY)
   __InternalSupabase: {
-    PostgrestVersion: "12.2.3 (519615d)"
+    PostgrestVersion: "13.0.4"
   }
   public: {
     Tables: {
@@ -405,6 +405,279 @@ export type Database = {
           created_at?: string | null
           id?: string
           name?: string
+        }
+        Relationships: []
+      }
+      kb_article_comments: {
+        Row: {
+          article_id: string
+          author_id: string
+          content: string
+          created_at: string | null
+          helpful_count: number | null
+          id: string
+          is_helpful: boolean | null
+          parent_id: string | null
+          updated_at: string | null
+        }
+        Insert: {
+          article_id: string
+          author_id: string
+          content: string
+          created_at?: string | null
+          helpful_count?: number | null
+          id?: string
+          is_helpful?: boolean | null
+          parent_id?: string | null
+          updated_at?: string | null
+        }
+        Update: {
+          article_id?: string
+          author_id?: string
+          content?: string
+          created_at?: string | null
+          helpful_count?: number | null
+          id?: string
+          is_helpful?: boolean | null
+          parent_id?: string | null
+          updated_at?: string | null
+        }
+        Relationships: []
+      }
+      kb_article_ratings: {
+        Row: {
+          article_id: string
+          created_at: string | null
+          id: string
+          rating: number
+          updated_at: string | null
+          user_id: string
+        }
+        Insert: {
+          article_id: string
+          created_at?: string | null
+          id?: string
+          rating: number
+          updated_at?: string | null
+          user_id: string
+        }
+        Update: {
+          article_id?: string
+          created_at?: string | null
+          id?: string
+          rating?: number
+          updated_at?: string | null
+          user_id?: string
+        }
+        Relationships: []
+      }
+      kb_article_versions: {
+        Row: {
+          article_id: string
+          author_id: string | null
+          changes_summary: string | null
+          content: string
+          created_at: string | null
+          id: string
+          title: string
+          version_number: number
+        }
+        Insert: {
+          article_id: string
+          author_id?: string | null
+          changes_summary?: string | null
+          content: string
+          created_at?: string | null
+          id?: string
+          title: string
+          version_number: number
+        }
+        Update: {
+          article_id?: string
+          author_id?: string | null
+          changes_summary?: string | null
+          content?: string
+          created_at?: string | null
+          id?: string
+          title?: string
+          version_number?: number
+        }
+        Relationships: []
+      }
+      kb_article_views: {
+        Row: {
+          article_id: string
+          id: string
+          ip_address: unknown | null
+          user_agent: string | null
+          user_id: string | null
+          viewed_at: string | null
+        }
+        Insert: {
+          article_id: string
+          id?: string
+          ip_address?: unknown | null
+          user_agent?: string | null
+          user_id?: string | null
+          viewed_at?: string | null
+        }
+        Update: {
+          article_id?: string
+          id?: string
+          ip_address?: unknown | null
+          user_agent?: string | null
+          user_id?: string | null
+          viewed_at?: string | null
+        }
+        Relationships: []
+      }
+      kb_articles: {
+        Row: {
+          author_id: string | null
+          board_id: string | null
+          category_id: string | null
+          content: string
+          created_at: string | null
+          description: string | null
+          id: string
+          is_featured: boolean | null
+          is_published: boolean | null
+          last_updated: string | null
+          organization_id: string | null
+          rating_average: number | null
+          rating_count: number | null
+          read_time: number | null
+          search_vector: unknown | null
+          sort_order: number | null
+          tags: string[] | null
+          title: string
+          updated_at: string | null
+          views_count: number | null
+          visibility: string | null
+        }
+        Insert: {
+          author_id?: string | null
+          board_id?: string | null
+          category_id?: string | null
+          content: string
+          created_at?: string | null
+          description?: string | null
+          id?: string
+          is_featured?: boolean | null
+          is_published?: boolean | null
+          last_updated?: string | null
+          organization_id?: string | null
+          rating_average?: number | null
+          rating_count?: number | null
+          read_time?: number | null
+          search_vector?: unknown | null
+          sort_order?: number | null
+          tags?: string[] | null
+          title: string
+          updated_at?: string | null
+          views_count?: number | null
+          visibility?: string | null
+        }
+        Update: {
+          author_id?: string | null
+          board_id?: string | null
+          category_id?: string | null
+          content?: string
+          created_at?: string | null
+          description?: string | null
+          id?: string
+          is_featured?: boolean | null
+          is_published?: boolean | null
+          last_updated?: string | null
+          organization_id?: string | null
+          rating_average?: number | null
+          rating_count?: number | null
+          read_time?: number | null
+          search_vector?: unknown | null
+          sort_order?: number | null
+          tags?: string[] | null
+          title?: string
+          updated_at?: string | null
+          views_count?: number | null
+          visibility?: string | null
+        }
+        Relationships: []
+      }
+      kb_categories: {
+        Row: {
+          board_id: string | null
+          color: string
+          created_at: string | null
+          description: string | null
+          icon: string
+          id: string
+          is_active: boolean | null
+          name: string
+          organization_id: string | null
+          sort_order: number | null
+          updated_at: string | null
+          visibility: string | null
+        }
+        Insert: {
+          board_id?: string | null
+          color?: string
+          created_at?: string | null
+          description?: string | null
+          icon?: string
+          id?: string
+          is_active?: boolean | null
+          name: string
+          organization_id?: string | null
+          sort_order?: number | null
+          updated_at?: string | null
+          visibility?: string | null
+        }
+        Update: {
+          board_id?: string | null
+          color?: string
+          created_at?: string | null
+          description?: string | null
+          icon?: string
+          id?: string
+          is_active?: boolean | null
+          name?: string
+          organization_id?: string | null
+          sort_order?: number | null
+          updated_at?: string | null
+          visibility?: string | null
+        }
+        Relationships: []
+      }
+      kb_content_suggestions: {
+        Row: {
+          article_id: string | null
+          confidence_score: number | null
+          created_at: string | null
+          id: string
+          is_applied: boolean | null
+          suggested_by: string | null
+          suggestion_text: string
+          suggestion_type: string
+        }
+        Insert: {
+          article_id?: string | null
+          confidence_score?: number | null
+          created_at?: string | null
+          id?: string
+          is_applied?: boolean | null
+          suggested_by?: string | null
+          suggestion_text: string
+          suggestion_type: string
+        }
+        Update: {
+          article_id?: string | null
+          confidence_score?: number | null
+          created_at?: string | null
+          id?: string
+          is_applied?: boolean | null
+          suggested_by?: string | null
+          suggestion_text?: string
+          suggestion_type?: string
         }
         Relationships: []
       }

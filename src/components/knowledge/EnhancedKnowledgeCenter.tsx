@@ -74,7 +74,7 @@ export const EnhancedKnowledgeCenter = () => {
   const [view, setView] = useState<'browse' | 'article' | 'edit' | 'create'>('browse');
   const [searchQuery, setSearchQuery] = useState('');
   const [sortBy, setSortBy] = useState<'relevance' | 'popularity' | 'recent' | 'rating'>('relevance');
-  const [filterBy, setFilterBy] = useState<'all' | 'featured' | 'popular'>('all');
+  const [filter, setFilter] = useState<'all' | 'featured' | 'popular'>('all');
   const [loading, setLoading] = useState(true);
   const { toast } = useToast();
 
@@ -100,11 +100,17 @@ export const EnhancedKnowledgeCenter = () => {
 
   const loadCategories = async () => {
     try {
-      // Use fallback data since KB tables don't exist yet
-      throw new Error('Using fallback data');
+      const { data, error } = await supabase
+        .from('kb_categories')
+        .select('*')
+        .eq('is_active', true)
+        .order('sort_order');
+
+      if (error) throw error;
+      setCategories(data || []);
     } catch (error) {
+      console.error('Error loading categories:', error);
       // Fallback to static data if KB tables don't exist yet
-      console.log('Using fallback categories');
       setCategories([
         {
           id: 'getting-started',
@@ -145,11 +151,21 @@ export const EnhancedKnowledgeCenter = () => {
 
   const loadArticles = async () => {
     try {
-      // Use fallback data since KB tables don't exist yet
-      throw new Error('Using fallback data');
+      const { data, error } = await supabase
+        .from('kb_articles')
+        .select(`
+          *,
+          category:kb_categories!category_id(name, color),
+          author:profiles!author_id(first_name, last_name, avatar_url)
+        `)
+        .eq('is_published', true)
+        .order('created_at', { ascending: false });
+
+      if (error) throw error;
+      setArticles((data as any) || []);
     } catch (error) {
-      // Fallback to static data
-      console.log('Using fallback articles');
+      console.error('Error loading articles:', error);
+      // Fallback to empty array if error
       setArticles([]);
     }
   };
@@ -199,7 +215,7 @@ export const EnhancedKnowledgeCenter = () => {
   const filteredArticles = articles.filter(article => {
     if (selectedCategory && article.category_id !== selectedCategory) return false;
     
-    switch (filterBy) {
+    switch (filter) {
       case 'featured':
         return article.is_featured;
       case 'popular':
@@ -278,7 +294,7 @@ export const EnhancedKnowledgeCenter = () => {
             />
             
             <div className="flex items-center gap-4 mt-4 flex-wrap">
-              <Select value={sortBy} onValueChange={(value: string) => setSortBy(value as any)}>
+              <Select value={sortBy} onValueChange={(value) => setSortBy(value as typeof sortBy)}>
                 <SelectTrigger className="w-40">
                   <SelectValue placeholder="Sort by" />
                 </SelectTrigger>
@@ -310,7 +326,7 @@ export const EnhancedKnowledgeCenter = () => {
                 </SelectContent>
               </Select>
 
-              <Select value={filterBy} onValueChange={(value: string) => setFilterBy(value as any)}>
+              <Select value={filter} onValueChange={(value) => setFilter(value as typeof filter)}>
                 <SelectTrigger className="w-40">
                   <SelectValue placeholder="Filter" />
                 </SelectTrigger>

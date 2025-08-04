@@ -121,8 +121,22 @@ export const ArticleEditor = ({ article, categories, onSave, onCancel }: Article
         last_updated: new Date().toISOString()
       };
 
-      // Simulate save operation with timeout
-      await new Promise(resolve => setTimeout(resolve, 1000));
+      if (article) {
+        // Update existing article
+        const { error } = await supabase
+          .from('kb_articles')
+          .update(articleData)
+          .eq('id', article.id);
+
+        if (error) throw error;
+      } else {
+        // Create new article
+        const { error } = await supabase
+          .from('kb_articles')
+          .insert(articleData);
+
+        if (error) throw error;
+      }
 
       toast({
         title: "Success",
