@@ -181,13 +181,13 @@ export function EnhancedCreateFeedbackDialog({
                       </FormLabel>
                       <Select onValueChange={field.onChange} defaultValue={field.value}>
                         <FormControl>
-                          <SelectTrigger className="bg-white border-2 border-primary/20 focus:border-primary">
-                            <SelectValue placeholder="Choose a feedback board" />
+                          <SelectTrigger className="bg-white border-2 border-gray-300 focus:border-primary text-foreground">
+                            <SelectValue placeholder="Choose a feedback board" className="text-foreground" />
                           </SelectTrigger>
                         </FormControl>
-                        <SelectContent className="bg-white">
+                        <SelectContent className="bg-white border border-gray-200">
                           {boards.map((board) => (
-                            <SelectItem key={board.id} value={board.id}>
+                            <SelectItem key={board.id} value={board.id} className="text-foreground">
                               {board.name}
                             </SelectItem>
                           ))}
@@ -209,7 +209,7 @@ export function EnhancedCreateFeedbackDialog({
                       <FormControl>
                         <Input
                           placeholder="Brief, descriptive title for your feedback"
-                          className="bg-white border-2 border-gray-200 focus:border-primary"
+                          className="bg-white border-2 border-gray-300 focus:border-primary text-foreground placeholder:text-muted-foreground"
                           {...field}
                         />
                       </FormControl>
@@ -237,7 +237,7 @@ export function EnhancedCreateFeedbackDialog({
                               className={`p-3 rounded-lg border-2 text-left transition-all ${
                                 field.value === option.value
                                   ? option.color + ' border-current'
-                                  : 'bg-white border-gray-200 hover:border-gray-300'
+                                  : 'bg-white border-gray-300 hover:border-gray-400 text-foreground'
                               }`}
                             >
                               <div className="flex items-start gap-2">
@@ -269,7 +269,7 @@ export function EnhancedCreateFeedbackDialog({
                       <FormControl>
                         <Textarea
                           placeholder="Provide detailed description of your feedback, including: • What you're trying to achieve • Current limitations or issues • Expected behavior or desired outcome • Any relevant context or use cases"
-                          className="bg-white border-2 border-gray-200 focus:border-primary min-h-[120px] resize-none"
+                          className="bg-white border-2 border-gray-300 focus:border-primary min-h-[120px] resize-none text-foreground placeholder:text-muted-foreground"
                           {...field}
                         />
                       </FormControl>
@@ -288,10 +288,10 @@ export function EnhancedCreateFeedbackDialog({
                         <div className="relative">
                           <Input
                             placeholder="Add relevant tags"
-                            className="bg-white border-2 border-gray-200 focus:border-primary pr-10"
+                            className="bg-white border-2 border-gray-300 focus:border-primary pr-10 text-foreground placeholder:text-muted-foreground"
                             {...field}
                           />
-                          <Plus className="absolute right-3 top-1/2 transform -translate-y-1/2 h-4 w-4 text-muted-foreground" />
+                          <Plus className="absolute right-3 top-1/2 transform -translate-y-1/2 h-4 w-4 text-gray-500" />
                         </div>
                       </FormControl>
                       <FormMessage />
@@ -319,7 +319,7 @@ export function EnhancedCreateFeedbackDialog({
                             className={`w-full p-3 rounded-lg border-2 text-left transition-all ${
                               field.value === option.value
                                 ? option.color + ' border-current'
-                                : 'bg-white border-gray-200 hover:border-gray-300'
+                                : 'bg-white border-gray-300 hover:border-gray-400 text-foreground'
                             }`}
                           >
                             <div className="font-medium">{option.label}</div>
@@ -339,14 +339,14 @@ export function EnhancedCreateFeedbackDialog({
                       <FormLabel className="text-sm font-medium">Business Value</FormLabel>
                       <Select onValueChange={field.onChange} defaultValue={field.value}>
                         <FormControl>
-                          <SelectTrigger className="bg-white border-2 border-gray-200 focus:border-primary">
-                            <SelectValue placeholder="Select impact level" />
+                          <SelectTrigger className="bg-white border-2 border-gray-300 focus:border-primary text-foreground">
+                            <SelectValue placeholder="Select impact level" className="text-foreground" />
                           </SelectTrigger>
                         </FormControl>
-                        <SelectContent className="bg-white">
-                          <SelectItem value="low">Low Impact</SelectItem>
-                          <SelectItem value="medium">Medium Impact</SelectItem>
-                          <SelectItem value="high">High Impact</SelectItem>
+                        <SelectContent className="bg-white border border-gray-200">
+                          <SelectItem value="low" className="text-foreground">Low Impact</SelectItem>
+                          <SelectItem value="medium" className="text-foreground">Medium Impact</SelectItem>
+                          <SelectItem value="high" className="text-foreground">High Impact</SelectItem>
                         </SelectContent>
                       </Select>
                       <FormMessage />
@@ -367,7 +367,7 @@ export function EnhancedCreateFeedbackDialog({
                           <Input
                             placeholder="your.email@company.com"
                             type="email"
-                            className="bg-white border-2 border-gray-200 focus:border-primary"
+                            className="bg-white border-2 border-gray-300 focus:border-primary text-foreground placeholder:text-muted-foreground"
                             {...field}
                           />
                         </FormControl>
@@ -385,7 +385,7 @@ export function EnhancedCreateFeedbackDialog({
                         <FormControl>
                           <Input
                             placeholder="Your company name"
-                            className="bg-white border-2 border-gray-200 focus:border-primary"
+                            className="bg-white border-2 border-gray-300 focus:border-primary text-foreground placeholder:text-muted-foreground"
                             {...field}
                           />
                         </FormControl>
@@ -403,16 +403,16 @@ export function EnhancedCreateFeedbackDialog({
                       <FormLabel className="text-sm font-medium">Estimated Effort</FormLabel>
                       <Select onValueChange={(value) => field.onChange(parseInt(value))}>
                         <FormControl>
-                          <SelectTrigger className="bg-white border-2 border-gray-200 focus:border-primary">
-                            <SelectValue placeholder="Select effort level" />
+                          <SelectTrigger className="bg-white border-2 border-gray-300 focus:border-primary text-foreground">
+                            <SelectValue placeholder="Select effort level" className="text-foreground" />
                           </SelectTrigger>
                         </FormControl>
-                        <SelectContent className="bg-white">
-                          <SelectItem value="1">1 - Very Small</SelectItem>
-                          <SelectItem value="2">2 - Small</SelectItem>
-                          <SelectItem value="3">3 - Medium</SelectItem>
-                          <SelectItem value="5">5 - Large</SelectItem>
-                          <SelectItem value="8">8 - Very Large</SelectItem>
+                        <SelectContent className="bg-white border border-gray-200">
+                          <SelectItem value="1" className="text-foreground">1 - Very Small</SelectItem>
+                          <SelectItem value="2" className="text-foreground">2 - Small</SelectItem>
+                          <SelectItem value="3" className="text-foreground">3 - Medium</SelectItem>
+                          <SelectItem value="5" className="text-foreground">5 - Large</SelectItem>
+                          <SelectItem value="8" className="text-foreground">8 - Very Large</SelectItem>
                         </SelectContent>
                       </Select>
                       <FormMessage />
