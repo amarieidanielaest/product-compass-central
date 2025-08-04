@@ -44,6 +44,7 @@ const PageHeader = ({ title, subtitle, breadcrumbs }: PageHeaderProps) => {
 
   return (
     <header className="sticky top-0 z-50 w-full bg-white/95 backdrop-blur-sm border-b border-gray-200">
+      {/* Navigation Bar */}
       <div className="container mx-auto px-4 sm:px-6 lg:px-8">
         <div className="flex h-14 items-center justify-between gap-4">
           {/* Left side - Breadcrumbs and Search */}
@@ -131,6 +132,18 @@ const PageHeader = ({ title, subtitle, breadcrumbs }: PageHeaderProps) => {
                 </DropdownMenuItem>
               </DropdownMenuContent>
             </DropdownMenu>
+          </div>
+        </div>
+      </div>
+      
+      {/* Page Title Section */}
+      <div className="border-t border-gray-100 bg-white">
+        <div className="container mx-auto px-4 sm:px-6 lg:px-8 py-4">
+          <div className="flex flex-col gap-1">
+            <H1 className="text-2xl sm:text-3xl">{title}</H1>
+            {subtitle && (
+              <Lead className="text-base sm:text-xl">{subtitle}</Lead>
+            )}
           </div>
         </div>
       </div>
