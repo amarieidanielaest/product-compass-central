@@ -7,7 +7,7 @@ import {
   ChevronDown, ChevronRight, Kanban, List, CalendarIcon,
   Zap, TrendingUp, AlertTriangle, Play, Pause, Square,
   Columns, Grid, Layout, X, Search, HelpCircle,
-  Maximize2, Minimize2
+  Maximize2, Minimize2, Bot, Workflow, Shield, Layers
 } from 'lucide-react';
 import { Card, CardContent, CardHeader, CardTitle } from '@/components/ui/card';
 import { Button } from '@/components/ui/button';
@@ -25,6 +25,14 @@ import SmartSwimlanes from './sprint/SmartSwimlanes';
 import KeyboardShortcuts, { KeyboardShortcutsHelp } from './sprint/KeyboardShortcuts';
 import CreateWorkItemDialog from './sprint/CreateWorkItemDialog';
 import MethodologyTemplates from './sprint/MethodologyTemplates';
+import SprintAnalytics from './sprint/SprintAnalytics';
+import AdvancedFilters from './sprint/AdvancedFilters';
+import SprintPlanning from './sprint/SprintPlanning';
+import RealtimeCollaboration from './sprint/RealtimeCollaboration';
+import { WorkflowAutomation } from './sprint/WorkflowAutomation';
+import { IntegrationHub } from './sprint/IntegrationHub';
+import { PortfolioManagement } from './sprint/PortfolioManagement';
+import { SecurityAuditDashboard } from './sprint/SecurityAuditDashboard';
 
 interface AdaptableSprintBoardProps {
   selectedProductId?: string;
@@ -90,12 +98,14 @@ const AdaptableSprintBoard = ({
   const [showAnalytics, setShowAnalytics] = useState(false);
   const [showMethodologyTemplates, setShowMethodologyTemplates] = useState(false);
   const [showKeyboardHelp, setShowKeyboardHelp] = useState(false);
+  const [showAdvancedFilters, setShowAdvancedFilters] = useState(false);
   const [draggedItem, setDraggedItem] = useState<WorkItem | null>(null);
   const [dragOverColumn, setDragOverColumn] = useState<string | null>(null);
   const [editingWorkItem, setEditingWorkItem] = useState<WorkItem | null>(null);
   const [createWorkItemStatus, setCreateWorkItemStatus] = useState<string>('');
   const [isFullscreen, setIsFullscreen] = useState(false);
   const [focusedItem, setFocusedItem] = useState<string | null>(null);
+  const [activeMainTab, setActiveMainTab] = useState('board');
 
   // Load initial data
   useEffect(() => {
@@ -615,163 +625,313 @@ const AdaptableSprintBoard = ({
         </div>
       </div>
 
-      {/* Sprint overview */}
+      {/* Main tabs for different views */}
       {currentSprint && (
-        <Card>
-          <CardHeader>
-            <div className="flex items-center justify-between">
-              <div>
-                <CardTitle className="flex items-center gap-2">
-                  <Calendar className="w-5 h-5 text-primary" />
-                  {currentSprint.name}
-                  <Badge variant="outline" className={`ml-2 ${
-                    currentSprint.status === 'active' ? 'text-green-700 bg-green-50' : 
-                    currentSprint.status === 'completed' ? 'text-blue-700 bg-blue-50' :
-                    'text-gray-700 bg-gray-50'
-                  }`}>
-                    {currentSprint.status}
-                  </Badge>
-                </CardTitle>
-                <p className="text-muted-foreground mt-1">
-                  {currentSprint.start_date} - {currentSprint.end_date}
-                  {currentSprint.goal && ` • Goal: ${currentSprint.goal}`}
-                </p>
-              </div>
-              <div className="flex items-center gap-2">
-                <Button variant="outline" size="sm" onClick={() => onNavigate?.('roadmap')}>
-                  <ExternalLink className="w-4 h-4 mr-2" />
-                  View Roadmap
-                </Button>
-                {currentSprint.status === 'active' && (
-                  <Button variant="outline" size="sm">
-                    <Pause className="w-4 h-4 mr-2" />
-                    End Sprint
-                  </Button>
-                )}
-                {currentSprint.status === 'planned' && (
-                  <Button size="sm">
-                    <Play className="w-4 h-4 mr-2" />
-                    Start Sprint
-                  </Button>
-                )}
-              </div>
-            </div>
-          </CardHeader>
-          <CardContent>
-            {/* Sprint metrics */}
-            <div className="grid grid-cols-2 md:grid-cols-4 gap-4 mb-4">
-              <div className="text-center">
-                <div className="text-2xl font-bold text-primary">{workItems.length}</div>
-                <div className="text-sm text-muted-foreground">Total Items</div>
-              </div>
-              <div className="text-center">
-                <div className="text-2xl font-bold text-green-600">
-                  {workItems.filter(item => workflowColumns.find(col => col.column_type === 'end')?.name === item.status).length}
-                </div>
-                <div className="text-sm text-muted-foreground">Completed</div>
-              </div>
-              <div className="text-center">
-                <div className="text-2xl font-bold text-orange-600">
-                  {workItems.reduce((sum, item) => sum + item.effort_estimate, 0)}
-                </div>
-                <div className="text-sm text-muted-foreground">Story Points</div>
-              </div>
-              <div className="text-center">
-                <div className="text-2xl font-bold text-purple-600">{currentSprint.committed}%</div>
-                <div className="text-sm text-muted-foreground">Capacity Used</div>
-              </div>
-            </div>
+        <Tabs value={activeMainTab} onValueChange={setActiveMainTab} className="flex-1 flex flex-col">
+          <TabsList className="w-full justify-start mb-6">
+            <TabsTrigger value="board">
+              <Kanban className="w-4 h-4 mr-2" />
+              Sprint Board
+            </TabsTrigger>
+            <TabsTrigger value="analytics">
+              <BarChart3 className="w-4 h-4 mr-2" />
+              Analytics
+            </TabsTrigger>
+            <TabsTrigger value="planning">
+              <Target className="w-4 h-4 mr-2" />
+              Planning
+            </TabsTrigger>
+            <TabsTrigger value="automation">
+              <Bot className="w-4 h-4 mr-2" />
+              Automation
+            </TabsTrigger>
+            <TabsTrigger value="integrations">
+              <Layers className="w-4 h-4 mr-2" />
+              Integrations
+            </TabsTrigger>
+            <TabsTrigger value="security">
+              <Shield className="w-4 h-4 mr-2" />
+              Security
+            </TabsTrigger>
+          </TabsList>
 
-            {/* Progress bar */}
-            <div className="space-y-2">
-              <div className="flex justify-between text-sm">
-                <span>Sprint Progress</span>
-                <span>{Math.round((currentSprint.completed / currentSprint.committed) * 100)}%</span>
-              </div>
-              <Progress value={(currentSprint.completed / currentSprint.committed) * 100} className="w-full" />
-            </div>
-          </CardContent>
-        </Card>
-      )}
-
-      {/* Main board/list view */}
-      {viewConfig.type === 'board' && workflowColumns.length > 0 && (
-        <div className="flex-1 overflow-hidden">
-          <div className="flex gap-4 overflow-x-auto h-full pb-4">
-            {workflowColumns
-              .sort((a, b) => a.position - b.position)
-              .map((column) => (
-                <div key={column.id} className="flex-shrink-0 w-80">
-                  <BoardColumn
-                    column={column}
-                    workItems={groupedWorkItems[column.name] || []}
-                    onDrop={handleDrop}
-                    onDragOver={(e) => handleDragOver(e, column.name)}
-                    onCreateWorkItem={handleCreateWorkItemWithStatus}
-                    onEditWorkItem={setEditingWorkItem}
-                    onDeleteWorkItem={handleDeleteWorkItem}
-                    onViewWorkItem={(item) => console.log('View item:', item)}
-                    onMoveWorkItem={(item) => console.log('Move item:', item)}
-                    onDragStartWorkItem={handleDragStart}
-                    selectedWorkItems={selectedWorkItems}
-                    onSelectWorkItem={handleSelectWorkItem}
-                    isDragOver={dragOverColumn === column.name}
-                  />
-                </div>
-              ))}
-          </div>
-        </div>
-      )}
-
-      {/* List view */}
-      {viewConfig.type === 'list' && (
-        <div className="flex-1">
-          <Card className="h-full">
-            <CardHeader>
-              <CardTitle>Work Items</CardTitle>
-            </CardHeader>
-            <CardContent className="h-full overflow-y-auto">
-              <div className="space-y-2">
-                {filteredWorkItems.map((item) => {
-                  const ItemIcon = getItemTypeIcon(item.item_type);
-                  return (
-                    <div key={item.id} className="flex items-center justify-between p-3 border rounded-lg hover:bg-muted/50 transition-colors">
-                      <div className="flex items-center gap-3 flex-1 min-w-0">
-                        <ItemIcon className="w-4 h-4 text-muted-foreground flex-shrink-0" />
-                        <span className="font-medium truncate">{item.title}</span>
-                        <Badge variant="outline" style={{ backgroundColor: getStatusColor(item.status), color: 'white' }}>
-                          {item.status}
-                        </Badge>
-                        <Badge className={getPriorityColor(item.priority)} variant="outline">
-                          {item.priority}
-                        </Badge>
-                        {item.effort_estimate > 0 && (
-                          <span className="text-sm text-muted-foreground flex-shrink-0">
-                            {item.effort_estimate} {item.effort_unit}
-                          </span>
-                        )}
-                      </div>
-                      <div className="flex items-center gap-2 flex-shrink-0">
-                        <span className="text-sm text-muted-foreground hidden sm:block">
-                          {item.assignee?.name || 'Unassigned'}
-                        </span>
-                        <Button variant="outline" size="sm" onClick={() => setEditingWorkItem(item)}>
-                          <Edit className="w-3 h-3" />
-                        </Button>
-                      </div>
-                    </div>
-                  );
-                })}
-                {filteredWorkItems.length === 0 && (
-                  <div className="text-center py-8">
-                    <p className="text-muted-foreground">No work items found</p>
+          <TabsContent value="board" className="flex-1 flex flex-col space-y-4">
+            {/* Sprint overview header */}
+            <Card>
+              <CardHeader>
+                <div className="flex items-center justify-between">
+                  <div>
+                    <CardTitle className="flex items-center gap-2">
+                      <Calendar className="w-5 h-5 text-primary" />
+                      {currentSprint.name}
+                      <Badge variant="outline" className={`ml-2 ${
+                        currentSprint.status === 'active' ? 'text-green-700 bg-green-50' : 
+                        currentSprint.status === 'completed' ? 'text-blue-700 bg-blue-50' :
+                        'text-gray-700 bg-gray-50'
+                      }`}>
+                        {currentSprint.status}
+                      </Badge>
+                    </CardTitle>
+                    <p className="text-muted-foreground mt-1">
+                      {currentSprint.start_date} - {currentSprint.end_date}
+                      {currentSprint.goal && ` • Goal: ${currentSprint.goal}`}
+                    </p>
                   </div>
-                )}
+                  <div className="flex items-center gap-2">
+                    <Button 
+                      variant="outline" 
+                      size="sm" 
+                      onClick={() => setShowAdvancedFilters(!showAdvancedFilters)}
+                    >
+                      <Filter className="w-4 h-4 mr-2" />
+                      Filters
+                    </Button>
+                    <Button variant="outline" size="sm" onClick={() => onNavigate?.('roadmap')}>
+                      <ExternalLink className="w-4 h-4 mr-2" />
+                      View Roadmap
+                    </Button>
+                    {currentSprint.status === 'active' && (
+                      <Button variant="outline" size="sm">
+                        <Pause className="w-4 h-4 mr-2" />
+                        End Sprint
+                      </Button>
+                    )}
+                    {currentSprint.status === 'planned' && (
+                      <Button size="sm">
+                        <Play className="w-4 h-4 mr-2" />
+                        Start Sprint
+                      </Button>
+                    )}
+                  </div>
+                </div>
+              </CardHeader>
+              <CardContent>
+                {/* Sprint metrics */}
+                <div className="grid grid-cols-2 md:grid-cols-4 gap-4 mb-4">
+                  <div className="text-center">
+                    <div className="text-2xl font-bold text-primary">{workItems.length}</div>
+                    <div className="text-sm text-muted-foreground">Total Items</div>
+                  </div>
+                  <div className="text-center">
+                    <div className="text-2xl font-bold text-green-600">
+                      {workItems.filter(item => workflowColumns.find(col => col.column_type === 'end')?.name === item.status).length}
+                    </div>
+                    <div className="text-sm text-muted-foreground">Completed</div>
+                  </div>
+                  <div className="text-center">
+                    <div className="text-2xl font-bold text-orange-600">
+                      {workItems.reduce((sum, item) => sum + item.effort_estimate, 0)}
+                    </div>
+                    <div className="text-sm text-muted-foreground">Story Points</div>
+                  </div>
+                  <div className="text-center">
+                    <div className="text-2xl font-bold text-purple-600">{currentSprint.committed}%</div>
+                    <div className="text-sm text-muted-foreground">Capacity Used</div>
+                  </div>
+                </div>
+
+                {/* Progress bar */}
+                <div className="space-y-2">
+                  <div className="flex justify-between text-sm">
+                    <span>Sprint Progress</span>
+                    <span>{Math.round((currentSprint.completed / currentSprint.committed) * 100)}%</span>
+                  </div>
+                  <Progress value={(currentSprint.completed / currentSprint.committed) * 100} className="w-full" />
+                </div>
+              </CardContent>
+            </Card>
+
+            {/* Search and filters placeholder */}
+            {showAdvancedFilters && (
+              <Card>
+                <CardHeader>
+                  <CardTitle>Advanced Filters</CardTitle>
+                </CardHeader>
+                <CardContent>
+                  <Input 
+                    placeholder="Search work items..." 
+                    value={viewConfig.filters.search}
+                    onChange={(e) => updateSearchFilter(e.target.value)}
+                    className="mb-4"
+                  />
+                  <p className="text-sm text-muted-foreground">
+                    Advanced filtering interface will be available soon.
+                  </p>
+                </CardContent>
+              </Card>
+            )}
+
+            {/* Board/List Toggle */}
+            <div className="flex justify-end">
+              <div className="flex items-center border rounded-md">
+                <Button 
+                  variant={viewConfig.type === 'board' ? 'default' : 'ghost'} 
+                  size="sm"
+                  className="rounded-r-none border-r px-3"
+                  onClick={() => setViewConfig(prev => ({ ...prev, type: 'board' }))}
+                >
+                  <Columns className="w-4 h-4" />
+                  <span className="hidden sm:inline ml-1">Board</span>
+                </Button>
+                <Button 
+                  variant={viewConfig.type === 'list' ? 'default' : 'ghost'} 
+                  size="sm"
+                  className="rounded-l-none px-3"
+                  onClick={() => setViewConfig(prev => ({ ...prev, type: 'list' }))}
+                >
+                  <List className="w-4 h-4" />
+                  <span className="hidden sm:inline ml-1">List</span>
+                </Button>
               </div>
-            </CardContent>
-          </Card>
-        </div>
+            </div>
+          </TabsContent>
+
+          <TabsContent value="analytics" className="flex-1">
+            <SprintAnalytics
+              sprint={currentSprint}
+              workItems={workItems}
+              onRefresh={handleRefresh}
+            />
+          </TabsContent>
+
+          <TabsContent value="planning" className="flex-1">
+            <Card>
+              <CardHeader>
+                <CardTitle>Sprint Planning</CardTitle>
+              </CardHeader>
+              <CardContent>
+                <p className="text-muted-foreground">
+                  Advanced sprint planning tools coming soon.
+                </p>
+              </CardContent>
+            </Card>
+          </TabsContent>
+
+          <TabsContent value="automation" className="flex-1">
+            <WorkflowAutomation />
+          </TabsContent>
+
+          <TabsContent value="integrations" className="flex-1">
+            <IntegrationHub />
+          </TabsContent>
+
+          <TabsContent value="security" className="flex-1">
+            <SecurityAuditDashboard />
+          </TabsContent>
+        </Tabs>
       )}
+
+      {/* Board/List content within the board tab */}
+      {activeMainTab === 'board' && (
+        <>
+          {/* Board view */}
+          {viewConfig.type === 'board' && workflowColumns.length > 0 && (
+            <div className="flex-1 overflow-hidden">
+              <div className="flex gap-4 overflow-x-auto h-full pb-4">
+                {workflowColumns
+                  .sort((a, b) => a.position - b.position)
+                  .map((column) => (
+                    <div key={column.id} className="flex-shrink-0 w-80">
+                      <BoardColumn
+                        column={column}
+                        workItems={groupedWorkItems[column.name] || []}
+                        onDrop={handleDrop}
+                        onDragOver={(e) => handleDragOver(e, column.name)}
+                        onCreateWorkItem={handleCreateWorkItemWithStatus}
+                        onEditWorkItem={setEditingWorkItem}
+                        onDeleteWorkItem={handleDeleteWorkItem}
+                        onViewWorkItem={(item) => console.log('View item:', item)}
+                        onMoveWorkItem={(item) => console.log('Move item:', item)}
+                        onDragStartWorkItem={handleDragStart}
+                        selectedWorkItems={selectedWorkItems}
+                        onSelectWorkItem={handleSelectWorkItem}
+                        isDragOver={dragOverColumn === column.name}
+                      />
+                    </div>
+                  ))}
+              </div>
+            </div>
+          )}
+
+          {/* List view */}
+          {viewConfig.type === 'list' && (
+            <div className="flex-1">
+              <Card className="h-full">
+                <CardHeader>
+                  <CardTitle>Work Items</CardTitle>
+                </CardHeader>
+                <CardContent className="h-full overflow-y-auto">
+                  <div className="space-y-2">
+                    {filteredWorkItems.map((item) => {
+                      const ItemIcon = getItemTypeIcon(item.item_type);
+                      return (
+                        <div key={item.id} className="flex items-center justify-between p-3 border rounded-lg hover:bg-muted/50 transition-colors">
+                          <div className="flex items-center gap-3 flex-1 min-w-0">
+                            <ItemIcon className="w-4 h-4 text-muted-foreground flex-shrink-0" />
+                            <span className="font-medium truncate">{item.title}</span>
+                            <Badge variant="outline" style={{ backgroundColor: getStatusColor(item.status), color: 'white' }}>
+                              {item.status}
+                            </Badge>
+                            <Badge className={getPriorityColor(item.priority)} variant="outline">
+                              {item.priority}
+                            </Badge>
+                            {item.effort_estimate > 0 && (
+                              <span className="text-sm text-muted-foreground flex-shrink-0">
+                                {item.effort_estimate} {item.effort_unit}
+                              </span>
+                            )}
+                          </div>
+                          <div className="flex items-center gap-2 flex-shrink-0">
+                            <span className="text-sm text-muted-foreground hidden sm:block">
+                              {item.assignee?.name || 'Unassigned'}
+                            </span>
+                            <Button variant="outline" size="sm" onClick={() => setEditingWorkItem(item)}>
+                              <Edit className="w-3 h-3" />
+                            </Button>
+                          </div>
+                        </div>
+                      );
+                    })}
+                    {filteredWorkItems.length === 0 && (
+                      <div className="text-center py-8">
+                        <p className="text-muted-foreground">No work items found</p>
+                      </div>
+                    )}
+                  </div>
+                </CardContent>
+              </Card>
+            </div>
+          )}
+        </>
+      )}
+
+      {/* Real-time collaboration */}
+      {selectedSprint && (
+        <RealtimeCollaboration
+          sprintId={selectedSprint}
+          onWorkItemUpdate={(item) => setWorkItems(prev => prev.map(w => w.id === item.id ? item : w))}
+          onWorkItemCreate={(item) => setWorkItems(prev => [...prev, item])}
+          onWorkItemDelete={(itemId) => setWorkItems(prev => prev.filter(w => w.id !== itemId))}
+          onSprintUpdate={(sprint) => setSprints(prev => prev.map(s => s.id === sprint.id ? sprint : s))}
+          onUserJoined={(userId, userInfo) => console.log('User joined:', userId, userInfo)}
+          onUserLeft={(userId) => console.log('User left:', userId)}
+          onUserCursorMove={(userId, position) => console.log('Cursor move:', userId, position)}
+        >
+          <div />
+        </RealtimeCollaboration>
+      )}
+
+      {/* Keyboard shortcuts */}
+      <KeyboardShortcuts
+        onCreateWorkItem={() => setShowCreateWorkItem(true)}
+        onEditWorkItem={(item: WorkItem) => setEditingWorkItem(item)}
+        onDeleteWorkItem={handleDeleteWorkItem}
+        onToggleView={handleToggleView}
+        onFocusSearch={handleFocusSearch}
+        onRefresh={handleRefresh}
+        selectedWorkItems={selectedWorkItems}
+        workItems={workItems}
+      />
 
       {/* No sprint selected state */}
       {!selectedSprint && !loading && (
