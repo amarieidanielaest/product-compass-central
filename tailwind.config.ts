@@ -81,9 +81,9 @@ export default {
 				'warm-orange': 'hsl(var(--warm-orange))'
 			},
 			fontFamily: {
-				alice: ['Alice', 'serif'],
+				ubuntu: ['Ubuntu', 'sans-serif'],
 				lato: ['Lato', 'system-ui', 'sans-serif'],
-				headline: ['Alice', 'serif'],
+				headline: ['Ubuntu', 'sans-serif'],
 				body: ['Lato', 'system-ui', 'sans-serif'],
 				sans: ['Lato', 'system-ui', 'sans-serif'],
 			},

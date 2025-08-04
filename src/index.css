@@ -160,8 +160,8 @@
 
   /* Typography classes */
   .font-headline {
-    font-family: 'Alice', serif;
-    font-weight: 400;
+    font-family: 'Ubuntu', sans-serif;
+    font-weight: 500;
     letter-spacing: -0.01em;
   }
   
