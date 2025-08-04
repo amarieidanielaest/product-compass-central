@@ -111,18 +111,21 @@ export function FeedbackCard({
   };
 
   return (
-    <Card className="group hover:shadow-md transition-shadow cursor-pointer">
+    <Card className="group hover:shadow-md transition-shadow">{/* Removed cursor-pointer since it's now on specific elements */}
       <CardHeader className="pb-3">
         <div className="flex items-start justify-between">
           <div className="flex-1 min-w-0">
             <h3 
-              className="font-medium line-clamp-2 text-foreground group-hover:text-primary"
+              className="font-medium line-clamp-2 text-foreground group-hover:text-primary cursor-pointer"
               onClick={() => onViewDetails(feedback)}
             >
               {feedback.title}
             </h3>
             {feedback.description && (
-              <p className="text-sm text-muted-foreground mt-1 line-clamp-2">
+              <p 
+                className="text-sm text-muted-foreground mt-1 line-clamp-2 cursor-pointer"
+                onClick={() => onViewDetails(feedback)}
+              >
                 {feedback.description}
               </p>
             )}
@@ -187,7 +190,7 @@ export function FeedbackCard({
         </div>
       </CardHeader>
 
-      <CardContent className="pt-0" onClick={() => onViewDetails(feedback)}>
+      <CardContent className="pt-0">{/* Removed onClick since we moved it to specific elements */}
         <div className="flex items-center justify-between">
           <div className="flex items-center gap-2 flex-wrap">
             <Badge variant={getStatusColor(feedback.status)}>
