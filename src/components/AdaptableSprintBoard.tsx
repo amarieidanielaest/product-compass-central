@@ -6,7 +6,8 @@ import {
   Edit, Trash2, Link, Move, Eye, Copy, Flag,
   ChevronDown, ChevronRight, Kanban, List, CalendarIcon,
   Zap, TrendingUp, AlertTriangle, Play, Pause, Square,
-  Columns, Grid, Layout, X
+  Columns, Grid, Layout, X, Search, HelpCircle,
+  Maximize2, Minimize2
 } from 'lucide-react';
 import { Card, CardContent, CardHeader, CardTitle } from '@/components/ui/card';
 import { Button } from '@/components/ui/button';
@@ -15,10 +16,13 @@ import { Progress } from '@/components/ui/progress';
 import { Tabs, TabsContent, TabsList, TabsTrigger } from '@/components/ui/tabs';
 import { Select, SelectContent, SelectItem, SelectTrigger, SelectValue } from '@/components/ui/select';
 import { Separator } from '@/components/ui/separator';
+import { Input } from '@/components/ui/input';
 import { useToast } from '@/hooks/use-toast';
 import { sprintService, type Sprint, type WorkItem, type WorkflowColumn, type Project, type Team } from '@/services/api/SprintService';
 import BoardColumn from './sprint/BoardColumn';
-import WorkItemCard from './sprint/WorkItemCard';
+import EnhancedWorkItemCard from './sprint/EnhancedWorkItemCard';
+import SmartSwimlanes from './sprint/SmartSwimlanes';
+import KeyboardShortcuts, { KeyboardShortcutsHelp } from './sprint/KeyboardShortcuts';
 import CreateWorkItemDialog from './sprint/CreateWorkItemDialog';
 import MethodologyTemplates from './sprint/MethodologyTemplates';
 
@@ -30,14 +34,17 @@ interface AdaptableSprintBoardProps {
 }
 
 interface ViewConfig {
-  type: 'board' | 'list' | 'timeline' | 'gantt';
-  groupBy: 'status' | 'assignee' | 'priority' | 'epic';
+  type: 'board' | 'swimlanes' | 'list' | 'timeline';
+  groupBy: 'status' | 'assignee' | 'priority' | 'epic' | 'item_type';
   filters: {
     status: string[];
     priority: string[];
     assignee: string[];
     itemType: string[];
+    search: string;
   };
+  compactMode: boolean;
+  showSubtasks: boolean;
 }
 
 const AdaptableSprintBoard = ({ 
@@ -68,8 +75,11 @@ const AdaptableSprintBoard = ({
       status: [],
       priority: [],
       assignee: [],
-      itemType: []
-    }
+      itemType: [],
+      search: ''
+    },
+    compactMode: false,
+    showSubtasks: true
   });
 
   // UI state
@@ -79,10 +89,13 @@ const AdaptableSprintBoard = ({
   const [showSprintSettings, setShowSprintSettings] = useState(false);
   const [showAnalytics, setShowAnalytics] = useState(false);
   const [showMethodologyTemplates, setShowMethodologyTemplates] = useState(false);
+  const [showKeyboardHelp, setShowKeyboardHelp] = useState(false);
   const [draggedItem, setDraggedItem] = useState<WorkItem | null>(null);
   const [dragOverColumn, setDragOverColumn] = useState<string | null>(null);
   const [editingWorkItem, setEditingWorkItem] = useState<WorkItem | null>(null);
   const [createWorkItemStatus, setCreateWorkItemStatus] = useState<string>('');
+  const [isFullscreen, setIsFullscreen] = useState(false);
+  const [focusedItem, setFocusedItem] = useState<string | null>(null);
 
   // Load initial data
   useEffect(() => {
@@ -208,6 +221,20 @@ const AdaptableSprintBoard = ({
       if (filters.priority.length > 0 && !filters.priority.includes(item.priority)) return false;
       if (filters.assignee.length > 0 && item.assignee_id && !filters.assignee.includes(item.assignee_id)) return false;
       if (filters.itemType.length > 0 && !filters.itemType.includes(item.item_type)) return false;
+      
+      // Search filter
+      if (filters.search.trim()) {
+        const searchLower = filters.search.toLowerCase();
+        const matchesTitle = item.title.toLowerCase().includes(searchLower);
+        const matchesDescription = item.description?.toLowerCase().includes(searchLower);
+        const matchesTags = item.tags?.some(tag => tag.toLowerCase().includes(searchLower));
+        const matchesAssignee = item.assignee && 
+          `${item.assignee.first_name} ${item.assignee.last_name}`.toLowerCase().includes(searchLower);
+        
+        if (!(matchesTitle || matchesDescription || matchesTags || matchesAssignee)) {
+          return false;
+        }
+      }
       
       return true;
     });
@@ -376,6 +403,46 @@ const AdaptableSprintBoard = ({
   const handleCreateWorkItemWithStatus = useCallback((status: string) => {
     setCreateWorkItemStatus(status);
     setShowCreateWorkItem(true);
+  }, []);
+
+  // Enhanced keyboard shortcuts handlers
+  const handleSelectAllWorkItems = useCallback(() => {
+    setSelectedWorkItems(filteredWorkItems.map(item => item.id));
+  }, [filteredWorkItems]);
+
+  const handleClearSelection = useCallback(() => {
+    setSelectedWorkItems([]);
+    setFocusedItem(null);
+  }, []);
+
+  const handleToggleView = useCallback(() => {
+    setViewConfig(prev => ({
+      ...prev,
+      type: prev.type === 'board' ? 'swimlanes' : prev.type === 'swimlanes' ? 'list' : 'board'
+    }));
+  }, []);
+
+  const handleFocusSearch = useCallback(() => {
+    const searchInput = document.querySelector('input[placeholder*="Search"]') as HTMLInputElement;
+    searchInput?.focus();
+  }, []);
+
+  const handleRefresh = useCallback(() => {
+    if (selectedSprint) {
+      loadSprintData();
+      toast({
+        title: "Board refreshed",
+        description: "Latest data loaded successfully",
+      });
+    }
+  }, [selectedSprint]);
+
+  // Update search filter
+  const updateSearchFilter = useCallback((search: string) => {
+    setViewConfig(prev => ({
+      ...prev,
+      filters: { ...prev.filters, search }
+    }));
   }, []);
 
   // Utility functions
