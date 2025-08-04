@@ -125,15 +125,15 @@ const CustomerPortal = () => {
     try {
       setLoading(true);
 
-      // Load board info
+      // Load board info with explicit organization relationship
       const { data: boardData, error: boardError } = await supabase
         .from('customer_boards')
         .select(`
           *,
-          organization:organizations(*)
+          organization:organizations!customer_boards_organization_id_fkey(*)
         `)
         .eq('slug', boardSlug || 'main')
-        .eq('organizations.slug', organizationSlug)
+        .eq('is_active', true)
         .single();
 
       if (boardError || !boardData) {
@@ -141,24 +141,32 @@ const CustomerPortal = () => {
         return;
       }
 
-      setBoard(boardData);
+      // Check if organization slug matches
+      if ((boardData.organization as any)?.slug !== organizationSlug) {
+        navigate('/404');
+        return;
+      }
+
+      setBoard(boardData as any);
 
       // Load all boards for this organization
       const { data: boardsData } = await supabase
         .from('customer_boards')
         .select('*')
-        .eq('organization_id', boardData.organization.id)
+        .eq('organization_id', (boardData.organization as any)?.id)
         .eq('is_active', true)
         .order('name');
 
       setAvailableBoards(boardsData || []);
 
       // Load content in parallel
+      const orgId = (boardData.organization as any)?.id;
+      const boardId = boardData.id;
       const [articlesData, roadmapData, changelogData, feedbackData] = await Promise.all([
-        loadArticles(boardData.organization.id, boardData.id),
-        loadRoadmap(boardData.organization.id, boardData.id),
-        loadChangelog(boardData.organization.id, boardData.id),
-        loadFeedback(boardData.organization.id, boardData.id)
+        loadArticles(orgId, boardId),
+        loadRoadmap(orgId, boardId),
+        loadChangelog(orgId, boardId),
+        loadFeedback(orgId, boardId)
       ]);
 
       setArticles(articlesData);
