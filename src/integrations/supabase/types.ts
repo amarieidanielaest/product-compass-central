@@ -1159,6 +1159,47 @@ export type Database = {
           },
         ]
       }
+      projects_sprint: {
+        Row: {
+          created_at: string
+          description: string | null
+          id: string
+          methodology_type: string
+          name: string
+          status: string
+          team_id: string | null
+          updated_at: string
+        }
+        Insert: {
+          created_at?: string
+          description?: string | null
+          id?: string
+          methodology_type?: string
+          name: string
+          status?: string
+          team_id?: string | null
+          updated_at?: string
+        }
+        Update: {
+          created_at?: string
+          description?: string | null
+          id?: string
+          methodology_type?: string
+          name?: string
+          status?: string
+          team_id?: string | null
+          updated_at?: string
+        }
+        Relationships: [
+          {
+            foreignKeyName: "projects_sprint_team_id_fkey"
+            columns: ["team_id"]
+            isOneToOne: false
+            referencedRelation: "teams_sprint"
+            referencedColumns: ["id"]
+          },
+        ]
+      }
       roadmap_items: {
         Row: {
           acceptance_criteria: string | null
@@ -1325,6 +1366,59 @@ export type Database = {
           },
         ]
       }
+      sprints_sprint: {
+        Row: {
+          capacity: number | null
+          committed: number | null
+          completed: number | null
+          created_at: string
+          end_date: string
+          goal: string | null
+          id: string
+          name: string
+          project_id: string | null
+          start_date: string
+          status: string
+          updated_at: string
+        }
+        Insert: {
+          capacity?: number | null
+          committed?: number | null
+          completed?: number | null
+          created_at?: string
+          end_date: string
+          goal?: string | null
+          id?: string
+          name: string
+          project_id?: string | null
+          start_date: string
+          status?: string
+          updated_at?: string
+        }
+        Update: {
+          capacity?: number | null
+          committed?: number | null
+          completed?: number | null
+          created_at?: string
+          end_date?: string
+          goal?: string | null
+          id?: string
+          name?: string
+          project_id?: string | null
+          start_date?: string
+          status?: string
+          updated_at?: string
+        }
+        Relationships: [
+          {
+            foreignKeyName: "sprints_sprint_project_id_fkey"
+            columns: ["project_id"]
+            isOneToOne: false
+            referencedRelation: "projects_sprint"
+            referencedColumns: ["id"]
+          },
+        ]
+      }
       team_invitations: {
         Row: {
           accepted_at: string | null
@@ -1487,6 +1581,30 @@ export type Database = {
             referencedColumns: ["id"]
           },
         ]
+      }
+      teams_sprint: {
+        Row: {
+          created_at: string
+          description: string | null
+          id: string
+          name: string
+          updated_at: string
+        }
+        Insert: {
+          created_at?: string
+          description?: string | null
+          id?: string
+          name: string
+          updated_at?: string
+        }
+        Update: {
+          created_at?: string
+          description?: string | null
+          id?: string
+          name?: string
+          updated_at?: string
+        }
+        Relationships: []
       }
       usage_metrics: {
         Row: {
@@ -1752,6 +1870,73 @@ export type Database = {
           },
         ]
       }
+      work_items_sprint: {
+        Row: {
+          assignee_id: string | null
+          created_at: string
+          description: string | null
+          effort_estimate: number | null
+          id: string
+          item_type: string
+          priority: string
+          reporter_id: string | null
+          sprint_id: string | null
+          status: string
+          title: string
+          updated_at: string
+        }
+        Insert: {
+          assignee_id?: string | null
+          created_at?: string
+          description?: string | null
+          effort_estimate?: number | null
+          id?: string
+          item_type?: string
+          priority?: string
+          reporter_id?: string | null
+          sprint_id?: string | null
+          status?: string
+          title: string
+          updated_at?: string
+        }
+        Update: {
+          assignee_id?: string | null
+          created_at?: string
+          description?: string | null
+          effort_estimate?: number | null
+          id?: string
+          item_type?: string
+          priority?: string
+          reporter_id?: string | null
+          sprint_id?: string | null
+          status?: string
+          title?: string
+          updated_at?: string
+        }
+        Relationships: [
+          {
+            foreignKeyName: "work_items_sprint_assignee_id_fkey"
+            columns: ["assignee_id"]
+            isOneToOne: false
+            referencedRelation: "profiles"
+            referencedColumns: ["id"]
+          },
+          {
+            foreignKeyName: "work_items_sprint_reporter_id_fkey"
+            columns: ["reporter_id"]
+            isOneToOne: false
+            referencedRelation: "profiles"
+            referencedColumns: ["id"]
+          },
+          {
+            foreignKeyName: "work_items_sprint_sprint_id_fkey"
+            columns: ["sprint_id"]
+            isOneToOne: false
+            referencedRelation: "sprints_sprint"
+            referencedColumns: ["id"]
+          },
+        ]
+      }
       workflow_columns: {
         Row: {
           color: string | null
@@ -1789,6 +1974,47 @@ export type Database = {
             columns: ["sprint_id"]
             isOneToOne: false
             referencedRelation: "sprints"
+            referencedColumns: ["id"]
+          },
+        ]
+      }
+      workflow_columns_sprint: {
+        Row: {
+          color: string | null
+          column_type: string | null
+          created_at: string
+          id: string
+          name: string
+          position: number
+          sprint_id: string | null
+          wip_limit: number | null
+        }
+        Insert: {
+          color?: string | null
+          column_type?: string | null
+          created_at?: string
+          id?: string
+          name: string
+          position: number
+          sprint_id?: string | null
+          wip_limit?: number | null
+        }
+        Update: {
+          color?: string | null
+          column_type?: string | null
+          created_at?: string
+          id?: string
+          name?: string
+          position?: number
+          sprint_id?: string | null
+          wip_limit?: number | null
+        }
+        Relationships: [
+          {
+            foreignKeyName: "workflow_columns_sprint_sprint_id_fkey"
+            columns: ["sprint_id"]
+            isOneToOne: false
+            referencedRelation: "sprints_sprint"
             referencedColumns: ["id"]
           },
         ]

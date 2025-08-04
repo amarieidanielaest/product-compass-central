@@ -1,4 +1,5 @@
 import { BaseApiService, ApiResponse, PaginatedResponse, PaginationParams } from './BaseApiService';
+import { supabase } from '@/integrations/supabase/client';
 
 export interface Team {
   id: string;
@@ -125,12 +126,32 @@ export interface WorkItemFilters {
 
 class SprintApiService extends BaseApiService {
   constructor() {
-    super('/api/sprints');
+    super('');
+  }
+
+  private async callEdgeFunction(endpoint: string, options: RequestInit = {}) {
+    const { data, error } = await supabase.functions.invoke('sprint-api', {
+      body: {
+        method: options.method || 'GET',
+        path: endpoint,
+        ...options.body ? { data: JSON.parse(options.body as string) } : {}
+      }
+    });
+
+    if (error) throw error;
+    return { data, error: null };
   }
 
   // Team management
   async getTeams(): Promise<ApiResponse<Team[]>> {
-    return this.makeRequest<Team[]>('/teams');
+    try {
+      const { data } = await supabase.functions.invoke('sprint-api', {
+        body: { method: 'GET', path: 'teams' }
+      });
+      return { data, errors: null, success: true };
+    } catch (error) {
+      return { data: null, errors: [(error as Error).message], success: false };
+    }
   }
 
   async createTeam(team: Omit<Team, 'id' | 'created_at' | 'updated_at'>): Promise<ApiResponse<Team>> {
@@ -243,7 +264,14 @@ class SprintApiService extends BaseApiService {
 
   // Workflow column management
   async getWorkflowColumns(sprintId: string): Promise<ApiResponse<WorkflowColumn[]>> {
-    return this.makeRequest<WorkflowColumn[]>(`/${sprintId}/columns`);
+    try {
+      const { data } = await supabase.functions.invoke('sprint-api', {
+        body: { method: 'GET', path: `sprints/${sprintId}/columns` }
+      });
+      return { data, errors: null, success: true };
+    } catch (error) {
+      return { data: null, errors: [(error as Error).message], success: false };
+    }
   }
 
   async updateWorkflowColumns(sprintId: string, columns: Partial<WorkflowColumn>[]): Promise<ApiResponse<WorkflowColumn[]>> {
