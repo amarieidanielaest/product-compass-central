@@ -14,6 +14,44 @@ export type Database = {
   }
   public: {
     Tables: {
+      board_memberships: {
+        Row: {
+          board_id: string
+          created_at: string | null
+          id: string
+          invited_by: string | null
+          joined_at: string | null
+          role: string
+          user_id: string
+        }
+        Insert: {
+          board_id: string
+          created_at?: string | null
+          id?: string
+          invited_by?: string | null
+          joined_at?: string | null
+          role?: string
+          user_id: string
+        }
+        Update: {
+          board_id?: string
+          created_at?: string | null
+          id?: string
+          invited_by?: string | null
+          joined_at?: string | null
+          role?: string
+          user_id?: string
+        }
+        Relationships: [
+          {
+            foreignKeyName: "board_memberships_board_id_fkey"
+            columns: ["board_id"]
+            isOneToOne: false
+            referencedRelation: "customer_boards"
+            referencedColumns: ["id"]
+          },
+        ]
+      }
       changelog_entries: {
         Row: {
           author_id: string | null
@@ -89,8 +127,11 @@ export type Database = {
       }
       customer_boards: {
         Row: {
+          access_type: string | null
+          board_type: string | null
           branding_config: Json | null
           created_at: string | null
+          customer_organization_id: string | null
           description: string | null
           features_enabled: Json | null
           id: string
@@ -102,8 +143,11 @@ export type Database = {
           updated_at: string | null
         }
         Insert: {
+          access_type?: string | null
+          board_type?: string | null
           branding_config?: Json | null
           created_at?: string | null
+          customer_organization_id?: string | null
           description?: string | null
           features_enabled?: Json | null
           id?: string
@@ -115,8 +159,11 @@ export type Database = {
           updated_at?: string | null
         }
         Update: {
+          access_type?: string | null
+          board_type?: string | null
           branding_config?: Json | null
           created_at?: string | null
+          customer_organization_id?: string | null
           description?: string | null
           features_enabled?: Json | null
           id?: string
@@ -129,10 +176,65 @@ export type Database = {
         }
         Relationships: [
           {
+            foreignKeyName: "customer_boards_customer_organization_id_fkey"
+            columns: ["customer_organization_id"]
+            isOneToOne: false
+            referencedRelation: "organizations"
+            referencedColumns: ["id"]
+          },
+          {
             foreignKeyName: "customer_boards_organization_id_fkey"
             columns: ["organization_id"]
             isOneToOne: false
             referencedRelation: "organizations"
+            referencedColumns: ["id"]
+          },
+        ]
+      }
+      feedback_comments: {
+        Row: {
+          author_id: string
+          content: string
+          created_at: string | null
+          feedback_id: string
+          id: string
+          is_internal: boolean | null
+          parent_id: string | null
+          updated_at: string | null
+        }
+        Insert: {
+          author_id: string
+          content: string
+          created_at?: string | null
+          feedback_id: string
+          id?: string
+          is_internal?: boolean | null
+          parent_id?: string | null
+          updated_at?: string | null
+        }
+        Update: {
+          author_id?: string
+          content?: string
+          created_at?: string | null
+          feedback_id?: string
+          id?: string
+          is_internal?: boolean | null
+          parent_id?: string | null
+          updated_at?: string | null
+        }
+        Relationships: [
+          {
+            foreignKeyName: "feedback_comments_feedback_id_fkey"
+            columns: ["feedback_id"]
+            isOneToOne: false
+            referencedRelation: "feedback_items"
+            referencedColumns: ["id"]
+          },
+          {
+            foreignKeyName: "feedback_comments_parent_id_fkey"
+            columns: ["parent_id"]
+            isOneToOne: false
+            referencedRelation: "feedback_comments"
             referencedColumns: ["id"]
           },
         ]
@@ -142,46 +244,64 @@ export type Database = {
           assigned_to: string | null
           board_id: string | null
           category: string | null
+          comments_count: number | null
           created_at: string | null
+          customer_info: Json | null
           description: string | null
+          effort_estimate: number | null
           id: string
+          impact_score: number | null
           organization_id: string | null
           priority: string | null
           status: string | null
           submitted_by: string | null
+          tags: string[] | null
           title: string
           updated_at: string | null
           upvotes_count: number | null
+          votes_count: number | null
         }
         Insert: {
           assigned_to?: string | null
           board_id?: string | null
           category?: string | null
+          comments_count?: number | null
           created_at?: string | null
+          customer_info?: Json | null
           description?: string | null
+          effort_estimate?: number | null
           id?: string
+          impact_score?: number | null
           organization_id?: string | null
           priority?: string | null
           status?: string | null
           submitted_by?: string | null
+          tags?: string[] | null
           title: string
           updated_at?: string | null
           upvotes_count?: number | null
+          votes_count?: number | null
         }
         Update: {
           assigned_to?: string | null
           board_id?: string | null
           category?: string | null
+          comments_count?: number | null
           created_at?: string | null
+          customer_info?: Json | null
           description?: string | null
+          effort_estimate?: number | null
           id?: string
+          impact_score?: number | null
           organization_id?: string | null
           priority?: string | null
           status?: string | null
           submitted_by?: string | null
+          tags?: string[] | null
           title?: string
           updated_at?: string | null
           upvotes_count?: number | null
+          votes_count?: number | null
         }
         Relationships: [
           {
@@ -210,6 +330,38 @@ export type Database = {
             columns: ["submitted_by"]
             isOneToOne: false
             referencedRelation: "profiles"
+            referencedColumns: ["id"]
+          },
+        ]
+      }
+      feedback_votes: {
+        Row: {
+          created_at: string | null
+          feedback_id: string
+          id: string
+          user_id: string
+          vote_type: string
+        }
+        Insert: {
+          created_at?: string | null
+          feedback_id: string
+          id?: string
+          user_id: string
+          vote_type?: string
+        }
+        Update: {
+          created_at?: string | null
+          feedback_id?: string
+          id?: string
+          user_id?: string
+          vote_type?: string
+        }
+        Relationships: [
+          {
+            foreignKeyName: "feedback_votes_feedback_id_fkey"
+            columns: ["feedback_id"]
+            isOneToOne: false
+            referencedRelation: "feedback_items"
             referencedColumns: ["id"]
           },
         ]
