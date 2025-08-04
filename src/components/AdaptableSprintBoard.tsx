@@ -494,171 +494,124 @@ const AdaptableSprintBoard = ({
   }
 
   return (
-    <div className="h-full flex flex-col p-6">
-      {/* Single header with title and controls */}
-      <div className="flex flex-col space-y-4 mb-6">
-        {/* First row: Title, selectors, settings, and add work item */}
+    <div className="h-full flex flex-col">
+      {/* Streamlined header */}
+      <div className="border-b bg-background/95 backdrop-blur supports-[backdrop-filter]:bg-background/60 px-6 py-4">
         <div className="flex items-center justify-between gap-4">
-          <div className="flex items-center gap-4 min-w-0">
-            
-            
-            <div className="hidden md:flex items-center gap-3">
-              {/* Team selector */}
-              <Select value={selectedTeam} onValueChange={setSelectedTeam}>
-                <SelectTrigger className="w-[140px] bg-background">
-                  <SelectValue placeholder="Team" />
-                </SelectTrigger>
-                <SelectContent className="z-50 bg-background">
-                  {teams.map(team => (
-                    <SelectItem key={team.id} value={team.id}>
-                      <div className="flex items-center gap-2">
-                        <Users className="w-4 h-4" />
-                        <span className="truncate">{team.name}</span>
-                      </div>
-                    </SelectItem>
-                  ))}
-                </SelectContent>
-              </Select>
+          {/* Left: Context selectors */}
+          <div className="flex items-center gap-3">
+            <Select value={selectedTeam} onValueChange={setSelectedTeam}>
+              <SelectTrigger className="w-32 h-8 text-sm">
+                <SelectValue placeholder="Team" />
+              </SelectTrigger>
+              <SelectContent>
+                {teams.map(team => (
+                  <SelectItem key={team.id} value={team.id}>
+                    <div className="flex items-center gap-2">
+                      <Users className="w-3 h-3" />
+                      <span className="truncate">{team.name}</span>
+                    </div>
+                  </SelectItem>
+                ))}
+              </SelectContent>
+            </Select>
 
-              {/* Project selector */}
-              <Select value={selectedProject} onValueChange={setSelectedProject}>
-                <SelectTrigger className="w-[140px] bg-background">
-                  <SelectValue placeholder="Project" />
-                </SelectTrigger>
-                <SelectContent className="z-50 bg-background">
-                  {projects.map(project => (
-                    <SelectItem key={project.id} value={project.id}>
-                      <div className="flex items-center gap-2">
-                        <Target className="w-4 h-4" />
-                        <span className="truncate">{project.name}</span>
-                      </div>
-                    </SelectItem>
-                  ))}
-                </SelectContent>
-              </Select>
+            <Select value={selectedProject} onValueChange={setSelectedProject}>
+              <SelectTrigger className="w-32 h-8 text-sm">
+                <SelectValue placeholder="Project" />
+              </SelectTrigger>
+              <SelectContent>
+                {projects.map(project => (
+                  <SelectItem key={project.id} value={project.id}>
+                    <div className="flex items-center gap-2">
+                      <Target className="w-3 h-3" />
+                      <span className="truncate">{project.name}</span>
+                    </div>
+                  </SelectItem>
+                ))}
+              </SelectContent>
+            </Select>
 
-              {/* Sprint selector */}
-              <Select value={selectedSprint} onValueChange={setSelectedSprint}>
-                <SelectTrigger className="w-[140px] bg-background">
-                  <SelectValue placeholder="Sprint" />
-                </SelectTrigger>
-                <SelectContent className="z-50 bg-background">
-                  {sprints.map(sprint => (
-                    <SelectItem key={sprint.id} value={sprint.id}>
-                      <div className="flex items-center gap-2">
-                        <Calendar className="w-4 h-4" />
-                        <span className="truncate">{sprint.name}</span>
-                      </div>
-                    </SelectItem>
-                  ))}
-                </SelectContent>
-              </Select>
-            </div>
-
-            {/* Mobile: Collapsed selectors */}
-            <div className="md:hidden">
-              <Button variant="outline" size="sm" className="gap-2">
-                <MoreHorizontal className="w-4 h-4" />
-                <span className="hidden sm:inline">Selectors</span>
-              </Button>
-            </div>
+            <Select value={selectedSprint} onValueChange={setSelectedSprint}>
+              <SelectTrigger className="w-36 h-8 text-sm">
+                <SelectValue placeholder="Sprint" />
+              </SelectTrigger>
+              <SelectContent>
+                {sprints.map(sprint => (
+                  <SelectItem key={sprint.id} value={sprint.id}>
+                    <div className="flex items-center gap-2">
+                      <Calendar className="w-3 h-3" />
+                      <span className="truncate">{sprint.name}</span>
+                      {sprint.status === 'active' && (
+                        <Badge variant="secondary" className="ml-1 text-xs h-4">Active</Badge>
+                      )}
+                    </div>
+                  </SelectItem>
+                ))}
+              </SelectContent>
+            </Select>
           </div>
 
-          {/* Right side: Settings and Add Work Item */}
-          <div className="flex items-center gap-2 flex-shrink-0">
-            <Button 
-              variant="outline" 
-              size="sm"
-              onClick={() => setShowSprintSettings(true)}
-              className="hidden sm:flex"
-            >
-              <Settings className="w-4 h-4" />
-              <span className="hidden lg:inline ml-2">Settings</span>
-            </Button>
-            
-            <Button 
-              onClick={() => setShowCreateWorkItem(true)}
-              size="sm"
-              className="gap-2"
-            >
-              <Plus className="w-4 h-4" />
-              <span className="hidden sm:inline">Add Work Item</span>
-            </Button>
-          </div>
-        </div>
-
-        {/* Second row: View controls and filters aligned right */}
-        <div className="flex justify-end">
+          {/* Right: Quick actions */}
           <div className="flex items-center gap-2">
             {/* View toggle */}
             <div className="flex items-center border rounded-md">
               <Button 
                 variant={viewConfig.type === 'board' ? 'default' : 'ghost'} 
                 size="sm"
-                className="rounded-r-none border-r px-3"
+                className="rounded-r-none border-r px-2 h-7 text-xs"
                 onClick={() => setViewConfig(prev => ({ ...prev, type: 'board' }))}
               >
-                <Columns className="w-4 h-4" />
-                <span className="hidden sm:inline ml-1">Board</span>
+                <Columns className="w-3 h-3" />
               </Button>
               <Button 
                 variant={viewConfig.type === 'list' ? 'default' : 'ghost'} 
                 size="sm"
-                className="rounded-l-none px-3"
+                className="rounded-l-none px-2 h-7 text-xs"
                 onClick={() => setViewConfig(prev => ({ ...prev, type: 'list' }))}
               >
-                <List className="w-4 h-4" />
-                <span className="hidden sm:inline ml-1">List</span>
+                <List className="w-3 h-3" />
               </Button>
             </div>
 
-            <Separator orientation="vertical" className="h-6" />
-
-            {/* Filter and Analytics buttons */}
-            <Button variant="outline" size="sm">
-              <Filter className="w-4 h-4" />
-              <span className="hidden sm:inline ml-2">Filter</span>
+            <Button variant="outline" size="sm" className="h-7 px-3 text-xs">
+              <Filter className="w-3 h-3 mr-1" />
+              Filter
             </Button>
 
-            <Button variant="outline" size="sm">
-              <BarChart3 className="w-4 h-4" />
-              <span className="hidden sm:inline ml-2">Analytics</span>
+            <Button 
+              onClick={() => setShowCreateWorkItem(true)}
+              size="sm"
+              className="h-7 px-3 text-xs"
+            >
+              <Plus className="w-3 h-3 mr-1" />
+              Add Item
             </Button>
           </div>
         </div>
       </div>
 
-      {/* Main tabs for different views */}
+      {/* Main content area */}
       {currentSprint && (
-        <Tabs value={activeMainTab} onValueChange={setActiveMainTab} className="flex-1 flex flex-col">
-          <TabsList className="w-full justify-start mb-6">
-            <TabsTrigger value="board">
-              <Kanban className="w-4 h-4 mr-2" />
-              Sprint Board
-            </TabsTrigger>
-            <TabsTrigger value="analytics">
-              <BarChart3 className="w-4 h-4 mr-2" />
-              Analytics
-            </TabsTrigger>
-            <TabsTrigger value="planning">
-              <Target className="w-4 h-4 mr-2" />
-              Planning
-            </TabsTrigger>
-            <TabsTrigger value="automation">
-              <Bot className="w-4 h-4 mr-2" />
-              Automation
-            </TabsTrigger>
-            <TabsTrigger value="integrations">
-              <Layers className="w-4 h-4 mr-2" />
-              Integrations
-            </TabsTrigger>
-            <TabsTrigger value="security">
-              <Shield className="w-4 h-4 mr-2" />
-              Security
-            </TabsTrigger>
-          </TabsList>
+        <div className="flex-1 flex flex-col px-6 py-4">
+          {/* Clean tabs navigation */}
+          <Tabs value={activeMainTab} onValueChange={setActiveMainTab} className="flex-1 flex flex-col">
+            <TabsList className="w-fit mb-4">
+              <TabsTrigger value="board" className="text-sm">
+                <Kanban className="w-4 h-4 mr-2" />
+                Board
+              </TabsTrigger>
+              <TabsTrigger value="analytics" className="text-sm">
+                <BarChart3 className="w-4 h-4 mr-2" />
+                Analytics
+              </TabsTrigger>
+              <TabsTrigger value="planning" className="text-sm">
+                <Target className="w-4 h-4 mr-2" />
+                Planning
+              </TabsTrigger>
+            </TabsList>
 
-          <TabsContent value="board" className="flex-1 flex flex-col space-y-4">
+            <TabsContent value="board" className="flex-1 flex flex-col space-y-4">
             {/* Sprint overview header */}
             <Card>
               <CardHeader>
@@ -822,15 +775,16 @@ const AdaptableSprintBoard = ({
             <SecurityAuditDashboard />
           </TabsContent>
         </Tabs>
+        </div>
       )}
 
       {/* Board/List content within the board tab */}
-      {activeMainTab === 'board' && (
-        <>
+      {activeMainTab === 'board' && currentSprint && (
+        <div className="px-6">
           {/* Board view */}
           {viewConfig.type === 'board' && workflowColumns.length > 0 && (
-            <div className="flex-1 overflow-hidden">
-              <div className="flex gap-4 overflow-x-auto h-full pb-4">
+            <div className="overflow-hidden">
+              <div className="flex gap-4 overflow-x-auto pb-4">
                 {workflowColumns
                   .sort((a, b) => a.position - b.position)
                   .map((column) => (
@@ -858,12 +812,12 @@ const AdaptableSprintBoard = ({
 
           {/* List view */}
           {viewConfig.type === 'list' && (
-            <div className="flex-1">
-              <Card className="h-full">
+            <div className="mt-4">
+              <Card>
                 <CardHeader>
                   <CardTitle>Work Items</CardTitle>
                 </CardHeader>
-                <CardContent className="h-full overflow-y-auto">
+                <CardContent className="max-h-96 overflow-y-auto">
                   <div className="space-y-2">
                     {filteredWorkItems.map((item) => {
                       const ItemIcon = getItemTypeIcon(item.item_type);
@@ -905,7 +859,7 @@ const AdaptableSprintBoard = ({
               </Card>
             </div>
           )}
-        </>
+        </div>
       )}
 
       {/* Real-time collaboration */}
