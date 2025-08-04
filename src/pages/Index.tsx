@@ -90,20 +90,20 @@ const Index = () => {
 
   return (
     <SidebarProvider>
-      <div className="min-h-screen flex w-full font-body bg-white">
+      <div className="min-h-screen flex w-full font-body bg-background">
         <AppSidebar 
           activeModule={activeModule} 
           setActiveModule={setActiveModule}
           selectedProductId={selectedProductId}
           onProductChange={setSelectedProductId}
         />
-        <div className="flex-1 flex flex-col overflow-hidden bg-white">
+        <div className="flex-1 flex flex-col overflow-hidden">
           <PageHeader 
             title={getModuleName(activeModule)}
             breadcrumbs={getBreadcrumbs()}
           />
-          <main className="flex-1 overflow-auto bg-gray-50/50">
-            <div className="container mx-auto px-4 sm:px-6 lg:px-8 py-6 space-y-6">
+          <main className="flex-1 overflow-auto bg-background">
+            <div className="w-full max-w-[1600px] mx-auto px-6 lg:px-8 py-8">
               {renderModule()}
             </div>
           </main>

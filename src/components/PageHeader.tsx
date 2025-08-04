@@ -1,5 +1,5 @@
 import React from 'react';
-import { Bell, Search, Menu, Home, ChevronRight } from 'lucide-react';
+import { Bell, ChevronDown, LogOut, Plus, Search, Settings, User, Home } from 'lucide-react';
 import {
   Breadcrumb,
   BreadcrumbList,
@@ -9,7 +9,8 @@ import {
   BreadcrumbPage,
 } from '@/components/ui/breadcrumb';
 import { Button } from '@/components/ui/button';
-import { Avatar, AvatarFallback } from '@/components/ui/avatar';
+import { Input } from '@/components/ui/input';
+import { Avatar, AvatarFallback, AvatarImage } from '@/components/ui/avatar';
 import {
   DropdownMenu,
   DropdownMenuContent,
@@ -17,12 +18,12 @@ import {
   DropdownMenuSeparator,
   DropdownMenuTrigger,
 } from '@/components/ui/dropdown-menu';
-import { SidebarTrigger } from '@/components/ui/sidebar';
-import NotificationBell from './notifications/NotificationBell';
-import GlobalSearch from './GlobalSearch';
-import { useAuth } from '@/contexts/AuthContext';
-import { H1, Lead } from '@/components/ui/typography';
-import { PageContainer, PageContent } from '@/components/PageLayout';
+import {
+  Tooltip,
+  TooltipContent,
+  TooltipProvider,
+  TooltipTrigger,
+} from '@/components/ui/tooltip';
 
 interface BreadcrumbItem {
   label: string;
@@ -36,113 +37,126 @@ interface PageHeaderProps {
 }
 
 const PageHeader = ({ title, subtitle, breadcrumbs }: PageHeaderProps) => {
-  const { profile, signOut } = useAuth();
-
-  const handleSignOut = async () => {
-    await signOut();
-  };
-
   return (
-    <header className="sticky top-0 z-50 w-full bg-white/95 backdrop-blur-sm border-b border-gray-200">
-      {/* Navigation Bar */}
-      <div className="container mx-auto px-4 sm:px-6 lg:px-8">
-        <div className="flex h-14 items-center justify-between gap-4">
-          {/* Left side - Breadcrumbs and Search */}
-          <div className="flex items-center gap-3 flex-1 min-w-0">
-            {/* Breadcrumbs */}
-            {breadcrumbs && breadcrumbs.length > 0 && (
-              <Breadcrumb className="hidden sm:flex">
-                <BreadcrumbList>
-                  <BreadcrumbItem>
-                    <BreadcrumbLink href="/" className="flex items-center">
-                      <Home className="h-3 w-3" />
-                    </BreadcrumbLink>
-                  </BreadcrumbItem>
-                  {breadcrumbs.map((item, index) => (
-                    <React.Fragment key={index}>
-                      <BreadcrumbSeparator />
-                      <BreadcrumbItem>
-                        {item.href ? (
-                          <BreadcrumbLink href={item.href} className="text-xs">
-                            {item.label}
-                          </BreadcrumbLink>
-                        ) : (
-                          <BreadcrumbPage className="text-xs font-medium">
-                            {item.label}
-                          </BreadcrumbPage>
-                        )}
-                      </BreadcrumbItem>
-                    </React.Fragment>
-                  ))}
-                </BreadcrumbList>
-              </Breadcrumb>
-            )}
-            
-            {/* Search - responsive sizing */}
-            <div className="flex-1 max-w-md min-w-0 hidden md:block">
-              <GlobalSearch />
-            </div>
+    <header className="sticky top-0 z-50 w-full border-b bg-background/95 backdrop-blur supports-[backdrop-filter]:bg-background/60">
+      <div className="w-full max-w-[1600px] mx-auto px-6 lg:px-8">
+        <div className="flex h-16 items-center justify-between">
+          {/* Left side - Breadcrumbs */}
+          <div className="flex items-center gap-4 min-w-0">
+            <Breadcrumb>
+              <BreadcrumbList>
+                <BreadcrumbItem>
+                  <BreadcrumbLink href="/" className="flex items-center">
+                    <Home className="h-4 w-4" />
+                  </BreadcrumbLink>
+                </BreadcrumbItem>
+                {breadcrumbs && breadcrumbs.map((breadcrumb, index) => (
+                  <React.Fragment key={index}>
+                    <BreadcrumbSeparator />
+                    <BreadcrumbItem>
+                      {breadcrumb.href ? (
+                        <BreadcrumbLink 
+                          href={breadcrumb.href}
+                          className="text-muted-foreground hover:text-foreground transition-colors"
+                        >
+                          {breadcrumb.label}
+                        </BreadcrumbLink>
+                      ) : (
+                        <BreadcrumbPage className="font-medium text-foreground">
+                          {breadcrumb.label}
+                        </BreadcrumbPage>
+                      )}
+                    </BreadcrumbItem>
+                  </React.Fragment>
+                ))}
+              </BreadcrumbList>
+            </Breadcrumb>
           </div>
 
-          {/* Right side - Actions and User */}
+          {/* Right side - Actions */}
           <div className="flex items-center gap-2">
-            {/* Mobile search trigger */}
-            <Button variant="ghost" size="sm" className="md:hidden h-8 w-8 p-0">
-              <Search className="h-4 w-4" />
-            </Button>
-            
-            {/* Notifications */}
-            <NotificationBell />
-            
-            {/* User menu */}
+            {/* Global Search */}
+            <div className="hidden md:flex items-center gap-2 max-w-sm">
+              <div className="relative">
+                <Search className="absolute left-3 top-1/2 transform -translate-y-1/2 text-muted-foreground w-4 h-4" />
+                <Input
+                  placeholder="Search..."
+                  className="pl-10 h-9 w-72 bg-muted/50 border-border/50 focus:border-primary focus:ring-1 focus:ring-primary/20"
+                />
+                <kbd className="absolute right-3 top-1/2 transform -translate-y-1/2 pointer-events-none inline-flex h-5 select-none items-center gap-1 rounded border bg-muted px-1.5 font-mono text-[10px] font-medium text-muted-foreground opacity-100">
+                  ⌘K
+                </kbd>
+              </div>
+            </div>
+
+            {/* Quick Actions */}
+            <div className="flex items-center gap-1">
+              <TooltipProvider>
+                <Tooltip>
+                  <TooltipTrigger asChild>
+                    <Button variant="ghost" size="icon" className="h-9 w-9">
+                      <Plus className="h-4 w-4" />
+                    </Button>
+                  </TooltipTrigger>
+                  <TooltipContent>
+                    <p>Create new</p>
+                  </TooltipContent>
+                </Tooltip>
+              </TooltipProvider>
+
+              <TooltipProvider>
+                <Tooltip>
+                  <TooltipTrigger asChild>
+                    <Button variant="ghost" size="icon" className="h-9 w-9 relative">
+                      <Bell className="h-4 w-4" />
+                      <span className="absolute -top-1 -right-1 h-2 w-2 bg-destructive rounded-full"></span>
+                    </Button>
+                  </TooltipTrigger>
+                  <TooltipContent>
+                    <p>Notifications</p>
+                  </TooltipContent>
+                </Tooltip>
+              </TooltipProvider>
+            </div>
+
+            {/* Profile */}
             <DropdownMenu>
               <DropdownMenuTrigger asChild>
-                <Button variant="ghost" className="relative h-8 w-8 rounded-full">
-                  <Avatar className="h-8 w-8">
-                    <AvatarFallback className="bg-primary text-primary-foreground text-sm">
-                      {profile?.first_name?.[0] || profile?.email?.[0]?.toUpperCase() || 'U'}
+                <Button variant="ghost" className="h-9 px-2 gap-2">
+                  <Avatar className="h-6 w-6">
+                    <AvatarImage src="/placeholder-avatar.jpg" alt="User" />
+                    <AvatarFallback className="bg-primary text-primary-foreground text-xs">
+                      JD
                     </AvatarFallback>
                   </Avatar>
+                  <ChevronDown className="h-3 w-3 text-muted-foreground" />
                 </Button>
               </DropdownMenuTrigger>
-              <DropdownMenuContent className="w-56" align="end" forceMount>
-                <div className="flex items-center justify-start gap-2 p-2">
-                  <div className="flex flex-col space-y-1 leading-none">
-                    <p className="font-medium text-sm">
-                      {profile?.first_name || profile?.last_name 
-                        ? `${profile.first_name || ''} ${profile.last_name || ''}`.trim()
-                        : profile?.email || 'User'
-                      }
-                    </p>
-                    <p className="w-[200px] truncate text-xs text-muted-foreground">
-                      {profile?.email}
-                    </p>
-                  </div>
-                </div>
-                <DropdownMenuSeparator />
-                <DropdownMenuItem className="text-sm">
+              <DropdownMenuContent align="end" className="w-48">
+                <DropdownMenuItem>
+                  <User className="mr-2 h-4 w-4" />
                   Profile
                 </DropdownMenuItem>
-                <DropdownMenuItem className="text-sm">
+                <DropdownMenuItem>
+                  <Settings className="mr-2 h-4 w-4" />
                   Settings
                 </DropdownMenuItem>
                 <DropdownMenuSeparator />
-                <DropdownMenuItem onClick={handleSignOut} className="text-sm">
-                  Log out
+                <DropdownMenuItem>
+                  <LogOut className="mr-2 h-4 w-4" />
+                  Sign out
                 </DropdownMenuItem>
               </DropdownMenuContent>
             </DropdownMenu>
           </div>
         </div>
-      </div>
-      
-      {/* Page Title Section */}
-      <div className="border-t border-gray-100 bg-white">
-        <div className="container mx-auto px-4 sm:px-6 lg:px-8 py-4">
+        
+        {/* Page Title Section */}
+        <div className="pb-6 pt-2">
           <div className="flex flex-col gap-1">
-            <H1 className="text-2xl sm:text-3xl">{title}</H1>
+            <h1 className="text-2xl font-bold tracking-tight text-foreground">{title}</h1>
             {subtitle && (
-              <Lead className="text-base sm:text-xl">{subtitle}</Lead>
+              <p className="text-muted-foreground">{subtitle}</p>
             )}
           </div>
         </div>

@@ -82,57 +82,54 @@ const AppSidebar = ({ activeModule, setActiveModule, selectedProductId, onProduc
   return (
     <Sidebar 
       collapsible="icon"
-      className="bg-white"
+      className="border-r bg-sidebar"
     >
-      <SidebarHeader className="p-3">
-        {/* Logo */}
-        <div className="flex items-center justify-between mb-4">
-          <div className="flex items-center">
-            <div className="w-6 h-6 mr-2 flex items-center justify-center">
-              <svg viewBox="0 0 30 20" className="w-6 h-4">
+      <SidebarHeader className="p-4 border-b">
+        <div className="flex items-center justify-between">
+          <div className="flex items-center gap-2">
+            <div className="w-8 h-8 rounded-lg bg-primary flex items-center justify-center">
+              <svg viewBox="0 0 30 20" className="w-5 h-3">
                 <defs>
                   <linearGradient id="loomWave" x1="0%" y1="0%" x2="100%" y2="0%">
-                    <stop offset="0%" style={{stopColor:'hsl(var(--primary))', stopOpacity:1}} />
-                    <stop offset="50%" style={{stopColor:'hsl(var(--primary-glow))', stopOpacity:1}} />
-                    <stop offset="100%" style={{stopColor:'hsl(var(--accent))', stopOpacity:1}} />
+                    <stop offset="0%" style={{stopColor:'white', stopOpacity:1}} />
+                    <stop offset="50%" style={{stopColor:'white', stopOpacity:0.8}} />
+                    <stop offset="100%" style={{stopColor:'white', stopOpacity:1}} />
                   </linearGradient>
                 </defs>
                 <path d="M0 8 Q5 3 10 8 T20 8 T30 8" stroke="url(#loomWave)" strokeWidth="2" fill="none" strokeLinecap="round"/>
                 <path d="M0 12 Q5 7 10 12 T20 12 T30 12" stroke="url(#loomWave)" strokeWidth="1.5" fill="none" strokeLinecap="round" opacity="0.7"/>
-                <path d="M0 16 Q5 11 10 16 T20 16 T30 16" stroke="url(#loomWave)" strokeWidth="1" fill="none" strokeLinecap="round" opacity="0.5"/>
               </svg>
             </div>
             {!isCollapsed && (
-              <span className="font-headline font-semibold text-sm">Loom</span>
+              <span className="font-bold text-lg text-sidebar-foreground">Loom</span>
             )}
           </div>
           
-          {/* Animated collapse button */}
-          <SidebarTrigger className="h-6 w-6 p-0 hover:bg-gray-100 rounded">
+          <SidebarTrigger className="h-8 w-8">
             {isCollapsed ? (
-              <ChevronRight className="h-3 w-3 transition-transform duration-200" />
+              <ChevronRight className="h-4 w-4" />
             ) : (
-              <ChevronLeft className="h-3 w-3 transition-transform duration-200" />
+              <ChevronLeft className="h-4 w-4" />
             )}
           </SidebarTrigger>
         </div>
         
-        {/* Product Selector - Only when expanded */}
+        {/* Product Selector */}
         {!isCollapsed && (
-          <div className="mb-3">
+          <div className="mt-4">
             <DropdownMenu open={isProductMenuOpen} onOpenChange={setIsProductMenuOpen}>
               <DropdownMenuTrigger asChild>
-                <Button variant="outline" size="sm" className="w-full justify-between h-8 text-xs">
-                  <div className="flex items-center">
-                    <Package className="w-3 h-3 mr-1" />
+                <Button variant="outline" size="sm" className="w-full justify-between">
+                  <div className="flex items-center gap-2">
+                    <Package className="w-4 h-4" />
                     <span className="truncate">{getCurrentProduct()}</span>
                   </div>
-                  <ChevronDown className="w-3 h-3" />
+                  <ChevronDown className="w-4 h-4" />
                 </Button>
               </DropdownMenuTrigger>
               <DropdownMenuContent className="w-56">
                 <div className="p-2">
-                  <div className="text-xs font-medium text-slate-500 mb-2">Switch Product</div>
+                  <div className="text-xs font-medium text-muted-foreground mb-2">Switch Product</div>
                   {mockProducts.map((product) => (
                     <DropdownMenuItem
                       key={product.id}
@@ -144,10 +141,10 @@ const AppSidebar = ({ activeModule, setActiveModule, selectedProductId, onProduc
                     >
                       <span>{product.name}</span>
                       {product.status === 'beta' && (
-                        <Badge variant="secondary" className="text-xs">Beta</Badge>
+                        <Badge variant="secondary">Beta</Badge>
                       )}
                       {selectedProductId === product.id && (
-                        <div className="w-2 h-2 bg-green-500 rounded-full" />
+                        <div className="w-2 h-2 bg-primary rounded-full" />
                       )}
                     </DropdownMenuItem>
                   ))}
@@ -163,8 +160,11 @@ const AppSidebar = ({ activeModule, setActiveModule, selectedProductId, onProduc
         )}
       </SidebarHeader>
 
-      <SidebarContent className="px-2">
+      <SidebarContent className="p-4">
         <SidebarGroup>
+          <SidebarGroupLabel className={cn("text-xs uppercase tracking-wider text-sidebar-foreground/60 mb-3", isCollapsed && "sr-only")}>
+            Navigation
+          </SidebarGroupLabel>
           <SidebarGroupContent>
             <SidebarMenu className="space-y-1">
               {modules.map((module) => {
@@ -176,25 +176,26 @@ const AppSidebar = ({ activeModule, setActiveModule, selectedProductId, onProduc
                     <SidebarMenuButton
                       onClick={() => setActiveModule(module.id)}
                       className={cn(
-                        "h-8 px-2 justify-start hover:bg-gray-100 transition-colors duration-150",
-                        isActive && "bg-blue-50 text-blue-700 hover:bg-blue-50",
+                        "h-10 px-3 rounded-lg font-medium transition-all duration-200",
+                        isActive 
+                          ? "bg-sidebar-accent text-sidebar-accent-foreground shadow-sm" 
+                          : "text-sidebar-foreground hover:bg-sidebar-accent/50 hover:text-sidebar-accent-foreground",
                         isCollapsed && "justify-center px-0"
                       )}
                       tooltip={isCollapsed ? module.name : undefined}
                     >
                       <Icon className={cn(
-                        "h-4 w-4 transition-colors duration-150",
-                        isActive && "text-blue-700",
-                        isCollapsed ? "mx-auto" : "mr-2"
+                        "h-5 w-5",
+                        isCollapsed ? "mx-auto" : "mr-3"
                       )} />
                       
                       {!isCollapsed && (
                         <div className="flex-1 flex items-center justify-between">
-                          <span className="text-sm font-medium truncate">
+                          <span className="truncate">
                             {module.name}
                           </span>
                           {module.badge && (
-                            <Badge variant="secondary" className="ml-2 text-xs h-4 px-1">
+                            <Badge variant="secondary" className="ml-2 text-xs h-5 px-2">
                               {module.badge}
                             </Badge>
                           )}
