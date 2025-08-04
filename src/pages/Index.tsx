@@ -102,16 +102,8 @@ const Index = () => {
             title={getModuleName(activeModule)}
             breadcrumbs={getBreadcrumbs()}
           />
-          <main className="flex-1 overflow-auto bg-white">
-            <div className="mx-auto max-w-7xl px-6 py-6">
-              {/* Page Title */}
-              <div className="mb-8">
-                <h1 className="text-3xl font-bold leading-tight tracking-tight text-gray-900">
-                  {getModuleName(activeModule)}
-                </h1>
-              </div>
-              
-              {/* Page Content */}
+          <main className="flex-1 overflow-auto bg-gray-50/50">
+            <div className="container mx-auto px-4 sm:px-6 lg:px-8 py-6 space-y-6">
               {renderModule()}
             </div>
           </main>

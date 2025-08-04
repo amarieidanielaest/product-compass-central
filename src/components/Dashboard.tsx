@@ -1,5 +1,5 @@
 import { useState } from 'react';
-import { TrendingUp, Users, Calendar, Star, Settings, Plus, BarChart3, PieChart, LineChart, Target, DollarSign, Clock, AlertTriangle, Sparkles, Zap, Activity, Brain } from 'lucide-react';
+import { TrendingUp, Users, Calendar, Star, Settings, Plus, BarChart3, PieChart, LineChart, Target, DollarSign, Clock, AlertTriangle, Sparkles, Zap, Activity, Brain, Kanban, MessageSquare, Map } from 'lucide-react';
 import { Card, CardContent, CardHeader, CardTitle } from '@/components/ui/card';
 import { Button } from '@/components/ui/button';
 import { Badge } from '@/components/ui/badge';
@@ -183,107 +183,136 @@ const Dashboard = ({ selectedProductId, onNavigate }: DashboardProps) => {
 
   return (
     <div className="space-y-6">
-      {/* Dashboard Controls */}
-      <div className="flex flex-col lg:flex-row lg:items-center lg:justify-between gap-4">
-        <div className="flex flex-col sm:flex-row gap-3">
+      {/* Header Section */}
+      <div className="flex flex-col gap-4">
+        <div className="flex items-center gap-3">
+          <div className="w-8 h-8 rounded-lg bg-gradient-to-br from-primary to-primary-glow flex items-center justify-center">
+            <BarChart3 className="w-5 h-5 text-white" />
+          </div>
+          <div>
+            <h1 className="text-2xl lg:text-3xl font-bold font-headline text-foreground">Dashboard</h1>
+            <p className="text-sm text-muted-foreground font-body">Monitor your product performance and key metrics</p>
+          </div>
+        </div>
+        
+        {/* Dashboard Controls */}
+        <div className="flex flex-col sm:flex-row sm:items-center justify-between gap-4">
           <Tabs value={timeFilter} onValueChange={(value: any) => setTimeFilter(value)}>
-            <TabsList className="loom-rounded h-10 w-full sm:w-auto">
-              <TabsTrigger value="7d" className="loom-rounded flex-1 sm:flex-none">7D</TabsTrigger>
-              <TabsTrigger value="30d" className="loom-rounded flex-1 sm:flex-none">30D</TabsTrigger>
-              <TabsTrigger value="90d" className="loom-rounded flex-1 sm:flex-none">90D</TabsTrigger>
+            <TabsList className="loom-rounded h-9 w-full sm:w-auto">
+              <TabsTrigger value="7d" className="loom-rounded-sm text-xs px-3">7 Days</TabsTrigger>
+              <TabsTrigger value="30d" className="loom-rounded-sm text-xs px-3">30 Days</TabsTrigger>
+              <TabsTrigger value="90d" className="loom-rounded-sm text-xs px-3">90 Days</TabsTrigger>
             </TabsList>
           </Tabs>
-          <WidgetManager onAddWidget={handleAddWidget} />
+          <div className="flex items-center gap-2">
+            <WidgetManager onAddWidget={handleAddWidget} />
+          </div>
         </div>
       </div>
 
       {/* Key Metrics Grid */}
-      <div className="grid grid-cols-1 sm:grid-cols-2 xl:grid-cols-4 gap-4 lg:gap-6">
-        <Card className="loom-glass border border-border/30 p-4 lg:p-6">
-          <div className="flex items-center justify-between gap-3">
-            <div className="space-y-2 min-w-0 flex-1">
-              <p className="text-sm font-medium text-muted-foreground font-body">Total Users</p>
-              <p className="text-2xl lg:text-3xl font-bold font-headline text-foreground">
-                {formatNumber(2847)}
-              </p>
-              <div className="flex items-center space-x-1 text-sm text-emerald-600">
-                <TrendingUp className="w-4 h-4 shrink-0" />
-                <span className="font-medium">+12.5%</span>
+      <div className="grid grid-cols-1 sm:grid-cols-2 lg:grid-cols-4 gap-4">
+        <Card className="loom-glass border border-border/30">
+          <CardContent className="p-6">
+            <div className="flex items-center justify-between">
+              <div className="space-y-3">
+                <p className="text-sm font-medium text-muted-foreground font-body">Total Users</p>
+                <div className="space-y-1">
+                  <p className="text-2xl font-bold font-headline text-foreground">
+                    {formatNumber(2847)}
+                  </p>
+                  <div className="flex items-center space-x-1 text-sm text-emerald-600">
+                    <TrendingUp className="w-4 h-4" />
+                    <span className="font-medium">+12.5%</span>
+                  </div>
+                </div>
+              </div>
+              <div className="w-12 h-12 rounded-xl bg-gradient-to-br from-primary to-primary-glow flex items-center justify-center">
+                <Users className="w-6 h-6 text-white" />
               </div>
             </div>
-            <div className="w-12 h-12 loom-rounded-full bg-primary/10 flex items-center justify-center shrink-0">
-              <Users className="w-6 h-6 text-primary" />
-            </div>
-          </div>
+          </CardContent>
         </Card>
 
-        <Card className="loom-glass border border-border/30 p-4 lg:p-6">
-          <div className="flex items-center justify-between gap-3">
-            <div className="space-y-2 min-w-0 flex-1">
-              <p className="text-sm font-medium text-muted-foreground font-body">Revenue</p>
-              <p className="text-2xl lg:text-3xl font-bold font-headline text-foreground">
-                ${formatNumber(125000)}
-              </p>
-              <div className="flex items-center space-x-1 text-sm text-emerald-600">
-                <TrendingUp className="w-4 h-4 shrink-0" />
-                <span className="font-medium">+8.2%</span>
+        <Card className="loom-glass border border-border/30">
+          <CardContent className="p-6">
+            <div className="flex items-center justify-between">
+              <div className="space-y-3">
+                <p className="text-sm font-medium text-muted-foreground font-body">Revenue</p>
+                <div className="space-y-1">
+                  <p className="text-2xl font-bold font-headline text-foreground">
+                    ${formatNumber(125000)}
+                  </p>
+                  <div className="flex items-center space-x-1 text-sm text-emerald-600">
+                    <TrendingUp className="w-4 h-4" />
+                    <span className="font-medium">+8.2%</span>
+                  </div>
+                </div>
+              </div>
+              <div className="w-12 h-12 rounded-xl bg-gradient-to-br from-emerald-500 to-emerald-600 flex items-center justify-center">
+                <DollarSign className="w-6 h-6 text-white" />
               </div>
             </div>
-            <div className="w-12 h-12 loom-rounded-full bg-emerald-500/10 flex items-center justify-center shrink-0">
-              <DollarSign className="w-6 h-6 text-emerald-500" />
-            </div>
-          </div>
+          </CardContent>
         </Card>
 
-        <Card className="loom-glass border border-border/30 p-4 lg:p-6">
-          <div className="flex items-center justify-between gap-3">
-            <div className="space-y-2 min-w-0 flex-1">
-              <p className="text-sm font-medium text-muted-foreground font-body">Active Features</p>
-              <p className="text-2xl lg:text-3xl font-bold font-headline text-foreground">
-                {formatNumber(156)}
-              </p>
-              <div className="flex items-center space-x-1 text-sm text-blue-600">
-                <Activity className="w-4 h-4 shrink-0" />
-                <span className="font-medium">+5 this week</span>
+        <Card className="loom-glass border border-border/30">
+          <CardContent className="p-6">
+            <div className="flex items-center justify-between">
+              <div className="space-y-3">
+                <p className="text-sm font-medium text-muted-foreground font-body">Active Features</p>
+                <div className="space-y-1">
+                  <p className="text-2xl font-bold font-headline text-foreground">
+                    {formatNumber(156)}
+                  </p>
+                  <div className="flex items-center space-x-1 text-sm text-blue-600">
+                    <Activity className="w-4 h-4" />
+                    <span className="font-medium">+5 this week</span>
+                  </div>
+                </div>
+              </div>
+              <div className="w-12 h-12 rounded-xl bg-gradient-to-br from-blue-500 to-blue-600 flex items-center justify-center">
+                <Zap className="w-6 h-6 text-white" />
               </div>
             </div>
-            <div className="w-12 h-12 loom-rounded-full bg-blue-500/10 flex items-center justify-center shrink-0">
-              <Zap className="w-6 h-6 text-blue-500" />
-            </div>
-          </div>
+          </CardContent>
         </Card>
 
-        <Card className="loom-glass border border-border/30 p-4 lg:p-6">
-          <div className="flex items-center justify-between gap-3">
-            <div className="space-y-2 min-w-0 flex-1">
-              <p className="text-sm font-medium text-muted-foreground font-body">Health Score</p>
-              <p className="text-2xl lg:text-3xl font-bold font-headline text-foreground">
-                {formatNumber(87)}%
-              </p>
-              <div className="flex items-center space-x-1 text-sm text-amber-600">
-                <Target className="w-4 h-4 shrink-0" />
-                <span className="font-medium">Good</span>
+        <Card className="loom-glass border border-border/30">
+          <CardContent className="p-6">
+            <div className="flex items-center justify-between">
+              <div className="space-y-3">
+                <p className="text-sm font-medium text-muted-foreground font-body">Health Score</p>
+                <div className="space-y-1">
+                  <p className="text-2xl font-bold font-headline text-foreground">
+                    {formatNumber(87)}%
+                  </p>
+                  <div className="flex items-center space-x-1 text-sm text-amber-600">
+                    <Target className="w-4 h-4" />
+                    <span className="font-medium">Good</span>
+                  </div>
+                </div>
+              </div>
+              <div className="w-12 h-12 rounded-xl bg-gradient-to-br from-amber-500 to-amber-600 flex items-center justify-center">
+                <Clock className="w-6 h-6 text-white" />
               </div>
             </div>
-            <div className="w-12 h-12 loom-rounded-full bg-amber-500/10 flex items-center justify-center shrink-0">
-              <Clock className="w-6 h-6 text-amber-500" />
-            </div>
-          </div>
+          </CardContent>
         </Card>
       </div>
 
       {/* Charts Grid */}
-      <div className="grid grid-cols-1 lg:grid-cols-3 gap-4 lg:gap-6">
+      <div className="grid grid-cols-1 xl:grid-cols-3 gap-6">
         {/* User Growth Chart - Takes 2 columns on large screens */}
-        <Card className="lg:col-span-2 loom-glass border border-border/30">
-          <CardHeader className="p-4 lg:p-6 pb-3">
-            <CardTitle className="text-lg lg:text-xl font-headline text-foreground">User Growth Trend</CardTitle>
+        <Card className="xl:col-span-2 loom-glass border border-border/30">
+          <CardHeader className="p-6 pb-4">
+            <CardTitle className="text-xl font-headline text-foreground">User Growth Trend</CardTitle>
             <p className="text-sm text-muted-foreground font-body">
               Monthly active users and retention rates over time
             </p>
           </CardHeader>
-          <CardContent className="p-4 lg:p-6 pt-0">
-            <div className="h-64 lg:h-72">
+          <CardContent className="p-6 pt-0">
+            <div className="h-80">
               <ChartContainer config={chartConfig}>
                 <ResponsiveContainer width="100%" height="100%">
                   <RechartsLineChart data={userGrowthData} margin={{ top: 5, right: 30, left: 20, bottom: 5 }}>
@@ -294,15 +323,15 @@ const Dashboard = ({ selectedProductId, onNavigate }: DashboardProps) => {
                       type="monotone" 
                       dataKey="users" 
                       stroke="hsl(var(--primary))" 
-                      strokeWidth={2}
-                      dot={{ fill: "hsl(var(--primary))", strokeWidth: 2, r: 4 }}
+                      strokeWidth={3}
+                      dot={{ fill: "hsl(var(--primary))", strokeWidth: 2, r: 5 }}
                     />
                     <Line 
                       type="monotone" 
                       dataKey="retention" 
                       stroke="hsl(var(--accent))" 
-                      strokeWidth={2}
-                      dot={{ fill: "hsl(var(--accent))", strokeWidth: 2, r: 4 }}
+                      strokeWidth={3}
+                      dot={{ fill: "hsl(var(--accent))", strokeWidth: 2, r: 5 }}
                     />
                   </RechartsLineChart>
                 </ResponsiveContainer>
@@ -313,14 +342,14 @@ const Dashboard = ({ selectedProductId, onNavigate }: DashboardProps) => {
 
         {/* Feature Adoption Chart */}
         <Card className="loom-glass border border-border/30">
-          <CardHeader className="p-4 lg:p-6 pb-3">
-            <CardTitle className="text-lg lg:text-xl font-headline text-foreground">Feature Adoption</CardTitle>
+          <CardHeader className="p-6 pb-4">
+            <CardTitle className="text-xl font-headline text-foreground">Feature Adoption</CardTitle>
             <p className="text-sm text-muted-foreground font-body">
               Usage rates across core features
             </p>
           </CardHeader>
-          <CardContent className="p-4 lg:p-6 pt-0">
-            <div className="h-64 lg:h-72">
+          <CardContent className="p-6 pt-0">
+            <div className="h-80">
               <ChartContainer config={chartConfig}>
                 <ResponsiveContainer width="100%" height="100%">
                   <BarChart data={featureAdoptionData} margin={{ top: 5, right: 30, left: 20, bottom: 5 }}>
@@ -330,7 +359,7 @@ const Dashboard = ({ selectedProductId, onNavigate }: DashboardProps) => {
                     <Bar 
                       dataKey="adoption" 
                       fill="hsl(var(--primary))" 
-                      radius={[4, 4, 0, 0]}
+                      radius={[8, 8, 0, 0]}
                     />
                   </BarChart>
                 </ResponsiveContainer>
@@ -360,45 +389,56 @@ const Dashboard = ({ selectedProductId, onNavigate }: DashboardProps) => {
 
       {/* Quick Actions */}
       <Card className="loom-glass border border-border/30">
-        <CardHeader className="p-4 lg:p-6 pb-3">
-          <CardTitle className="flex items-center text-lg lg:text-xl font-headline text-foreground">
-            <Sparkles className="w-5 h-5 mr-2 text-primary shrink-0" />
+        <CardHeader className="p-6 pb-4">
+          <CardTitle className="flex items-center text-xl font-headline text-foreground">
+            <Sparkles className="w-5 h-5 mr-2 text-primary" />
             Quick Actions
           </CardTitle>
+          <p className="text-sm text-muted-foreground font-body">
+            Navigate to your most used features
+          </p>
         </CardHeader>
-        <CardContent className="p-4 lg:p-6 pt-0">
-          <div className="grid grid-cols-2 lg:grid-cols-4 gap-3">
+        <CardContent className="p-6 pt-0">
+          <div className="grid grid-cols-1 sm:grid-cols-2 lg:grid-cols-4 gap-4">
             <Button 
               variant="outline" 
-              className="h-16 lg:h-20 flex-col space-y-2 loom-rounded border-border/30 hover:border-primary/30 transition-colors"
+              className="h-20 flex-col space-y-2 loom-rounded border-border/30 hover:border-primary/30 hover:bg-primary/5 transition-all group"
               onClick={() => onNavigate?.('sprints')}
             >
-              <BarChart3 className="w-5 h-5 lg:w-6 lg:h-6 text-primary shrink-0" />
-              <span className="text-xs lg:text-sm font-medium font-body text-center">Sprint Board</span>
+              <div className="w-8 h-8 rounded-lg bg-primary/10 group-hover:bg-primary/20 flex items-center justify-center transition-colors">
+                <Kanban className="w-4 h-4 text-primary" />
+              </div>
+              <span className="text-sm font-medium font-body">Sprint Board</span>
             </Button>
             <Button 
               variant="outline" 
-              className="h-16 lg:h-20 flex-col space-y-2 loom-rounded border-border/30 hover:border-primary/30 transition-colors"
+              className="h-20 flex-col space-y-2 loom-rounded border-border/30 hover:border-primary/30 hover:bg-primary/5 transition-all group"
               onClick={() => onNavigate?.('customer')}
             >
-              <Users className="w-5 h-5 lg:w-6 lg:h-6 text-primary shrink-0" />
-              <span className="text-xs lg:text-sm font-medium font-body text-center">Customer Portal</span>
+              <div className="w-8 h-8 rounded-lg bg-primary/10 group-hover:bg-primary/20 flex items-center justify-center transition-colors">
+                <MessageSquare className="w-4 h-4 text-primary" />
+              </div>
+              <span className="text-sm font-medium font-body">Customer Board</span>
             </Button>
             <Button 
               variant="outline" 
-              className="h-16 lg:h-20 flex-col space-y-2 loom-rounded border-border/30 hover:border-primary/30 transition-colors"
+              className="h-20 flex-col space-y-2 loom-rounded border-border/30 hover:border-primary/30 hover:bg-primary/5 transition-all group"
               onClick={() => onNavigate?.('roadmap')}
             >
-              <Calendar className="w-5 h-5 lg:w-6 lg:h-6 text-primary shrink-0" />
-              <span className="text-xs lg:text-sm font-medium font-body text-center">Roadmap</span>
+              <div className="w-8 h-8 rounded-lg bg-primary/10 group-hover:bg-primary/20 flex items-center justify-center transition-colors">
+                <Map className="w-4 h-4 text-primary" />
+              </div>
+              <span className="text-sm font-medium font-body">Roadmap</span>
             </Button>
             <Button 
               variant="outline" 
-              className="h-16 lg:h-20 flex-col space-y-2 loom-rounded border-border/30 hover:border-primary/30 transition-colors"
+              className="h-20 flex-col space-y-2 loom-rounded border-border/30 hover:border-primary/30 hover:bg-primary/5 transition-all group"
               onClick={() => onNavigate?.('strategy')}
             >
-              <Target className="w-5 h-5 lg:w-6 lg:h-6 text-primary shrink-0" />
-              <span className="text-xs lg:text-sm font-medium font-body text-center">Strategy</span>
+              <div className="w-8 h-8 rounded-lg bg-primary/10 group-hover:bg-primary/20 flex items-center justify-center transition-colors">
+                <Target className="w-4 h-4 text-primary" />
+              </div>
+              <span className="text-sm font-medium font-body">Strategy</span>
             </Button>
           </div>
         </CardContent>

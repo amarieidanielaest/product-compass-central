@@ -43,14 +43,14 @@ const PageHeader = ({ title, subtitle, breadcrumbs }: PageHeaderProps) => {
   };
 
   return (
-    <header className="sticky top-0 z-50 w-full bg-white border-b border-gray-200">
-      <div className="mx-auto max-w-7xl px-4 sm:px-6 lg:px-8">
-        <div className="flex h-16 items-center justify-between">
+    <header className="sticky top-0 z-50 w-full bg-white/95 backdrop-blur-sm border-b border-gray-200">
+      <div className="container mx-auto px-4 sm:px-6 lg:px-8">
+        <div className="flex h-14 items-center justify-between gap-4">
           {/* Left side - Breadcrumbs and Search */}
-          <div className="flex items-center gap-4 flex-1">
-            {/* Breadcrumbs first */}
+          <div className="flex items-center gap-3 flex-1 min-w-0">
+            {/* Breadcrumbs */}
             {breadcrumbs && breadcrumbs.length > 0 && (
-              <Breadcrumb className="hidden md:flex">
+              <Breadcrumb className="hidden sm:flex">
                 <BreadcrumbList>
                   <BreadcrumbItem>
                     <BreadcrumbLink href="/" className="flex items-center">
@@ -77,16 +77,16 @@ const PageHeader = ({ title, subtitle, breadcrumbs }: PageHeaderProps) => {
               </Breadcrumb>
             )}
             
-            {/* Search after breadcrumbs */}
-            <div className="max-w-lg">
+            {/* Search - responsive sizing */}
+            <div className="flex-1 max-w-md min-w-0 hidden md:block">
               <GlobalSearch />
             </div>
           </div>
 
           {/* Right side - Actions and User */}
-          <div className="flex items-center gap-4">
+          <div className="flex items-center gap-2">
             {/* Mobile search trigger */}
-            <Button variant="ghost" size="sm" className="sm:hidden h-8 w-8 p-0">
+            <Button variant="ghost" size="sm" className="md:hidden h-8 w-8 p-0">
               <Search className="h-4 w-4" />
             </Button>
             
@@ -98,7 +98,7 @@ const PageHeader = ({ title, subtitle, breadcrumbs }: PageHeaderProps) => {
               <DropdownMenuTrigger asChild>
                 <Button variant="ghost" className="relative h-8 w-8 rounded-full">
                   <Avatar className="h-8 w-8">
-                    <AvatarFallback className="bg-gray-600 text-white text-sm">
+                    <AvatarFallback className="bg-primary text-primary-foreground text-sm">
                       {profile?.first_name?.[0] || profile?.email?.[0]?.toUpperCase() || 'U'}
                     </AvatarFallback>
                   </Avatar>
@@ -113,7 +113,7 @@ const PageHeader = ({ title, subtitle, breadcrumbs }: PageHeaderProps) => {
                         : profile?.email || 'User'
                       }
                     </p>
-                    <p className="w-[200px] truncate text-xs text-gray-500">
+                    <p className="w-[200px] truncate text-xs text-muted-foreground">
                       {profile?.email}
                     </p>
                   </div>
