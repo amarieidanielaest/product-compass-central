@@ -58,7 +58,7 @@ const PageHeader = ({ title, subtitle, breadcrumbs }: PageHeaderProps) => {
                     </BreadcrumbLink>
                   </BreadcrumbItem>
                   {breadcrumbs.map((item, index) => (
-                    <React.Fragment key={`breadcrumb-${index}`}>
+                    <React.Fragment key={index}>
                       <BreadcrumbSeparator />
                       <BreadcrumbItem>
                         {item.href ? (
