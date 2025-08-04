@@ -16,6 +16,7 @@ import Settings from '../components/Settings';
 import KnowledgeCenter from '../components/KnowledgeCenter';
 
 const Index = () => {
+  console.log('Index component rendering');
   const [activeModule, setActiveModule] = useState('dashboard');
   const [selectedProductId, setSelectedProductId] = useState('main');
 

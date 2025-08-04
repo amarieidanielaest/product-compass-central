@@ -25,6 +25,7 @@ interface DashboardProps {
 }
 
 const Dashboard = ({ selectedProductId, onNavigate }: DashboardProps) => {
+  console.log('Dashboard rendering with props:', { selectedProductId, onNavigate });
   const [timeFilter, setTimeFilter] = useState<'7d' | '30d' | '90d'>('30d');
 
   // Mock data - replace with actual service calls
