@@ -7,7 +7,7 @@ import {
   ChevronDown, ChevronRight, Kanban, List, CalendarIcon,
   Zap, TrendingUp, AlertTriangle, Play, Pause, Square,
   Columns, Grid, Layout, X, Search, HelpCircle,
-  Maximize2, Minimize2, Bot, Workflow, Shield, Layers
+  Maximize2, Minimize2, Bot, Workflow, Shield, Layers, RefreshCw
 } from 'lucide-react';
 import { Card, CardContent, CardHeader, CardTitle } from '@/components/ui/card';
 import { Button } from '@/components/ui/button';
@@ -18,6 +18,7 @@ import { Select, SelectContent, SelectItem, SelectTrigger, SelectValue } from '@
 import { Separator } from '@/components/ui/separator';
 import { Input } from '@/components/ui/input';
 import { useToast } from '@/hooks/use-toast';
+import { cn } from '@/lib/utils';
 import { sprintService, type Sprint, type WorkItem, type WorkflowColumn, type Project, type Team } from '@/services/api/SprintService';
 import BoardColumn from './sprint/BoardColumn';
 import EnhancedWorkItemCard from './sprint/EnhancedWorkItemCard';
@@ -495,13 +496,13 @@ const AdaptableSprintBoard = ({
 
   return (
     <div className="h-full flex flex-col">
-      {/* Streamlined header */}
-      <div className="border-b bg-background/95 backdrop-blur supports-[backdrop-filter]:bg-background/60 px-6 py-4">
-        <div className="flex items-center justify-between gap-4">
-          {/* Left: Context selectors */}
-          <div className="flex items-center gap-3">
+      {/* Clean streamlined header */}
+      <div className="border-b bg-background/95 backdrop-blur supports-[backdrop-filter]:bg-background/60 px-4 py-3">
+        <div className="flex flex-col sm:flex-row items-start sm:items-center justify-between gap-3">
+          {/* Left: Context selectors + Search */}
+          <div className="flex flex-wrap items-center gap-2">
             <Select value={selectedTeam} onValueChange={setSelectedTeam}>
-              <SelectTrigger className="w-32 h-8 text-sm">
+              <SelectTrigger className="w-40 h-8 text-sm">
                 <SelectValue placeholder="Team" />
               </SelectTrigger>
               <SelectContent>
@@ -517,7 +518,7 @@ const AdaptableSprintBoard = ({
             </Select>
 
             <Select value={selectedProject} onValueChange={setSelectedProject}>
-              <SelectTrigger className="w-32 h-8 text-sm">
+              <SelectTrigger className="w-40 h-8 text-sm">
                 <SelectValue placeholder="Project" />
               </SelectTrigger>
               <SelectContent>
@@ -533,7 +534,7 @@ const AdaptableSprintBoard = ({
             </Select>
 
             <Select value={selectedSprint} onValueChange={setSelectedSprint}>
-              <SelectTrigger className="w-36 h-8 text-sm">
+              <SelectTrigger className="w-40 h-8 text-sm">
                 <SelectValue placeholder="Sprint" />
               </SelectTrigger>
               <SelectContent>
@@ -550,11 +551,24 @@ const AdaptableSprintBoard = ({
                 ))}
               </SelectContent>
             </Select>
+
+            {/* Search in header */}
+            <div className="relative w-48">
+              <Search className="absolute left-2 top-2 h-4 w-4 text-muted-foreground" />
+              <Input
+                placeholder="Search items..."
+                value={viewConfig.filters.search || ''}
+                onChange={(e) => setViewConfig(prev => ({
+                  ...prev,
+                  filters: { ...prev.filters, search: e.target.value }
+                }))}
+                className="pl-8 h-8 text-sm"
+              />
+            </div>
           </div>
 
-          {/* Right: Quick actions */}
+          {/* Right: View toggle + Actions */}
           <div className="flex items-center gap-2">
-            {/* View toggle */}
             <div className="flex items-center border rounded-md">
               <Button 
                 variant={viewConfig.type === 'board' ? 'default' : 'ghost'} 
@@ -574,18 +588,24 @@ const AdaptableSprintBoard = ({
               </Button>
             </div>
 
-            <Button variant="outline" size="sm" className="h-7 px-3 text-xs">
-              <Filter className="w-3 h-3 mr-1" />
-              Filter
-            </Button>
-
             <Button 
               onClick={() => setShowCreateWorkItem(true)}
+              disabled={!selectedSprint}
               size="sm"
               className="h-7 px-3 text-xs"
             >
               <Plus className="w-3 h-3 mr-1" />
-              Add Item
+              Add
+            </Button>
+
+            <Button 
+              variant="outline" 
+              size="sm" 
+              onClick={handleRefresh}
+              disabled={loading}
+              className="h-7 px-2 text-xs"
+            >
+              <RefreshCw className={cn("w-3 h-3", loading && "animate-spin")} />
             </Button>
           </div>
         </div>
@@ -611,133 +631,26 @@ const AdaptableSprintBoard = ({
               </TabsTrigger>
             </TabsList>
 
-            <TabsContent value="board" className="flex-1 flex flex-col space-y-4">
-            {/* Sprint overview header */}
-            <Card>
-              <CardHeader>
-                <div className="flex items-center justify-between">
-                  <div>
-                    <CardTitle className="flex items-center gap-2">
-                      <Calendar className="w-5 h-5 text-primary" />
-                      {currentSprint.name}
-                      <Badge variant="outline" className={`ml-2 ${
-                        currentSprint.status === 'active' ? 'text-green-700 bg-green-50' : 
-                        currentSprint.status === 'completed' ? 'text-blue-700 bg-blue-50' :
-                        'text-gray-700 bg-gray-50'
-                      }`}>
-                        {currentSprint.status}
-                      </Badge>
-                    </CardTitle>
-                    <p className="text-muted-foreground mt-1">
-                      {currentSprint.start_date} - {currentSprint.end_date}
-                      {currentSprint.goal && ` • Goal: ${currentSprint.goal}`}
-                    </p>
-                  </div>
-                  <div className="flex items-center gap-2">
-                    <Button 
-                      variant="outline" 
-                      size="sm" 
-                      onClick={() => setShowAdvancedFilters(!showAdvancedFilters)}
-                    >
-                      <Filter className="w-4 h-4 mr-2" />
-                      Filters
-                    </Button>
-                    <Button variant="outline" size="sm" onClick={() => onNavigate?.('roadmap')}>
-                      <ExternalLink className="w-4 h-4 mr-2" />
-                      View Roadmap
-                    </Button>
-                    {currentSprint.status === 'active' && (
-                      <Button variant="outline" size="sm">
-                        <Pause className="w-4 h-4 mr-2" />
-                        End Sprint
-                      </Button>
-                    )}
-                    {currentSprint.status === 'planned' && (
-                      <Button size="sm">
-                        <Play className="w-4 h-4 mr-2" />
-                        Start Sprint
-                      </Button>
-                    )}
-                  </div>
+            <TabsContent value="board" className="flex-1 flex flex-col space-y-3">
+            {/* Compact sprint overview */}
+            <div className="bg-muted/30 rounded-lg p-3">
+              <div className="flex flex-col sm:flex-row sm:items-center justify-between gap-3">
+                <div className="flex items-center gap-2">
+                  <h3 className="font-medium text-sm">{currentSprint.name}</h3>
+                  <Badge variant="outline" className={`text-xs ${
+                    currentSprint.status === 'active' ? 'text-green-700 bg-green-50' : 
+                    currentSprint.status === 'completed' ? 'text-blue-700 bg-blue-50' :
+                    'text-gray-700 bg-gray-50'
+                  }`}>
+                    {currentSprint.status}
+                  </Badge>
                 </div>
-              </CardHeader>
-              <CardContent>
-                {/* Sprint metrics */}
-                <div className="grid grid-cols-2 md:grid-cols-4 gap-4 mb-4">
-                  <div className="text-center">
-                    <div className="text-2xl font-bold text-primary">{workItems.length}</div>
-                    <div className="text-sm text-muted-foreground">Total Items</div>
-                  </div>
-                  <div className="text-center">
-                    <div className="text-2xl font-bold text-green-600">
-                      {workItems.filter(item => workflowColumns.find(col => col.column_type === 'end')?.name === item.status).length}
-                    </div>
-                    <div className="text-sm text-muted-foreground">Completed</div>
-                  </div>
-                  <div className="text-center">
-                    <div className="text-2xl font-bold text-orange-600">
-                      {workItems.reduce((sum, item) => sum + item.effort_estimate, 0)}
-                    </div>
-                    <div className="text-sm text-muted-foreground">Story Points</div>
-                  </div>
-                  <div className="text-center">
-                    <div className="text-2xl font-bold text-purple-600">{currentSprint.committed}%</div>
-                    <div className="text-sm text-muted-foreground">Capacity Used</div>
-                  </div>
+                
+                <div className="flex items-center gap-4 text-xs text-muted-foreground">
+                  <span>{workItems.length} items</span>
+                  <span>{workItems.filter(item => workflowColumns.find(col => col.column_type === 'end')?.name === item.status).length} done</span>
+                  <span>{workItems.reduce((sum, item) => sum + item.effort_estimate, 0)} pts</span>
                 </div>
-
-                {/* Progress bar */}
-                <div className="space-y-2">
-                  <div className="flex justify-between text-sm">
-                    <span>Sprint Progress</span>
-                    <span>{Math.round((currentSprint.completed / currentSprint.committed) * 100)}%</span>
-                  </div>
-                  <Progress value={(currentSprint.completed / currentSprint.committed) * 100} className="w-full" />
-                </div>
-              </CardContent>
-            </Card>
-
-            {/* Search and filters placeholder */}
-            {showAdvancedFilters && (
-              <Card>
-                <CardHeader>
-                  <CardTitle>Advanced Filters</CardTitle>
-                </CardHeader>
-                <CardContent>
-                  <Input 
-                    placeholder="Search work items..." 
-                    value={viewConfig.filters.search}
-                    onChange={(e) => updateSearchFilter(e.target.value)}
-                    className="mb-4"
-                  />
-                  <p className="text-sm text-muted-foreground">
-                    Advanced filtering interface will be available soon.
-                  </p>
-                </CardContent>
-              </Card>
-            )}
-
-            {/* Board/List Toggle */}
-            <div className="flex justify-end">
-              <div className="flex items-center border rounded-md">
-                <Button 
-                  variant={viewConfig.type === 'board' ? 'default' : 'ghost'} 
-                  size="sm"
-                  className="rounded-r-none border-r px-3"
-                  onClick={() => setViewConfig(prev => ({ ...prev, type: 'board' }))}
-                >
-                  <Columns className="w-4 h-4" />
-                  <span className="hidden sm:inline ml-1">Board</span>
-                </Button>
-                <Button 
-                  variant={viewConfig.type === 'list' ? 'default' : 'ghost'} 
-                  size="sm"
-                  className="rounded-l-none px-3"
-                  onClick={() => setViewConfig(prev => ({ ...prev, type: 'list' }))}
-                >
-                  <List className="w-4 h-4" />
-                  <span className="hidden sm:inline ml-1">List</span>
-                </Button>
               </div>
             </div>
           </TabsContent>
@@ -781,14 +694,14 @@ const AdaptableSprintBoard = ({
       {/* Board/List content within the board tab */}
       {activeMainTab === 'board' && currentSprint && (
         <div className="px-6">
-          {/* Board view */}
+          {/* Responsive Board view */}
           {viewConfig.type === 'board' && workflowColumns.length > 0 && (
             <div className="overflow-hidden">
-              <div className="flex gap-4 overflow-x-auto pb-4">
+              <div className="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-3 xl:grid-cols-4 gap-4 md:flex md:gap-4 md:overflow-x-auto pb-4 min-h-[400px]">
                 {workflowColumns
                   .sort((a, b) => a.position - b.position)
                   .map((column) => (
-                    <div key={column.id} className="flex-shrink-0 w-80">
+                    <div key={column.id} className="md:flex-shrink-0 md:w-72 lg:w-80">
                       <BoardColumn
                         column={column}
                         workItems={groupedWorkItems[column.name] || []}
