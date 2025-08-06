@@ -9,6 +9,7 @@ import {
   Columns, Grid, Layout, X, Search, HelpCircle,
   Maximize2, Minimize2, Bot, Workflow, Shield, Layers, RefreshCw
 } from 'lucide-react';
+import { Skeleton } from '@/components/ui/skeleton';
 import { Card, CardContent, CardHeader, CardTitle } from '@/components/ui/card';
 import { Button } from '@/components/ui/button';
 import { Badge } from '@/components/ui/badge';
@@ -62,6 +63,8 @@ const AdaptableSprintBoard = ({
   defaultTeamId, 
   defaultProjectId 
 }: AdaptableSprintBoardProps) => {
+  // Add key for component remounting when props change
+  const componentKey = `${selectedProductId}-${defaultTeamId}-${defaultProjectId}`;
   const { toast } = useToast();
 
   // Core state
@@ -108,28 +111,41 @@ const AdaptableSprintBoard = ({
   const [focusedItem, setFocusedItem] = useState<string | null>(null);
   const [activeMainTab, setActiveMainTab] = useState('board');
 
-  // Load initial data
+  // Load initial data in parallel
   useEffect(() => {
     const loadInitialData = async () => {
       try {
         setLoading(true);
-        console.log('Loading teams...');
-        const teamsResponse = await sprintService.getTeams();
-        console.log('Teams response:', teamsResponse);
+        
+        // Load teams and projects in parallel
+        const [teamsResponse, projectsResponse] = await Promise.all([
+          sprintService.getTeams(),
+          defaultTeamId ? sprintService.getProjects(defaultTeamId) : Promise.resolve({ success: true, data: [] })
+        ]);
+        
         if (teamsResponse.success && teamsResponse.data) {
           setTeams(teamsResponse.data);
-          console.log('Teams loaded:', teamsResponse.data);
-          if (!selectedTeam && teamsResponse.data.length > 0) {
+          
+          // Auto-select first team if no default provided
+          if (!defaultTeamId && teamsResponse.data.length > 0) {
             setSelectedTeam(teamsResponse.data[0].id);
-            console.log('Auto-selected team:', teamsResponse.data[0].id);
+          }
+        }
+        
+        if (projectsResponse.success && projectsResponse.data) {
+          setProjects(projectsResponse.data);
+          
+          // Auto-select first project if no default provided
+          if (!defaultProjectId && projectsResponse.data.length > 0) {
+            setSelectedProject(projectsResponse.data[0].id);
           }
         }
       } catch (error) {
-        console.error('Error loading teams:', error);
+        console.error('Error loading initial data:', error);
         toast({
-          title: "Error loading teams",
-          description: "Failed to load team data",
-          variant: "destructive",
+          title: "Error",
+          description: "Failed to load initial data",
+          variant: "destructive"
         });
       } finally {
         setLoading(false);
@@ -137,7 +153,7 @@ const AdaptableSprintBoard = ({
     };
 
     loadInitialData();
-  }, []);
+  }, [defaultTeamId, defaultProjectId, toast]);
 
   // Load projects when team changes
   useEffect(() => {
@@ -488,8 +504,31 @@ const AdaptableSprintBoard = ({
 
   if (loading) {
     return (
-      <div className="flex items-center justify-center h-64">
-        <div className="animate-spin rounded-full h-8 w-8 border-b-2 border-primary"></div>
+      <div className="space-y-4 p-6">
+        <div className="flex flex-col sm:flex-row items-start sm:items-center justify-between gap-3">
+          <div className="flex flex-wrap items-center gap-2">
+            <Skeleton className="h-8 w-40" />
+            <Skeleton className="h-8 w-40" />
+            <Skeleton className="h-8 w-40" />
+            <Skeleton className="h-8 w-48" />
+          </div>
+          <div className="flex items-center gap-2">
+            <Skeleton className="h-7 w-16" />
+            <Skeleton className="h-7 w-16" />
+          </div>
+        </div>
+        <div className="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-3 xl:grid-cols-4 gap-4">
+          {[1, 2, 3, 4].map((i) => (
+            <div key={i} className="space-y-3">
+              <Skeleton className="h-6 w-32" />
+              <div className="space-y-2">
+                {[1, 2, 3].map((j) => (
+                  <Skeleton key={j} className="h-24 w-full" />
+                ))}
+              </div>
+            </div>
+          ))}
+        </div>
       </div>
     );
   }
