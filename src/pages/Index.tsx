@@ -73,7 +73,11 @@ const Index = () => {
       case 'roadmap':
         return <Roadmap />;
       case 'sprints':
-        return <AdaptableSprintBoard selectedProductId={selectedProductId} onNavigate={setActiveModule} />;
+        return <AdaptableSprintBoard 
+          key={`${activeModule}-${selectedProductId}`} 
+          selectedProductId={selectedProductId} 
+          onNavigate={setActiveModule} 
+        />;
       case 'prd':
         return <PRDGenerator />;
       case 'customer':

@@ -111,13 +111,23 @@ const AdaptableSprintBoard = ({
   const [focusedItem, setFocusedItem] = useState<string | null>(null);
   const [activeMainTab, setActiveMainTab] = useState('board');
 
-  // Load initial data in parallel
+  // Clear all state and load fresh data on mount
   useEffect(() => {
     const loadInitialData = async () => {
       try {
+        // Clear any existing state first
+        setTeams([]);
+        setProjects([]);
+        setSprints([]);
+        setWorkItems([]);
+        setWorkflowColumns([]);
         setLoading(true);
         
-        // Load teams and projects in parallel
+        // Force a small delay to ensure state is cleared
+        await new Promise(resolve => setTimeout(resolve, 50));
+        
+        // Load teams and projects in parallel with cache-busting
+        const timestamp = Date.now();
         const [teamsResponse, projectsResponse] = await Promise.all([
           sprintService.getTeams(),
           defaultTeamId ? sprintService.getProjects(defaultTeamId) : Promise.resolve({ success: true, data: [] })
@@ -126,18 +136,20 @@ const AdaptableSprintBoard = ({
         if (teamsResponse.success && teamsResponse.data) {
           setTeams(teamsResponse.data);
           
-          // Auto-select first team if no default provided
-          if (!defaultTeamId && teamsResponse.data.length > 0) {
-            setSelectedTeam(teamsResponse.data[0].id);
+          // Auto-select team
+          const teamId = defaultTeamId || (teamsResponse.data.length > 0 ? teamsResponse.data[0].id : '');
+          if (teamId && teamId !== selectedTeam) {
+            setSelectedTeam(teamId);
           }
         }
         
         if (projectsResponse.success && projectsResponse.data) {
           setProjects(projectsResponse.data);
           
-          // Auto-select first project if no default provided
-          if (!defaultProjectId && projectsResponse.data.length > 0) {
-            setSelectedProject(projectsResponse.data[0].id);
+          // Auto-select project
+          const projectId = defaultProjectId || (projectsResponse.data.length > 0 ? projectsResponse.data[0].id : '');
+          if (projectId && projectId !== selectedProject) {
+            setSelectedProject(projectId);
           }
         }
       } catch (error) {
@@ -153,7 +165,7 @@ const AdaptableSprintBoard = ({
     };
 
     loadInitialData();
-  }, [defaultTeamId, defaultProjectId, toast]);
+  }, [componentKey, toast]); // Use componentKey to ensure fresh load
 
   // Load projects when team changes
   useEffect(() => {
