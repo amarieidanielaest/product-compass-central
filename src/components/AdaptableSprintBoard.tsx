@@ -111,23 +111,22 @@ const AdaptableSprintBoard = ({
   const [focusedItem, setFocusedItem] = useState<string | null>(null);
   const [activeMainTab, setActiveMainTab] = useState('board');
 
-  // Clear all state and load fresh data on mount
+  // Complete state reset and fresh data loading on mount
   useEffect(() => {
     const loadInitialData = async () => {
       try {
-        // Clear any existing state first
+        // Immediately reset ALL state to prevent flash
         setTeams([]);
         setProjects([]);
         setSprints([]);
         setWorkItems([]);
         setWorkflowColumns([]);
+        setSelectedTeam('');
+        setSelectedProject('');
+        setSelectedSprint('');
         setLoading(true);
         
-        // Force a small delay to ensure state is cleared
-        await new Promise(resolve => setTimeout(resolve, 50));
-        
-        // Load teams and projects in parallel with cache-busting
-        const timestamp = Date.now();
+        // Load teams and projects in parallel with fresh data
         const [teamsResponse, projectsResponse] = await Promise.all([
           sprintService.getTeams(),
           defaultTeamId ? sprintService.getProjects(defaultTeamId) : Promise.resolve({ success: true, data: [] })
@@ -136,9 +135,9 @@ const AdaptableSprintBoard = ({
         if (teamsResponse.success && teamsResponse.data) {
           setTeams(teamsResponse.data);
           
-          // Auto-select team
+          // Set team selection
           const teamId = defaultTeamId || (teamsResponse.data.length > 0 ? teamsResponse.data[0].id : '');
-          if (teamId && teamId !== selectedTeam) {
+          if (teamId) {
             setSelectedTeam(teamId);
           }
         }
@@ -146,9 +145,9 @@ const AdaptableSprintBoard = ({
         if (projectsResponse.success && projectsResponse.data) {
           setProjects(projectsResponse.data);
           
-          // Auto-select project
+          // Set project selection
           const projectId = defaultProjectId || (projectsResponse.data.length > 0 ? projectsResponse.data[0].id : '');
-          if (projectId && projectId !== selectedProject) {
+          if (projectId) {
             setSelectedProject(projectId);
           }
         }
@@ -165,7 +164,16 @@ const AdaptableSprintBoard = ({
     };
 
     loadInitialData();
-  }, [componentKey, toast]); // Use componentKey to ensure fresh load
+    
+    // Cleanup function to reset state on unmount
+    return () => {
+      setTeams([]);
+      setProjects([]);
+      setSprints([]);
+      setWorkItems([]);
+      setWorkflowColumns([]);
+    };
+  }, []); // Empty dependency array - only run on mount/unmount
 
   // Load projects when team changes
   useEffect(() => {
@@ -190,6 +198,10 @@ const AdaptableSprintBoard = ({
 
   const loadProjects = async () => {
     try {
+      setProjects([]); // Clear immediately to prevent flash
+      setSprints([]); // Clear dependent data
+      setWorkItems([]);
+      
       const response = await sprintService.getProjects(selectedTeam);
       if (response.success && response.data) {
         setProjects(response.data);
