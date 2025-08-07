@@ -95,7 +95,8 @@ const AdaptableSprintBoard = ({
   });
 
   // UI state
-  const [loading, setLoading] = useState(true);
+  const [loading, setLoading] = useState(true); // Start with loading true to prevent flash
+  const [isInitialized, setIsInitialized] = useState(false); // Track initialization
   const [selectedWorkItems, setSelectedWorkItems] = useState<string[]>([]);
   const [showCreateWorkItem, setShowCreateWorkItem] = useState(false);
   const [showSprintSettings, setShowSprintSettings] = useState(false);
@@ -111,27 +112,15 @@ const AdaptableSprintBoard = ({
   const [focusedItem, setFocusedItem] = useState<string | null>(null);
   const [activeMainTab, setActiveMainTab] = useState('board');
 
-  // Complete state reset and fresh data loading on mount
+  // Initialize component with proper loading state
   useEffect(() => {
     const loadInitialData = async () => {
       try {
-        // Immediately reset ALL state to prevent flash
-        setTeams([]);
-        setProjects([]);
-        setSprints([]);
-        setWorkItems([]);
-        setWorkflowColumns([]);
-        setSelectedTeam('');
-        setSelectedProject('');
-        setSelectedSprint('');
         setLoading(true);
+        setIsInitialized(false);
         
-        // Load teams and projects in parallel with fresh data
-        const [teamsResponse, projectsResponse] = await Promise.all([
-          sprintService.getTeams(),
-          defaultTeamId ? sprintService.getProjects(defaultTeamId) : Promise.resolve({ success: true, data: [] })
-        ]);
-        
+        // Load teams first
+        const teamsResponse = await sprintService.getTeams();
         if (teamsResponse.success && teamsResponse.data) {
           setTeams(teamsResponse.data);
           
@@ -139,18 +128,22 @@ const AdaptableSprintBoard = ({
           const teamId = defaultTeamId || (teamsResponse.data.length > 0 ? teamsResponse.data[0].id : '');
           if (teamId) {
             setSelectedTeam(teamId);
+            
+            // Load projects for the selected team
+            const projectsResponse = await sprintService.getProjects(teamId);
+            if (projectsResponse.success && projectsResponse.data) {
+              setProjects(projectsResponse.data);
+              
+              // Set project selection
+              const projectId = defaultProjectId || (projectsResponse.data.length > 0 ? projectsResponse.data[0].id : '');
+              if (projectId) {
+                setSelectedProject(projectId);
+              }
+            }
           }
         }
         
-        if (projectsResponse.success && projectsResponse.data) {
-          setProjects(projectsResponse.data);
-          
-          // Set project selection
-          const projectId = defaultProjectId || (projectsResponse.data.length > 0 ? projectsResponse.data[0].id : '');
-          if (projectId) {
-            setSelectedProject(projectId);
-          }
-        }
+        setIsInitialized(true);
       } catch (error) {
         console.error('Error loading initial data:', error);
         toast({
@@ -164,16 +157,7 @@ const AdaptableSprintBoard = ({
     };
 
     loadInitialData();
-    
-    // Cleanup function to reset state on unmount
-    return () => {
-      setTeams([]);
-      setProjects([]);
-      setSprints([]);
-      setWorkItems([]);
-      setWorkflowColumns([]);
-    };
-  }, []); // Empty dependency array - only run on mount/unmount
+  }, []); // Empty dependency array - only run on mount
 
   // Load projects when team changes
   useEffect(() => {
@@ -197,15 +181,20 @@ const AdaptableSprintBoard = ({
   }, [selectedSprint]);
 
   const loadProjects = async () => {
+    if (!selectedTeam) return;
+    
     try {
-      setProjects([]); // Clear immediately to prevent flash
-      setSprints([]); // Clear dependent data
+      // Clear dependent data immediately
+      setProjects([]);
+      setSprints([]);
       setWorkItems([]);
+      setSelectedProject('');
+      setSelectedSprint('');
       
       const response = await sprintService.getProjects(selectedTeam);
       if (response.success && response.data) {
         setProjects(response.data);
-        if (!selectedProject && response.data.length > 0) {
+        if (response.data.length > 0) {
           setSelectedProject(response.data[0].id);
         }
       }
@@ -219,14 +208,22 @@ const AdaptableSprintBoard = ({
   };
 
   const loadSprints = async (projectId?: string) => {
+    const targetProjectId = projectId || selectedProject;
+    if (!targetProjectId) return;
+    
     try {
-      const response = await sprintService.getSprints(projectId || selectedProject);
+      // Clear dependent data immediately
+      setSprints([]);
+      setWorkItems([]);
+      setSelectedSprint('');
+      
+      const response = await sprintService.getSprints(targetProjectId);
       if (response.success && response.data) {
         setSprints(response.data);
         // Auto-select active sprint or latest sprint
         const activeSprint = response.data.find(s => s.status === 'active');
         const targetSprint = activeSprint || response.data[0];
-        if (targetSprint && !selectedSprint) {
+        if (targetSprint) {
           setSelectedSprint(targetSprint.id);
         }
       }
@@ -526,7 +523,40 @@ const AdaptableSprintBoard = ({
     }
   };
 
-  if (loading) {
+  // Show loading immediately on mount and during data loading
+  if (loading || !isInitialized) {
+    return (
+      <div className="space-y-4 p-6">
+        <div className="flex flex-col sm:flex-row items-start sm:items-center justify-between gap-3">
+          <div className="flex flex-wrap items-center gap-2">
+            <Skeleton className="h-8 w-40" />
+            <Skeleton className="h-8 w-40" />
+            <Skeleton className="h-8 w-40" />
+            <Skeleton className="h-8 w-48" />
+          </div>
+          <div className="flex items-center gap-2">
+            <Skeleton className="h-7 w-16" />
+            <Skeleton className="h-7 w-16" />
+          </div>
+        </div>
+        <div className="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-3 xl:grid-cols-4 gap-4">
+          {[1, 2, 3, 4].map((i) => (
+            <div key={i} className="space-y-3">
+              <Skeleton className="h-6 w-32" />
+              <div className="space-y-2">
+                {[1, 2, 3].map((j) => (
+                  <Skeleton key={j} className="h-24 w-full" />
+                ))}
+              </div>
+            </div>
+          ))}
+        </div>
+      </div>
+    );
+  }
+
+  // Only render main content when properly initialized with minimum required data
+  if (!isInitialized || !selectedTeam) {
     return (
       <div className="space-y-4 p-6">
         <div className="flex flex-col sm:flex-row items-start sm:items-center justify-between gap-3">
