@@ -6,7 +6,7 @@ import PageHeader from '../components/PageHeader';
 import Dashboard from '../components/Dashboard';
 import Strategy from '../components/Strategy';
 import Roadmap from '../components/Roadmap';
-import AdaptableSprintBoard from '../components/AdaptableSprintBoard';
+import { AdaptableSprintBoard } from '../components/AdaptableSprintBoard';
 import PRDGenerator from '../components/PRDGenerator';
 import CustomerBoard from '../components/CustomerBoard';
 import ProductManager from '../components/ProductManager';
@@ -73,11 +73,7 @@ const Index = () => {
       case 'roadmap':
         return <Roadmap />;
       case 'sprints':
-        return <AdaptableSprintBoard 
-          key={`${activeModule}-${selectedProductId}`} 
-          selectedProductId={selectedProductId} 
-          onNavigate={setActiveModule} 
-        />;
+        return <AdaptableSprintBoard key={`${activeModule}-${selectedProductId}`} />;
       case 'prd':
         return <PRDGenerator />;
       case 'customer':
