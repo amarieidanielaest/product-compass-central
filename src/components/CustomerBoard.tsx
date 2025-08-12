@@ -1,5 +1,5 @@
-import { useState } from 'react';
-import { Plus, Filter, Search, MessageSquare, Star, Clock, User, TrendingUp, Brain, Zap } from 'lucide-react';
+import { useState, useEffect } from 'react';
+import { Plus, Filter, Search, MessageSquare, Star, Clock, User, TrendingUp, Brain, Zap, Building2, Users, Globe, Lock, ExternalLink } from 'lucide-react';
 import { Card, CardContent, CardHeader, CardTitle } from '@/components/ui/card';
 import { Button } from '@/components/ui/button';
 import { Input } from '@/components/ui/input';
@@ -11,8 +11,13 @@ import TicketDetail from './TicketDetail';
 import AIInsightsPanel from './AIInsightsPanel';
 import SmartFeedbackProcessor from './SmartFeedbackProcessor';
 import { useServiceCall, useAsyncServiceCall } from '@/hooks/useServiceIntegration';
-import { feedbackService, aiService } from '@/services/api';
+import { feedbackService, aiService, boardService } from '@/services/api';
 import type { FeedbackItem, FeedbackFilters } from '@/services/api/FeedbackService';
+import type { CustomerBoard } from '@/services/api/BoardService';
+import { BoardSelector } from './boards/BoardSelector';
+import { CreateBoardDialog } from './boards/CreateBoardDialog';
+import { useToast } from '@/hooks/use-toast';
+import { Link } from 'react-router-dom';
 
 interface Ticket {
   id: string;
@@ -40,62 +45,80 @@ interface CustomerBoardProps {
 }
 
 const CustomerBoard = ({ selectedProductId, onNavigate }: CustomerBoardProps) => {
-  const [activeView, setActiveView] = useState('board');
+  const [activeView, setActiveView] = useState('boards');
   const [selectedTicket, setSelectedTicket] = useState<Ticket | null>(null);
   const [isCreateDialogOpen, setIsCreateDialogOpen] = useState(false);
+  const [isCreateBoardDialogOpen, setIsCreateBoardDialogOpen] = useState(false);
   const [filterStatus, setFilterStatus] = useState('all');
   const [filterPriority, setFilterPriority] = useState('all');
   const [searchTerm, setSearchTerm] = useState('');
   const [showAIProcessor, setShowAIProcessor] = useState(false);
   const [rawFeedbackText, setRawFeedbackText] = useState('');
+  const [selectedBoard, setSelectedBoard] = useState<CustomerBoard | null>(null);
+  const { toast } = useToast();
 
-  // Integrate Feedback Service
+  // Load boards and organizations
+  const { data: boardsData, loading: boardsLoading, error: boardsError, refetch: refetchBoards } = useServiceCall(
+    () => boardService.getBoards(),
+    []
+  );
+
+  // Integrate Feedback Service - only when a board is selected
   const feedbackFilters: FeedbackFilters = {
     ...(filterStatus !== 'all' && { status: [filterStatus] }),
     ...(filterPriority !== 'all' && { priority: [filterPriority] }),
+    ...(selectedBoard && { boardId: selectedBoard.id }),
   };
 
   const { data: feedbackData, loading: feedbackLoading, error: feedbackError, refetch } = useServiceCall(
-    () => feedbackService.getFeedback(feedbackFilters, { page: 1, limit: 20 }),
-    [filterStatus, filterPriority]
+    () => selectedBoard ? feedbackService.getFeedback(feedbackFilters, { page: 1, limit: 20 }) : null,
+    [filterStatus, filterPriority, selectedBoard?.id]
   );
 
   const { data: feedbackInsights, loading: insightsLoading } = useServiceCall(
-    () => feedbackService.getFeedbackInsights(),
-    []
+    () => selectedBoard ? feedbackService.getFeedbackInsights() : null,
+    [selectedBoard?.id]
   );
 
   // AI Service Integration
   const { data: aiInsights } = useServiceCall(
-    () => aiService.getInsights('feedback', { 
+    () => selectedBoard ? aiService.getInsights('feedback', { 
       filters: feedbackFilters, 
       productId: selectedProductId 
-    }),
-    [feedbackFilters, selectedProductId]
+    }) : null,
+    [feedbackFilters, selectedProductId, selectedBoard?.id]
   );
 
   const { execute: processWithAI, loading: aiProcessing } = useAsyncServiceCall<FeedbackItem>();
 
-  // Mock boards data for the CreateTicketDialog
-  const mockBoards = [
-    {
-      id: 'board-1',
-      name: 'Public Feature Requests',
-      type: 'public' as const
-    },
-    {
-      id: 'board-2',
-      name: 'Enterprise Feedback',
-      type: 'enterprise' as const,
-      customerId: 'ent-001'
-    },
-    {
-      id: 'board-3',
-      name: 'Internal Product Board',
-      type: 'enterprise' as const,
-      customerId: 'internal'
+  // Set first board as selected when boards load
+  useEffect(() => {
+    if (boardsData && Array.isArray(boardsData) && boardsData.length > 0 && !selectedBoard) {
+      setSelectedBoard(boardsData[0]);
     }
-  ];
+  }, [boardsData, selectedBoard]);
+
+  const handleCreateBoard = async (boardData: Omit<CustomerBoard, 'id' | 'created_at' | 'updated_at'>) => {
+    try {
+      const response = await boardService.createBoard(boardData);
+      if (response.success && response.data) {
+        await refetchBoards();
+        setSelectedBoard(response.data);
+        setIsCreateBoardDialogOpen(false);
+        toast({
+          title: "Board Created",
+          description: "Your customer board has been created successfully.",
+        });
+      }
+    } catch (error) {
+      console.error('Error creating board:', error);
+      toast({
+        title: "Error",
+        description: "Failed to create board. Please try again.",
+        variant: "destructive",
+      });
+    }
+  };
 
   const mockTickets: Ticket[] = [
     {
@@ -305,8 +328,8 @@ const CustomerBoard = ({ selectedProductId, onNavigate }: CustomerBoardProps) =>
         <div className="flex flex-col sm:flex-row justify-between items-start sm:items-center gap-4">
           <div className="flex flex-col sm:flex-row sm:items-center space-y-2 sm:space-y-0 sm:space-x-4 text-sm text-slate-600">
             <span className="flex items-center">
-              <MessageSquare className="w-4 h-4 mr-1" />
-              {feedbackLoading ? '...' : filteredTickets.length} feedback items
+              <Building2 className="w-4 h-4 mr-1" />
+              Customer Boards & Portals
             </span>
             <span className="flex items-center">
               <Brain className="w-4 h-4 mr-1 text-purple-600" />
@@ -316,21 +339,26 @@ const CustomerBoard = ({ selectedProductId, onNavigate }: CustomerBoardProps) =>
           <div className="flex flex-col sm:flex-row gap-2 w-full sm:w-auto">
             <Button 
               variant="outline"
-              onClick={() => setShowAIProcessor(true)}
-              className="bg-gradient-to-r from-purple-50 to-pink-50 border-purple-200 w-full sm:w-auto"
-              size="sm"
-            >
-              <Zap className="w-4 h-4 mr-2" />
-              Smart Process
-            </Button>
-            <Button 
-              onClick={() => setIsCreateDialogOpen(true)}
-              className="bg-gradient-to-r from-purple-600 to-pink-600 hover:from-purple-700 hover:to-pink-700 w-full sm:w-auto"
+              onClick={() => setIsCreateBoardDialogOpen(true)}
+              className="bg-gradient-to-r from-blue-50 to-indigo-50 border-blue-200 w-full sm:w-auto"
               size="sm"
             >
               <Plus className="w-4 h-4 mr-2" />
-              Add Feedback
+              Create Board
             </Button>
+            {selectedBoard && (
+              <Button 
+                variant="outline"
+                asChild
+                className="w-full sm:w-auto"
+                size="sm"
+              >
+                <Link to={`/portal/default/${selectedBoard.slug}`} target="_blank">
+                  <ExternalLink className="w-4 h-4 mr-2" />
+                  View Portal
+                </Link>
+              </Button>
+            )}
           </div>
         </div>
       </div>
@@ -341,51 +369,150 @@ const CustomerBoard = ({ selectedProductId, onNavigate }: CustomerBoardProps) =>
           <Tabs value={activeView} onValueChange={setActiveView}>
             <div className="flex flex-col gap-4 mb-6">
               <TabsList className="self-start">
-                <TabsTrigger value="board">Board View</TabsTrigger>
-                <TabsTrigger value="insights">AI Insights</TabsTrigger>
+                <TabsTrigger value="boards">Boards Overview</TabsTrigger>
+                <TabsTrigger value="feedback" disabled={!selectedBoard}>Board Feedback</TabsTrigger>
+                <TabsTrigger value="insights" disabled={!selectedBoard}>AI Insights</TabsTrigger>
               </TabsList>
 
-              {/* Filters */}
-              <div className="flex flex-col sm:flex-row gap-2 sm:gap-3">
-                <div className="relative flex-1 sm:flex-initial">
-                  <Search className="absolute left-3 top-1/2 transform -translate-y-1/2 text-slate-400 w-4 h-4" />
-                  <Input
-                    placeholder="Search feedback..."
-                    value={searchTerm}
-                    onChange={(e) => setSearchTerm(e.target.value)}
-                    className="pl-10 w-full sm:w-64"
+              {/* Board Selector */}
+              {activeView !== 'boards' && (
+                <div>
+                  <BoardSelector 
+                    boards={boardsData || []}
+                    selectedBoard={selectedBoard}
+                    onSelectBoard={setSelectedBoard}
+                    onCreateBoard={() => setIsCreateBoardDialogOpen(true)}
                   />
                 </div>
-                <div className="flex gap-2">
-                  <Select value={filterStatus} onValueChange={setFilterStatus}>
-                    <SelectTrigger className="w-full sm:w-36">
-                      <SelectValue placeholder="All Status" />
-                    </SelectTrigger>
-                    <SelectContent>
-                      <SelectItem value="all">All Status</SelectItem>
-                      <SelectItem value="open">Open</SelectItem>
-                      <SelectItem value="in-progress">In Progress</SelectItem>
-                      <SelectItem value="planned">Planned</SelectItem>
-                      <SelectItem value="resolved">Resolved</SelectItem>
-                    </SelectContent>
-                  </Select>
-                  <Select value={filterPriority} onValueChange={setFilterPriority}>
-                    <SelectTrigger className="w-full sm:w-36">
-                      <SelectValue placeholder="All Priority" />
-                    </SelectTrigger>
-                    <SelectContent>
-                      <SelectItem value="all">All Priority</SelectItem>
-                      <SelectItem value="critical">Critical</SelectItem>
-                      <SelectItem value="high">High</SelectItem>
-                      <SelectItem value="medium">Medium</SelectItem>
-                      <SelectItem value="low">Low</SelectItem>
-                    </SelectContent>
-                  </Select>
+              )}
+
+              {/* Filters - only show for feedback view */}
+              {activeView === 'feedback' && (
+                <div className="flex flex-col sm:flex-row gap-2 sm:gap-3">
+                  <div className="relative flex-1 sm:flex-initial">
+                    <Search className="absolute left-3 top-1/2 transform -translate-y-1/2 text-slate-400 w-4 h-4" />
+                    <Input
+                      placeholder="Search feedback..."
+                      value={searchTerm}
+                      onChange={(e) => setSearchTerm(e.target.value)}
+                      className="pl-10 w-full sm:w-64"
+                    />
+                  </div>
+                  <div className="flex gap-2">
+                    <Select value={filterStatus} onValueChange={setFilterStatus}>
+                      <SelectTrigger className="w-full sm:w-36">
+                        <SelectValue placeholder="All Status" />
+                      </SelectTrigger>
+                      <SelectContent>
+                        <SelectItem value="all">All Status</SelectItem>
+                        <SelectItem value="open">Open</SelectItem>
+                        <SelectItem value="in-progress">In Progress</SelectItem>
+                        <SelectItem value="planned">Planned</SelectItem>
+                        <SelectItem value="resolved">Resolved</SelectItem>
+                      </SelectContent>
+                    </Select>
+                    <Select value={filterPriority} onValueChange={setFilterPriority}>
+                      <SelectTrigger className="w-full sm:w-36">
+                        <SelectValue placeholder="All Priority" />
+                      </SelectTrigger>
+                      <SelectContent>
+                        <SelectItem value="all">All Priority</SelectItem>
+                        <SelectItem value="critical">Critical</SelectItem>
+                        <SelectItem value="high">High</SelectItem>
+                        <SelectItem value="medium">Medium</SelectItem>
+                        <SelectItem value="low">Low</SelectItem>
+                      </SelectContent>
+                    </Select>
+                  </div>
                 </div>
-              </div>
+              )}
             </div>
 
-            <TabsContent value="board" className="space-y-3 sm:space-y-4">
+            {/* Boards Overview Tab */}
+            <TabsContent value="boards" className="space-y-4">
+              {boardsLoading && (
+                <div className="flex items-center justify-center p-8">
+                  <div className="flex items-center space-x-2">
+                    <div className="w-6 h-6 border-2 border-blue-600 border-t-transparent rounded-full animate-spin"></div>
+                    <span className="text-slate-600">Loading boards...</span>
+                  </div>
+                </div>
+              )}
+              
+              {boardsError && (
+                <Card className="border-red-200">
+                  <CardContent className="p-4">
+                    <p className="text-red-600">Error loading boards: {boardsError}</p>
+                    <Button onClick={refetchBoards} variant="outline" className="mt-2">
+                      Retry
+                    </Button>
+                  </CardContent>
+                </Card>
+              )}
+
+              <div className="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-3 gap-4">
+                {boardsData?.map((board) => (
+                  <Card key={board.id} className="hover:shadow-md transition-shadow cursor-pointer" onClick={() => setSelectedBoard(board)}>
+                    <CardHeader className="pb-3">
+                      <div className="flex items-start justify-between">
+                        <div className="flex items-center space-x-3">
+                          <div className="p-2 bg-blue-100 rounded-lg">
+                            <Building2 className="w-5 h-5 text-blue-600" />
+                          </div>
+                          <div>
+                            <CardTitle className="text-lg">{board.name}</CardTitle>
+                            <p className="text-sm text-slate-600">Organization Board</p>
+                          </div>
+                        </div>
+                        <div className="flex items-center space-x-2">
+                          {board.is_public ? (
+                            <Globe className="w-4 h-4 text-green-500" />
+                          ) : (
+                            <Lock className="w-4 h-4 text-orange-500" />
+                          )}
+                        </div>
+                      </div>
+                    </CardHeader>
+                    <CardContent className="pt-0">
+                      <p className="text-sm text-slate-600 mb-4 line-clamp-2">{board.description}</p>
+                      <div className="flex items-center justify-between">
+                        <div className="flex items-center space-x-4 text-xs text-slate-500">
+                          <span className="flex items-center">
+                            <Users className="w-3 h-3 mr-1" />
+                            {board.board_type}
+                          </span>
+                          <Badge variant="outline" className="text-xs">
+                            {board.access_type}
+                          </Badge>
+                        </div>
+                        <Button variant="ghost" size="sm" asChild>
+                          <Link to={`/portal/default/${board.slug}`} target="_blank">
+                            <ExternalLink className="w-3 h-3" />
+                          </Link>
+                        </Button>
+                      </div>
+                    </CardContent>
+                  </Card>
+                ))}
+              </div>
+
+              {(!boardsData || boardsData.length === 0) && !boardsLoading && (
+                <Card className="border-dashed border-2">
+                  <CardContent className="p-8 text-center">
+                    <Building2 className="w-12 h-12 text-slate-400 mx-auto mb-4" />
+                    <h3 className="text-lg font-semibold mb-2">No Customer Boards Yet</h3>
+                    <p className="text-slate-600 mb-4">Create your first customer board to start collecting feedback and managing customer interactions.</p>
+                    <Button onClick={() => setIsCreateBoardDialogOpen(true)}>
+                      <Plus className="w-4 h-4 mr-2" />
+                      Create Your First Board
+                    </Button>
+                  </CardContent>
+                </Card>
+              )}
+            </TabsContent>
+
+            {/* Feedback Tab */}
+            <TabsContent value="feedback" className="space-y-3 sm:space-y-4">
               {feedbackLoading && (
                 <div className="flex items-center justify-center p-8">
                   <div className="flex items-center space-x-2">
@@ -551,10 +678,21 @@ const CustomerBoard = ({ selectedProductId, onNavigate }: CustomerBoardProps) =>
       {isCreateDialogOpen && (
         <CreateTicketDialog 
           onClose={() => setIsCreateDialogOpen(false)}
-          boards={mockBoards}
-          boardId={null}
+          boards={(boardsData || []).map(board => ({
+            id: board.id,
+            name: board.name,
+            type: board.is_public ? 'public' as const : 'enterprise' as const,
+            customerId: board.customer_organization_id
+          }))}
+          boardId={selectedBoard?.id || null}
         />
       )}
+
+      <CreateBoardDialog
+        open={isCreateBoardDialogOpen}
+        onOpenChange={setIsCreateBoardDialogOpen}
+        onCreateBoard={handleCreateBoard}
+      />
     </div>
   );
 };

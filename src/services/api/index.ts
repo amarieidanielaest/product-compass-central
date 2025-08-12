@@ -7,6 +7,7 @@ export * from './SprintService';
 export * from './RoadmapService';
 export * from './StrategyService';
 export * from './FeatureFlagsService';
+export * from './BoardService';
 
 // Export service instances
 export { feedbackService } from './FeedbackService';
@@ -16,6 +17,7 @@ export { sprintService } from './SprintService';
 export { roadmapService } from './RoadmapService';
 export { strategyService } from './StrategyService';
 export { featureFlagsService } from './FeatureFlagsService';
+export { boardService } from './BoardService';
 
 // Export core services
 export * from '../core';
