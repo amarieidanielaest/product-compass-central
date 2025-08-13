@@ -72,47 +72,134 @@ export interface EnhancedFeedbackItem {
   updated_at: string;
 }
 
-class BoardApiService extends BaseApiService {
-  constructor() {
-    super('/api/boards');
-  }
+import { supabase } from '@/integrations/supabase/client';
 
+class BoardApiService {
   // Board Management
   async getBoards(filters: any = {}): Promise<ApiResponse<CustomerBoard[]>> {
-    const queryParams = new URLSearchParams(filters);
-    return this.makeRequest<CustomerBoard[]>(`/?${queryParams}`);
+    try {
+      const { data: boards, error } = await supabase.functions.invoke('boards-api', {
+        method: 'GET'
+      });
+
+      if (error) {
+        return { success: false, message: error.message, data: null };
+      }
+
+      return boards;
+    } catch (error) {
+      return { 
+        success: false, 
+        message: error instanceof Error ? error.message : 'Unknown error',
+        data: null
+      };
+    }
   }
 
   async createBoard(board: Omit<CustomerBoard, 'id' | 'created_at' | 'updated_at'>): Promise<ApiResponse<CustomerBoard>> {
-    return this.makeRequest<CustomerBoard>('/', {
-      method: 'POST',
-      body: JSON.stringify(board),
-    });
+    try {
+      const { data: result, error } = await supabase.functions.invoke('boards-api', {
+        method: 'POST',
+        body: board
+      });
+
+      if (error) {
+        return { success: false, message: error.message, data: null };
+      }
+
+      return result;
+    } catch (error) {
+      return { 
+        success: false, 
+        message: error instanceof Error ? error.message : 'Unknown error',
+        data: null
+      };
+    }
   }
 
   async updateBoard(id: string, updates: Partial<CustomerBoard>): Promise<ApiResponse<CustomerBoard>> {
-    return this.makeRequest<CustomerBoard>(`/${id}`, {
-      method: 'PATCH',
-      body: JSON.stringify(updates),
-    });
+    try {
+      const { data: result, error } = await supabase.functions.invoke('boards-api', {
+        method: 'PATCH',
+        body: updates
+      });
+
+      if (error) {
+        return { success: false, message: error.message, data: null };
+      }
+
+      return result;
+    } catch (error) {
+      return { 
+        success: false, 
+        message: error instanceof Error ? error.message : 'Unknown error',
+        data: null
+      };
+    }
   }
 
   // Board Memberships
   async getBoardMembers(boardId: string): Promise<ApiResponse<BoardMembership[]>> {
-    return this.makeRequest<BoardMembership[]>(`/${boardId}/members`);
+    try {
+      const { data: result, error } = await supabase.functions.invoke('boards-api', {
+        method: 'GET',
+        body: { path: `${boardId}/members` }
+      });
+
+      if (error) {
+        return { success: false, message: error.message, data: null };
+      }
+
+      return result;
+    } catch (error) {
+      return { 
+        success: false, 
+        message: error instanceof Error ? error.message : 'Unknown error',
+        data: null
+      };
+    }
   }
 
   async inviteUserToBoard(boardId: string, email: string, role: string): Promise<ApiResponse<BoardMembership>> {
-    return this.makeRequest<BoardMembership>(`/${boardId}/invite`, {
-      method: 'POST',
-      body: JSON.stringify({ email, role }),
-    });
+    try {
+      const { data: result, error } = await supabase.functions.invoke('boards-api', {
+        method: 'POST',
+        body: { path: `${boardId}/invite`, email, role }
+      });
+
+      if (error) {
+        return { success: false, message: error.message, data: null };
+      }
+
+      return result;
+    } catch (error) {
+      return { 
+        success: false, 
+        message: error instanceof Error ? error.message : 'Unknown error',
+        data: null
+      };
+    }
   }
 
   async removeBoardMember(boardId: string, userId: string): Promise<ApiResponse<void>> {
-    return this.makeRequest<void>(`/${boardId}/members/${userId}`, {
-      method: 'DELETE',
-    });
+    try {
+      const { data: result, error } = await supabase.functions.invoke('boards-api', {
+        method: 'DELETE',
+        body: { path: `${boardId}/members/${userId}` }
+      });
+
+      if (error) {
+        return { success: false, message: error.message, data: null };
+      }
+
+      return result;
+    } catch (error) {
+      return { 
+        success: false, 
+        message: error instanceof Error ? error.message : 'Unknown error',
+        data: null
+      };
+    }
   }
 
   // Enhanced Feedback
@@ -121,65 +208,200 @@ class BoardApiService extends BaseApiService {
     filters: any = {},
     pagination: PaginationParams = { page: 1, limit: 20 }
   ): Promise<ApiResponse<PaginatedResponse<EnhancedFeedbackItem>>> {
-    const queryParams = new URLSearchParams({
-      page: pagination.page.toString(),
-      limit: pagination.limit.toString(),
-      ...filters
-    });
-    return this.makeRequest<PaginatedResponse<EnhancedFeedbackItem>>(`/${boardId}/feedback?${queryParams}`);
+    try {
+      const queryParams = {
+        page: pagination.page.toString(),
+        limit: pagination.limit.toString(),
+        ...filters
+      };
+
+      const { data: result, error } = await supabase.functions.invoke('boards-api', {
+        method: 'GET',
+        body: { path: `${boardId}/feedback`, params: queryParams }
+      });
+
+      if (error) {
+        return { success: false, message: error.message, data: null };
+      }
+
+      return result;
+    } catch (error) {
+      return { 
+        success: false, 
+        message: error instanceof Error ? error.message : 'Unknown error',
+        data: null
+      };
+    }
   }
 
   async createFeedback(boardId: string, feedback: Partial<EnhancedFeedbackItem>): Promise<ApiResponse<EnhancedFeedbackItem>> {
-    return this.makeRequest<EnhancedFeedbackItem>(`/${boardId}/feedback`, {
-      method: 'POST',
-      body: JSON.stringify(feedback),
-    });
+    try {
+      const { data: result, error } = await supabase.functions.invoke('boards-api', {
+        method: 'POST',
+        body: { path: `${boardId}/feedback`, ...feedback }
+      });
+
+      if (error) {
+        return { success: false, message: error.message, data: null };
+      }
+
+      return result;
+    } catch (error) {
+      return { 
+        success: false, 
+        message: error instanceof Error ? error.message : 'Unknown error',
+        data: null
+      };
+    }
   }
 
   async updateFeedback(boardId: string, feedbackId: string, updates: Partial<EnhancedFeedbackItem>): Promise<ApiResponse<EnhancedFeedbackItem>> {
-    return this.makeRequest<EnhancedFeedbackItem>(`/${boardId}/feedback/${feedbackId}`, {
-      method: 'PATCH',
-      body: JSON.stringify(updates),
-    });
+    try {
+      const { data: result, error } = await supabase.functions.invoke('boards-api', {
+        method: 'PATCH',
+        body: { path: `${boardId}/feedback/${feedbackId}`, ...updates }
+      });
+
+      if (error) {
+        return { success: false, message: error.message, data: null };
+      }
+
+      return result;
+    } catch (error) {
+      return { 
+        success: false, 
+        message: error instanceof Error ? error.message : 'Unknown error',
+        data: null
+      };
+    }
   }
 
   // Voting
   async voteFeedback(feedbackId: string, voteType: 'upvote' | 'downvote'): Promise<ApiResponse<FeedbackVote>> {
-    return this.makeRequest<FeedbackVote>(`/feedback/${feedbackId}/vote`, {
-      method: 'POST',
-      body: JSON.stringify({ vote_type: voteType }),
-    });
+    try {
+      const { data: result, error } = await supabase.functions.invoke('boards-api', {
+        method: 'POST',
+        body: { path: `feedback/${feedbackId}/vote`, vote_type: voteType }
+      });
+
+      if (error) {
+        return { success: false, message: error.message, data: null };
+      }
+
+      return result;
+    } catch (error) {
+      return { 
+        success: false, 
+        message: error instanceof Error ? error.message : 'Unknown error',
+        data: null
+      };
+    }
   }
 
   async removeVote(feedbackId: string): Promise<ApiResponse<void>> {
-    return this.makeRequest<void>(`/feedback/${feedbackId}/vote`, {
-      method: 'DELETE',
-    });
+    try {
+      const { data: result, error } = await supabase.functions.invoke('boards-api', {
+        method: 'DELETE',
+        body: { path: `feedback/${feedbackId}/vote` }
+      });
+
+      if (error) {
+        return { success: false, message: error.message, data: null };
+      }
+
+      return result;
+    } catch (error) {
+      return { 
+        success: false, 
+        message: error instanceof Error ? error.message : 'Unknown error',
+        data: null
+      };
+    }
   }
 
   // Comments
   async getFeedbackComments(feedbackId: string): Promise<ApiResponse<FeedbackComment[]>> {
-    return this.makeRequest<FeedbackComment[]>(`/feedback/${feedbackId}/comments`);
+    try {
+      const { data: result, error } = await supabase.functions.invoke('boards-api', {
+        method: 'GET',
+        body: { path: `feedback/${feedbackId}/comments` }
+      });
+
+      if (error) {
+        return { success: false, message: error.message, data: null };
+      }
+
+      return result;
+    } catch (error) {
+      return { 
+        success: false, 
+        message: error instanceof Error ? error.message : 'Unknown error',
+        data: null
+      };
+    }
   }
 
   async createComment(feedbackId: string, content: string, parentId?: string): Promise<ApiResponse<FeedbackComment>> {
-    return this.makeRequest<FeedbackComment>(`/feedback/${feedbackId}/comments`, {
-      method: 'POST',
-      body: JSON.stringify({ content, parent_id: parentId }),
-    });
+    try {
+      const { data: result, error } = await supabase.functions.invoke('boards-api', {
+        method: 'POST',
+        body: { path: `feedback/${feedbackId}/comments`, content, parent_id: parentId }
+      });
+
+      if (error) {
+        return { success: false, message: error.message, data: null };
+      }
+
+      return result;
+    } catch (error) {
+      return { 
+        success: false, 
+        message: error instanceof Error ? error.message : 'Unknown error',
+        data: null
+      };
+    }
   }
 
   async updateComment(commentId: string, content: string): Promise<ApiResponse<FeedbackComment>> {
-    return this.makeRequest<FeedbackComment>(`/comments/${commentId}`, {
-      method: 'PATCH',
-      body: JSON.stringify({ content }),
-    });
+    try {
+      const { data: result, error } = await supabase.functions.invoke('boards-api', {
+        method: 'PATCH',
+        body: { path: `comments/${commentId}`, content }
+      });
+
+      if (error) {
+        return { success: false, message: error.message, data: null };
+      }
+
+      return result;
+    } catch (error) {
+      return { 
+        success: false, 
+        message: error instanceof Error ? error.message : 'Unknown error',
+        data: null
+      };
+    }
   }
 
   async deleteComment(commentId: string): Promise<ApiResponse<void>> {
-    return this.makeRequest<void>(`/comments/${commentId}`, {
-      method: 'DELETE',
-    });
+    try {
+      const { data: result, error } = await supabase.functions.invoke('boards-api', {
+        method: 'DELETE',
+        body: { path: `comments/${commentId}` }
+      });
+
+      if (error) {
+        return { success: false, message: error.message, data: null };
+      }
+
+      return result;
+    } catch (error) {
+      return { 
+        success: false, 
+        message: error instanceof Error ? error.message : 'Unknown error',
+        data: null
+      };
+    }
   }
 }
 
