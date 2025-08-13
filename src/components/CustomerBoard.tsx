@@ -1,5 +1,5 @@
 import { useState, useEffect } from 'react';
-import { Plus, Filter, Search, MessageSquare, Star, Clock, User, TrendingUp, Brain, Zap, Building2, Users, Globe, Lock, ExternalLink } from 'lucide-react';
+import { Plus, Filter, Search, MessageSquare, Star, Clock, User, TrendingUp, Brain, Zap, Building2, Users, Globe, Lock, ExternalLink, UserPlus, Settings } from 'lucide-react';
 import { Card, CardContent, CardHeader, CardTitle } from '@/components/ui/card';
 import { Button } from '@/components/ui/button';
 import { Input } from '@/components/ui/input';
@@ -16,6 +16,7 @@ import type { FeedbackItem, FeedbackFilters } from '@/services/api/FeedbackServi
 import type { CustomerBoard } from '@/services/api/BoardService';
 import { BoardSelector } from './boards/BoardSelector';
 import { CreateBoardDialog } from './boards/CreateBoardDialog';
+import { BoardMembersManager } from './boards/BoardMembersManager';
 import { useToast } from '@/hooks/use-toast';
 import { Link } from 'react-router-dom';
 
@@ -48,6 +49,7 @@ const CustomerBoard = ({ selectedProductId, onNavigate }: CustomerBoardProps) =>
   const [activeView, setActiveView] = useState('boards');
   const [selectedTicket, setSelectedTicket] = useState<Ticket | null>(null);
   const [isCreateDialogOpen, setIsCreateDialogOpen] = useState(false);
+  const [showBoardMembers, setShowBoardMembers] = useState(false);
   const [isCreateBoardDialogOpen, setIsCreateBoardDialogOpen] = useState(false);
   const [filterStatus, setFilterStatus] = useState('all');
   const [filterPriority, setFilterPriority] = useState('all');
@@ -368,10 +370,11 @@ const CustomerBoard = ({ selectedProductId, onNavigate }: CustomerBoardProps) =>
         <div className="xl:col-span-3">
           <Tabs value={activeView} onValueChange={setActiveView}>
             <div className="flex flex-col gap-4 mb-6">
-              <TabsList className="self-start">
+            <TabsList className="self-start">
                 <TabsTrigger value="boards">Boards Overview</TabsTrigger>
                 <TabsTrigger value="feedback" disabled={!selectedBoard}>Board Feedback</TabsTrigger>
                 <TabsTrigger value="insights" disabled={!selectedBoard}>AI Insights</TabsTrigger>
+                <TabsTrigger value="management" disabled={!selectedBoard}>Ticket Management</TabsTrigger>
               </TabsList>
 
               {/* Board Selector */}
@@ -573,6 +576,109 @@ const CustomerBoard = ({ selectedProductId, onNavigate }: CustomerBoardProps) =>
                 onCreateTask={handleAITaskCreation}
               />
             </TabsContent>
+
+            {/* Ticket Management Tab */}
+            <TabsContent value="management" className="space-y-4">
+              <div className="flex justify-between items-center">
+                <div>
+                  <h3 className="text-lg font-semibold">Ticket Management Dashboard</h3>
+                  <p className="text-sm text-muted-foreground">Manage all tickets across your customer boards</p>
+                </div>
+                <Button onClick={() => setIsCreateDialogOpen(true)}>
+                  <Plus className="w-4 h-4 mr-2" />
+                  Create Ticket
+                </Button>
+              </div>
+
+              {/* Ticket Stats Cards */}
+              <div className="grid grid-cols-1 md:grid-cols-4 gap-4">
+                <Card>
+                  <CardContent className="p-4">
+                    <div className="flex items-center space-x-2">
+                      <div className="p-2 bg-red-100 rounded-lg">
+                        <MessageSquare className="w-4 h-4 text-red-600" />
+                      </div>
+                      <div>
+                        <p className="text-sm text-muted-foreground">Open</p>
+                        <p className="text-2xl font-bold">{filteredTickets.filter(t => t.status === 'open').length}</p>
+                      </div>
+                    </div>
+                  </CardContent>
+                </Card>
+                <Card>
+                  <CardContent className="p-4">
+                    <div className="flex items-center space-x-2">
+                      <div className="p-2 bg-purple-100 rounded-lg">
+                        <Clock className="w-4 h-4 text-purple-600" />
+                      </div>
+                      <div>
+                        <p className="text-sm text-muted-foreground">In Progress</p>
+                        <p className="text-2xl font-bold">{filteredTickets.filter(t => t.status === 'in-progress').length}</p>
+                      </div>
+                    </div>
+                  </CardContent>
+                </Card>
+                <Card>
+                  <CardContent className="p-4">
+                    <div className="flex items-center space-x-2">
+                      <div className="p-2 bg-green-100 rounded-lg">
+                        <Star className="w-4 h-4 text-green-600" />
+                      </div>
+                      <div>
+                        <p className="text-sm text-muted-foreground">Resolved</p>
+                        <p className="text-2xl font-bold">{filteredTickets.filter(t => t.status === 'resolved').length}</p>
+                      </div>
+                    </div>
+                  </CardContent>
+                </Card>
+                <Card>
+                  <CardContent className="p-4">
+                    <div className="flex items-center space-x-2">
+                      <div className="p-2 bg-orange-100 rounded-lg">
+                        <TrendingUp className="w-4 h-4 text-orange-600" />
+                      </div>
+                      <div>
+                        <p className="text-sm text-muted-foreground">Critical</p>
+                        <p className="text-2xl font-bold">{filteredTickets.filter(t => t.priority === 'critical').length}</p>
+                      </div>
+                    </div>
+                  </CardContent>
+                </Card>
+              </div>
+
+              {/* Ticket List */}
+              <Card>
+                <CardHeader>
+                  <CardTitle>All Tickets</CardTitle>
+                </CardHeader>
+                <CardContent>
+                  <div className="space-y-3">
+                    {filteredTickets.map((ticket) => (
+                      <div key={ticket.id} className="flex items-center justify-between p-3 border rounded-lg hover:bg-muted/50 cursor-pointer" onClick={() => setSelectedTicket(ticket)}>
+                        <div className="flex-1 min-w-0">
+                          <div className="flex items-center space-x-3">
+                            <Badge className={getPriorityColor(ticket.priority)}>{ticket.priority}</Badge>
+                            <Badge className={getStatusColor(ticket.status)}>{ticket.status}</Badge>
+                            <span className="font-medium truncate">{ticket.title}</span>
+                          </div>
+                          <div className="flex items-center space-x-4 text-sm text-muted-foreground mt-1">
+                            <span>{ticket.customer}</span>
+                            <span>{ticket.created}</span>
+                            <span className="flex items-center">
+                              <MessageSquare className="w-3 h-3 mr-1" />
+                              {ticket.comments}
+                            </span>
+                          </div>
+                        </div>
+                        <div className="text-sm text-muted-foreground">
+                          {ticket.estimatedEffort}
+                        </div>
+                      </div>
+                    ))}
+                  </div>
+                </CardContent>
+              </Card>
+            </TabsContent>
           </Tabs>
         </div>
 
@@ -693,6 +799,26 @@ const CustomerBoard = ({ selectedProductId, onNavigate }: CustomerBoardProps) =>
         onOpenChange={setIsCreateBoardDialogOpen}
         onCreateBoard={handleCreateBoard}
       />
+
+      {/* Board Members Management Dialog */}
+      {showBoardMembers && selectedBoard && (
+        <div className="fixed inset-0 bg-black/50 flex items-center justify-center z-50 p-4">
+          <div className="bg-white rounded-lg w-full max-w-4xl max-h-[90vh] overflow-auto">
+            <div className="p-6">
+              <div className="flex items-center justify-between mb-6">
+                <h3 className="text-xl font-semibold">Manage Board Access - {selectedBoard.name}</h3>
+                <Button variant="ghost" size="sm" onClick={() => setShowBoardMembers(false)}>
+                  ×
+                </Button>
+              </div>
+              <BoardMembersManager 
+                board={selectedBoard}
+                currentUserRole="admin"
+              />
+            </div>
+          </div>
+        </div>
+      )}
     </div>
   );
 };
