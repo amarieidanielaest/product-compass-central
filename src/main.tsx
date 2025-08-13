@@ -1,5 +1,29 @@
-import { createRoot } from 'react-dom/client'
-import App from './App.tsx'
-import './index.css'
+import { StrictMode } from "react";
+import { createRoot } from "react-dom/client";
+import { BrowserRouter, Routes, Route } from "react-router-dom";
+import App from "./App.tsx";
+import "./index.css";
 
-createRoot(document.getElementById("root")!).render(<App />);
+import Index from "./pages/Index.tsx";
+import Auth from "./pages/Auth.tsx";
+import NotFound from "./pages/NotFound.tsx";
+import HelpCenter from "./pages/HelpCenter.tsx";
+import { RoadmapIntegration } from "./pages/RoadmapIntegration.tsx";
+import CustomerPortal from "./pages/CustomerPortal.tsx";
+
+createRoot(document.getElementById("root")!).render(
+  <StrictMode>
+    <BrowserRouter>
+      <Routes>
+        <Route path="/" element={<App />}>
+          <Route index element={<Index />} />
+          <Route path="auth" element={<Auth />} />
+          <Route path="help" element={<HelpCenter />} />
+          <Route path="roadmap-integration" element={<RoadmapIntegration />} />
+          <Route path="portal/:organization/:boardSlug" element={<CustomerPortal />} />
+        </Route>
+        <Route path="*" element={<NotFound />} />
+      </Routes>
+    </BrowserRouter>
+  </StrictMode>
+);

@@ -31,15 +31,24 @@ serve(async (req) => {
 
     // GET /boards - List all accessible boards
     if (method === 'GET' && pathParts.length === 0) {
-      const { data: boards, error } = await supabase
+      const searchParams = url.searchParams;
+      let query = supabase
         .from('customer_boards')
         .select('*')
-        .eq('is_active', true)
-        .order('created_at', { ascending: false })
+        .eq('is_active', true);
+
+      // Apply filters
+      for (const [key, value] of searchParams.entries()) {
+        if (key !== 'page' && key !== 'limit') {
+          query = query.eq(key, value);
+        }
+      }
+
+      const { data: boards, error } = await query.order('created_at', { ascending: false });
 
       if (error) {
         console.error('Error fetching boards:', error)
-        return new Response(JSON.stringify({ error: error.message }), {
+        return new Response(JSON.stringify({ success: false, message: error.message, data: null }), {
           status: 400,
           headers: { ...corsHeaders, 'Content-Type': 'application/json' },
         })
@@ -62,7 +71,7 @@ serve(async (req) => {
 
       if (error) {
         console.error('Error creating board:', error)
-        return new Response(JSON.stringify({ error: error.message }), {
+        return new Response(JSON.stringify({ success: false, message: error.message, data: null }), {
           status: 400,
           headers: { ...corsHeaders, 'Content-Type': 'application/json' },
         })
@@ -100,7 +109,7 @@ serve(async (req) => {
 
       if (error) {
         console.error('Error fetching feedback:', error)
-        return new Response(JSON.stringify({ error: error.message }), {
+        return new Response(JSON.stringify({ success: false, message: error.message, data: null }), {
           status: 400,
           headers: { ...corsHeaders, 'Content-Type': 'application/json' },
         })
