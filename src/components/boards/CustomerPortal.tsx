@@ -11,6 +11,9 @@ import { useToast } from '@/hooks/use-toast';
 import { useParams } from 'react-router-dom';
 import { boardService, CustomerBoard, EnhancedFeedbackItem } from '@/services/api';
 import { ArrowUp, MessageCircle, Calendar, CheckCircle2, Clock, AlertCircle, Plus, Search, Filter } from 'lucide-react';
+import { FeedbackDetailDialog } from './FeedbackDetailDialog';
+import { RoadmapView } from './RoadmapView';
+import { ChangelogView } from './ChangelogView';
 
 export const CustomerPortal = () => {
   const { organization, boardSlug } = useParams();
@@ -23,6 +26,8 @@ export const CustomerPortal = () => {
   const [searchTerm, setSearchTerm] = useState('');
   const [statusFilter, setStatusFilter] = useState<string>('all');
   const [categoryFilter, setCategoryFilter] = useState<string>('all');
+  const [selectedFeedback, setSelectedFeedback] = useState<EnhancedFeedbackItem | null>(null);
+  const [isFeedbackDetailOpen, setIsFeedbackDetailOpen] = useState(false);
 
   // Form state for new feedback
   const [newFeedback, setNewFeedback] = useState({
@@ -106,14 +111,14 @@ export const CustomerPortal = () => {
     }
   };
 
-  const handleVote = async (feedbackId: string) => {
+  const handleVote = async (feedbackId: string, voteType: 'upvote' | 'downvote' = 'upvote') => {
     try {
-      const response = await boardService.voteFeedback(feedbackId, 'upvote');
+      const response = await boardService.voteFeedback(feedbackId, voteType);
       if (response.success) {
         // Update the feedback item locally
         setFeedback(prev => prev.map(item => 
           item.id === feedbackId 
-            ? { ...item, votes_count: item.votes_count + 1 }
+            ? { ...item, votes_count: item.votes_count + (voteType === 'upvote' ? 1 : -1) }
             : item
         ));
         toast({
@@ -128,6 +133,11 @@ export const CustomerPortal = () => {
         variant: 'destructive',
       });
     }
+  };
+
+  const handleFeedbackClick = (feedback: EnhancedFeedbackItem) => {
+    setSelectedFeedback(feedback);
+    setIsFeedbackDetailOpen(true);
   };
 
   const getStatusIcon = (status: string) => {
@@ -375,8 +385,8 @@ export const CustomerPortal = () => {
                 </Card>
               ) : (
                 filteredFeedback.map((item) => (
-                  <Card key={item.id} className="hover:shadow-md transition-shadow">
-                    <CardContent className="p-6">
+                  <Card key={item.id} className="hover:shadow-md transition-shadow cursor-pointer">
+                    <CardContent className="p-6" onClick={() => handleFeedbackClick(item)}>
                       <div className="flex items-start justify-between">
                         <div className="flex-1">
                           <div className="flex items-center gap-2 mb-2">
@@ -390,7 +400,7 @@ export const CustomerPortal = () => {
                             </Badge>
                           </div>
                           {item.description && (
-                            <p className="text-gray-600 mb-3">{item.description}</p>
+                            <p className="text-gray-600 mb-3 line-clamp-2">{item.description}</p>
                           )}
                           {item.category && (
                             <Badge variant="outline" className="mb-3">
@@ -402,7 +412,10 @@ export const CustomerPortal = () => {
                           <Button
                             variant="ghost"
                             size="sm"
-                            onClick={() => handleVote(item.id)}
+                            onClick={(e) => {
+                              e.stopPropagation();
+                              handleVote(item.id);
+                            }}
                             className="flex items-center gap-1"
                           >
                             <ArrowUp className="h-4 w-4" />
@@ -422,34 +435,25 @@ export const CustomerPortal = () => {
           </TabsContent>
 
           <TabsContent value="roadmap">
-            <Card>
-              <CardHeader>
-                <CardTitle>Product Roadmap</CardTitle>
-                <CardDescription>
-                  See what we're working on and what's coming next.
-                </CardDescription>
-              </CardHeader>
-              <CardContent>
-                <p className="text-gray-600">Roadmap view coming soon...</p>
-              </CardContent>
-            </Card>
+            <RoadmapView boardId={board.id} />
           </TabsContent>
 
           <TabsContent value="changelog">
-            <Card>
-              <CardHeader>
-                <CardTitle>Changelog</CardTitle>
-                <CardDescription>
-                  Recent updates and new features.
-                </CardDescription>
-              </CardHeader>
-              <CardContent>
-                <p className="text-gray-600">Changelog coming soon...</p>
-              </CardContent>
-            </Card>
+            <ChangelogView boardId={board.id} />
           </TabsContent>
         </Tabs>
       </div>
+
+      {/* Feedback Detail Dialog */}
+      <FeedbackDetailDialog
+        feedback={selectedFeedback}
+        open={isFeedbackDetailOpen}
+        onClose={() => {
+          setIsFeedbackDetailOpen(false);
+          setSelectedFeedback(null);
+        }}
+        onVote={handleVote}
+      />
     </div>
   );
 };

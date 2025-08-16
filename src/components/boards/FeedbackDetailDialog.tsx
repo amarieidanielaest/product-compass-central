@@ -1,211 +1,145 @@
-import { useState, useEffect } from 'react';
-import { formatDistanceToNow } from 'date-fns';
-import { 
-  ChevronUp, 
-  MessageSquare, 
-  Calendar, 
-  User, 
-  Flag,
-  Target,
-  Clock,
-  Send,
-  Reply,
-  MoreHorizontal,
-  X
-} from 'lucide-react';
-import {
-  Dialog,
-  DialogContent,
-  DialogHeader,
-  DialogTitle,
-} from '@/components/ui/dialog';
+import React, { useState, useEffect } from 'react';
+import { Dialog, DialogContent, DialogHeader, DialogTitle } from '@/components/ui/dialog';
 import { Button } from '@/components/ui/button';
-import { Badge } from '@/components/ui/badge';
-import { Avatar, AvatarFallback } from '@/components/ui/avatar';
 import { Textarea } from '@/components/ui/textarea';
+import { Badge } from '@/components/ui/badge';
 import { Separator } from '@/components/ui/separator';
-import {
-  DropdownMenu,
-  DropdownMenuContent,
-  DropdownMenuItem,
-  DropdownMenuTrigger,
-} from '@/components/ui/dropdown-menu';
-import { ScrollArea } from '@/components/ui/scroll-area';
-import { EnhancedFeedbackItem, FeedbackComment, boardService } from '@/services/api/BoardService';
 import { useToast } from '@/hooks/use-toast';
+import { boardService, EnhancedFeedbackItem, FeedbackComment } from '@/services/api';
+import { ArrowUp, MessageCircle, Calendar, CheckCircle2, Clock, AlertCircle, Send, ThumbsUp } from 'lucide-react';
+import { formatDistanceToNow } from 'date-fns';
 
 interface FeedbackDetailDialogProps {
+  feedback: EnhancedFeedbackItem | null;
   open: boolean;
-  onOpenChange: (open: boolean) => void;
-  feedback: EnhancedFeedbackItem;
-  currentUserVote?: 'upvote' | 'downvote' | null;
-  onVote: (feedbackId: string, voteType: 'upvote' | 'downvote') => void;
-  onRemoveVote: (feedbackId: string) => void;
-  onStatusChange?: (feedbackId: string, status: string) => void;
+  onClose: () => void;
+  onVote?: (feedbackId: string, voteType: 'upvote' | 'downvote') => void;
 }
 
-export function FeedbackDetailDialog({
-  open,
-  onOpenChange,
-  feedback,
-  currentUserVote,
-  onVote,
-  onRemoveVote,
-  onStatusChange,
-}: FeedbackDetailDialogProps) {
+export const FeedbackDetailDialog = ({ feedback, open, onClose, onVote }: FeedbackDetailDialogProps) => {
+  const { toast } = useToast();
   const [comments, setComments] = useState<FeedbackComment[]>([]);
   const [newComment, setNewComment] = useState('');
-  const [replyTo, setReplyTo] = useState<string | null>(null);
-  const [loading, setLoading] = useState(false);
-  const [submittingComment, setSubmittingComment] = useState(false);
-  const { toast } = useToast();
+  const [isSubmittingComment, setIsSubmittingComment] = useState(false);
+  const [loadingComments, setLoadingComments] = useState(false);
 
   useEffect(() => {
-    if (open && feedback.id) {
+    if (feedback && open) {
       loadComments();
     }
-  }, [open, feedback.id]);
+  }, [feedback, open]);
 
   const loadComments = async () => {
-    setLoading(true);
+    if (!feedback) return;
+    
     try {
-      const result = await boardService.getFeedbackComments(feedback.id);
-      if (result.success) {
-        setComments(result.data);
+      setLoadingComments(true);
+      const response = await boardService.getFeedbackComments(feedback.id);
+      if (response.success && response.data) {
+        setComments(response.data);
       }
     } catch (error) {
-      console.error('Failed to load comments:', error);
+      console.error('Error loading comments:', error);
     } finally {
-      setLoading(false);
+      setLoadingComments(false);
     }
   };
 
-  const handleSubmitComment = async () => {
-    if (!newComment.trim()) return;
+  const handleAddComment = async () => {
+    if (!feedback || !newComment.trim()) return;
 
-    setSubmittingComment(true);
     try {
-      const result = await boardService.createComment(
-        feedback.id, 
-        newComment, 
-        replyTo || undefined
-      );
-      if (result.success) {
+      setIsSubmittingComment(true);
+      const response = await boardService.createComment(feedback.id, newComment.trim());
+
+      if (response.success) {
         setNewComment('');
-        setReplyTo(null);
-        await loadComments();
+        loadComments(); // Reload comments
         toast({
-          title: "Comment added",
-          description: "Your comment has been posted",
+          title: 'Success',
+          description: 'Comment added successfully',
         });
+      } else {
+        throw new Error(response.message);
       }
     } catch (error) {
       toast({
-        title: "Error",
-        description: "Failed to post comment",
-        variant: "destructive",
+        title: 'Error',
+        description: 'Failed to add comment',
+        variant: 'destructive',
       });
     } finally {
-      setSubmittingComment(false);
+      setIsSubmittingComment(false);
     }
   };
 
-  const handleDeleteComment = async (commentId: string) => {
-    try {
-      await boardService.deleteComment(commentId);
-      await loadComments();
-      toast({
-        title: "Comment deleted",
-        description: "The comment has been removed",
-      });
-    } catch (error) {
-      toast({
-        title: "Error",
-        description: "Failed to delete comment",
-        variant: "destructive",
-      });
-    }
+  const handleVote = async () => {
+    if (!feedback || !onVote) return;
+    onVote(feedback.id, 'upvote');
   };
 
-  const getPriorityColor = (priority: string) => {
-    switch (priority) {
-      case 'critical':
-        return 'destructive';
-      case 'high':
-        return 'destructive';
-      case 'medium':
-        return 'default';
-      case 'low':
-        return 'secondary';
+  const getStatusIcon = (status: string) => {
+    switch (status) {
+      case 'completed':
+        return <CheckCircle2 className="h-4 w-4 text-green-500" />;
+      case 'in_progress':
+        return <Clock className="h-4 w-4 text-blue-500" />;
+      case 'planned':
+        return <Calendar className="h-4 w-4 text-orange-500" />;
+      case 'under_review':
+        return <AlertCircle className="h-4 w-4 text-yellow-500" />;
       default:
-        return 'default';
+        return <MessageCircle className="h-4 w-4 text-gray-500" />;
     }
   };
 
   const getStatusColor = (status: string) => {
     switch (status) {
       case 'completed':
-        return 'default';
+        return 'bg-green-100 text-green-800';
       case 'in_progress':
-        return 'default';
+        return 'bg-blue-100 text-blue-800';
       case 'planned':
-        return 'secondary';
+        return 'bg-orange-100 text-orange-800';
       case 'under_review':
-        return 'secondary';
+        return 'bg-yellow-100 text-yellow-800';
       case 'rejected':
-        return 'destructive';
+        return 'bg-red-100 text-red-800';
       default:
-        return 'outline';
+        return 'bg-gray-100 text-gray-800';
     }
   };
 
-  const getStatusLabel = (status: string) => {
-    switch (status) {
-      case 'submitted':
-        return 'New';
-      case 'under_review':
-        return 'Under Review';
-      case 'planned':
-        return 'Planned';
-      case 'in_progress':
-        return 'In Progress';
-      case 'completed':
-        return 'Completed';
-      case 'rejected':
-        return 'Rejected';
+  const getPriorityColor = (priority: string) => {
+    switch (priority) {
+      case 'critical':
+        return 'bg-red-100 text-red-800';
+      case 'high':
+        return 'bg-orange-100 text-orange-800';
+      case 'medium':
+        return 'bg-blue-100 text-blue-800';
+      case 'low':
+        return 'bg-gray-100 text-gray-800';
       default:
-        return status;
+        return 'bg-gray-100 text-gray-800';
     }
   };
 
-  const getCommentLevel = (comment: FeedbackComment, allComments: FeedbackComment[]): number => {
-    if (!comment.parent_id) return 0;
-    const parent = allComments.find(c => c.id === comment.parent_id);
-    return parent ? getCommentLevel(parent, allComments) + 1 : 0;
-  };
-
-  const threaded = comments.filter(c => !c.parent_id);
-  const replies = comments.filter(c => c.parent_id);
-
-  const getCommentReplies = (commentId: string): FeedbackComment[] => {
-    return replies.filter(r => r.parent_id === commentId);
-  };
+  if (!feedback) return null;
 
   return (
-    <Dialog open={open} onOpenChange={onOpenChange}>
-      <DialogContent className="sm:max-w-[700px] max-h-[80vh] flex flex-col">
+    <Dialog open={open} onOpenChange={onClose}>
+      <DialogContent className="sm:max-w-[700px] max-h-[90vh] overflow-hidden flex flex-col">
         <DialogHeader>
           <div className="flex items-start justify-between">
-            <div className="flex-1 min-w-0">
-              <DialogTitle className="text-xl line-clamp-2 pr-4">
-                {feedback.title}
-              </DialogTitle>
-              <div className="flex items-center gap-2 mt-2 flex-wrap">
-                <Badge variant={getStatusColor(feedback.status)}>
-                  {getStatusLabel(feedback.status)}
+            <div className="flex-1">
+              <DialogTitle className="text-xl font-semibold mb-2">{feedback.title}</DialogTitle>
+              <div className="flex items-center gap-2 mb-3">
+                {getStatusIcon(feedback.status)}
+                <Badge className={getStatusColor(feedback.status)}>
+                  {feedback.status.replace('_', ' ')}
                 </Badge>
-                <Badge variant={getPriorityColor(feedback.priority)}>
-                  <Flag className="h-3 w-3 mr-1" />
+                <Badge className={getPriorityColor(feedback.priority)}>
                   {feedback.priority}
                 </Badge>
                 {feedback.category && (
@@ -213,199 +147,110 @@ export function FeedbackDetailDialog({
                 )}
               </div>
             </div>
-            
             <div className="flex items-center gap-2">
               <Button
-                variant={currentUserVote === 'upvote' ? 'default' : 'outline'}
+                variant="ghost"
                 size="sm"
-                onClick={() => {
-                  if (currentUserVote === 'upvote') {
-                    onRemoveVote(feedback.id);
-                  } else {
-                    onVote(feedback.id, 'upvote');
-                  }
-                }}
+                onClick={handleVote}
+                className="flex items-center gap-1"
               >
-                <ChevronUp className="h-4 w-4 mr-1" />
+                <ArrowUp className="h-4 w-4" />
                 {feedback.votes_count}
               </Button>
-              
-              {onStatusChange && (
-                <DropdownMenu>
-                  <DropdownMenuTrigger asChild>
-                    <Button variant="outline" size="sm">
-                      <MoreHorizontal className="h-4 w-4" />
-                    </Button>
-                  </DropdownMenuTrigger>
-                  <DropdownMenuContent align="end">
-                    <DropdownMenuItem onClick={() => onStatusChange(feedback.id, 'under_review')}>
-                      Mark as Under Review
-                    </DropdownMenuItem>
-                    <DropdownMenuItem onClick={() => onStatusChange(feedback.id, 'planned')}>
-                      Mark as Planned
-                    </DropdownMenuItem>
-                    <DropdownMenuItem onClick={() => onStatusChange(feedback.id, 'in_progress')}>
-                      Mark as In Progress
-                    </DropdownMenuItem>
-                    <DropdownMenuItem onClick={() => onStatusChange(feedback.id, 'completed')}>
-                      Mark as Completed
-                    </DropdownMenuItem>
-                  </DropdownMenuContent>
-                </DropdownMenu>
-              )}
             </div>
           </div>
         </DialogHeader>
 
-        <div className="flex-1 overflow-hidden flex flex-col space-y-4">
+        <div className="flex-1 overflow-y-auto space-y-6">
           {/* Feedback Description */}
           {feedback.description && (
-            <div className="px-1">
-              <p className="text-muted-foreground">{feedback.description}</p>
-              
-              {/* Metadata */}
-              <div className="flex items-center gap-4 mt-4 text-sm text-muted-foreground">
-                <div className="flex items-center gap-1">
-                  <Calendar className="h-4 w-4" />
-                  <span>{formatDistanceToNow(new Date(feedback.created_at), { addSuffix: true })}</span>
-                </div>
-                <div className="flex items-center gap-1">
-                  <MessageSquare className="h-4 w-4" />
-                  <span>{feedback.comments_count} comments</span>
-                </div>
-                {feedback.impact_score > 0 && (
-                  <div className="flex items-center gap-1">
-                    <Target className="h-4 w-4" />
-                    <span>Impact: {feedback.impact_score}</span>
-                  </div>
-                )}
-                {feedback.effort_estimate > 0 && (
-                  <div className="flex items-center gap-1">
-                    <Clock className="h-4 w-4" />
-                    <span>Effort: {feedback.effort_estimate}</span>
-                  </div>
-                )}
+            <div>
+              <h3 className="font-medium mb-2">Description</h3>
+              <p className="text-gray-600 text-sm leading-relaxed">{feedback.description}</p>
+            </div>
+          )}
+
+          {/* Tags */}
+          {feedback.tags && feedback.tags.length > 0 && (
+            <div>
+              <h3 className="font-medium mb-2">Tags</h3>
+              <div className="flex flex-wrap gap-1">
+                {feedback.tags.map((tag, index) => (
+                  <Badge key={index} variant="secondary" className="text-xs">
+                    {tag}
+                  </Badge>
+                ))}
               </div>
-              
-              {/* Tags */}
-              {feedback.tags && feedback.tags.length > 0 && (
-                <div className="flex items-center gap-1 mt-3 flex-wrap">
-                  {feedback.tags.map((tag) => (
-                    <Badge key={tag} variant="outline" className="text-xs">
-                      {tag}
-                    </Badge>
-                  ))}
-                </div>
-              )}
+            </div>
+          )}
+
+          {/* Customer Info */}
+          {feedback.customer_info && Object.keys(feedback.customer_info).length > 0 && (
+            <div>
+              <h3 className="font-medium mb-2">Customer Information</h3>
+              <div className="bg-gray-50 p-3 rounded-lg text-sm">
+                {Object.entries(feedback.customer_info).map(([key, value]) => (
+                  <div key={key} className="flex justify-between">
+                    <span className="capitalize">{key.replace('_', ' ')}:</span>
+                    <span className="text-gray-600">{String(value)}</span>
+                  </div>
+                ))}
+              </div>
             </div>
           )}
 
           <Separator />
 
           {/* Comments Section */}
-          <div className="flex-1 flex flex-col min-h-0">
-            <h3 className="font-medium mb-3">Comments ({comments.length})</h3>
-            
-            <ScrollArea className="flex-1 pr-4">
-              <div className="space-y-4">
-                {loading ? (
-                  <div className="text-center py-4 text-muted-foreground">
-                    Loading comments...
-                  </div>
-                ) : comments.length === 0 ? (
-                  <div className="text-center py-8 text-muted-foreground">
-                    No comments yet. Be the first to comment!
-                  </div>
-                ) : (
-                  threaded.map((comment) => (
-                    <div key={comment.id} className="space-y-3">
-                      {/* Main Comment */}
-                      <div className="flex items-start gap-3">
-                        <Avatar className="h-8 w-8">
-                          <AvatarFallback>
-                            {comment.author_id.slice(0, 2).toUpperCase()}
-                          </AvatarFallback>
-                        </Avatar>
-                        <div className="flex-1 min-w-0">
-                          <div className="flex items-center gap-2 mb-1">
-                            <span className="font-medium text-sm">
-                              User {comment.author_id.slice(0, 8)}
-                            </span>
-                            <span className="text-xs text-muted-foreground">
-                              {formatDistanceToNow(new Date(comment.created_at), { addSuffix: true })}
-                            </span>
-                          </div>
-                          <p className="text-sm">{comment.content}</p>
-                          <div className="flex items-center gap-2 mt-2">
-                            <Button
-                              variant="ghost"
-                              size="sm"
-                              onClick={() => setReplyTo(comment.id)}
-                              className="h-6 px-2 text-xs"
-                            >
-                              <Reply className="h-3 w-3 mr-1" />
-                              Reply
-                            </Button>
-                          </div>
-                        </div>
-                      </div>
+          <div className="space-y-4">
+            <div className="flex items-center justify-between">
+              <h3 className="font-medium">Comments ({comments.length})</h3>
+            </div>
 
-                      {/* Replies */}
-                      {getCommentReplies(comment.id).map((reply) => (
-                        <div key={reply.id} className="ml-11 flex items-start gap-3">
-                          <Avatar className="h-6 w-6">
-                            <AvatarFallback className="text-xs">
-                              {reply.author_id.slice(0, 2).toUpperCase()}
-                            </AvatarFallback>
-                          </Avatar>
-                          <div className="flex-1 min-w-0">
-                            <div className="flex items-center gap-2 mb-1">
-                              <span className="font-medium text-xs">
-                                User {reply.author_id.slice(0, 8)}
-                              </span>
-                              <span className="text-xs text-muted-foreground">
-                                {formatDistanceToNow(new Date(reply.created_at), { addSuffix: true })}
-                              </span>
-                            </div>
-                            <p className="text-sm">{reply.content}</p>
-                          </div>
-                        </div>
-                      ))}
-                    </div>
-                  ))
-                )}
-              </div>
-            </ScrollArea>
-
-            {/* Comment Input */}
-            <div className="mt-4 space-y-3">
-              {replyTo && (
-                <div className="flex items-center gap-2 text-sm text-muted-foreground">
-                  <Reply className="h-4 w-4" />
-                  <span>Replying to comment</span>
-                  <Button
-                    variant="ghost"
-                    size="sm"
-                    onClick={() => setReplyTo(null)}
-                    className="h-6 w-6 p-0"
-                  >
-                    <X className="h-3 w-3" />
-                  </Button>
+            {/* Comments List */}
+            <div className="space-y-3">
+              {loadingComments ? (
+                <div className="text-center py-4">
+                  <div className="animate-spin rounded-full h-6 w-6 border-b-2 border-gray-900 mx-auto"></div>
                 </div>
+              ) : comments.length === 0 ? (
+                <div className="text-center py-4 text-gray-500">
+                  No comments yet. Be the first to comment!
+                </div>
+              ) : (
+                comments.map((comment) => (
+                  <div key={comment.id} className="bg-gray-50 p-3 rounded-lg">
+                    <div className="flex items-start justify-between mb-2">
+                      <div className="text-sm text-gray-600">
+                        {comment.author_id || 'Anonymous'}
+                      </div>
+                      <div className="text-xs text-gray-500">
+                        {formatDistanceToNow(new Date(comment.created_at), { addSuffix: true })}
+                      </div>
+                    </div>
+                    <p className="text-sm text-gray-800">{comment.content}</p>
+                  </div>
+                ))
               )}
-              <div className="flex gap-2">
-                <Textarea
-                  placeholder="Add a comment..."
-                  value={newComment}
-                  onChange={(e) => setNewComment(e.target.value)}
-                  className="min-h-[80px] resize-none"
-                />
+            </div>
+
+            {/* Add Comment */}
+            <div className="space-y-3">
+              <Textarea
+                placeholder="Add a comment..."
+                value={newComment}
+                onChange={(e) => setNewComment(e.target.value)}
+                className="min-h-[80px]"
+              />
+              <div className="flex justify-end">
                 <Button
-                  onClick={handleSubmitComment}
-                  disabled={!newComment.trim() || submittingComment}
-                  className="self-end"
+                  onClick={handleAddComment}
+                  disabled={!newComment.trim() || isSubmittingComment}
+                  size="sm"
+                  className="flex items-center gap-2"
                 >
                   <Send className="h-4 w-4" />
+                  {isSubmittingComment ? 'Posting...' : 'Post Comment'}
                 </Button>
               </div>
             </div>
@@ -414,4 +259,4 @@ export function FeedbackDetailDialog({
       </DialogContent>
     </Dialog>
   );
-}
+};
