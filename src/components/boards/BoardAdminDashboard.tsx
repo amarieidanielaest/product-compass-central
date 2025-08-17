@@ -84,11 +84,11 @@ export const BoardAdminDashboard: React.FC = () => {
         }
       })) || [];
 
-      setBoards(transformedBoards as CustomerBoard[]);
+      setBoards(transformedBoards);
       
       // Select first board if none selected
       if (!selectedBoard && transformedBoards.length > 0) {
-        setSelectedBoard(transformedBoards[0] as CustomerBoard);
+        setSelectedBoard(transformedBoards[0]);
       }
     } catch (error) {
       console.error('Error loading boards:', error);

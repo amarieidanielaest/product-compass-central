@@ -812,8 +812,8 @@ const CustomerBoard = ({ selectedProductId, onNavigate }: CustomerBoardProps) =>
                 </Button>
               </div>
               <BoardMembersManager 
-                board={selectedBoard}
-                currentUserRole="admin"
+                boardId={selectedBoard?.id || ''}
+                onMembersChange={() => {}}
               />
             </div>
           </div>

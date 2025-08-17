@@ -52,7 +52,7 @@ export const BoardMembersManager: React.FC<BoardMembersManagerProps> = ({
         .from('board_memberships')
         .select(`
           *,
-          profile:profiles(
+          profiles!inner(
             first_name,
             last_name,
             email,
@@ -63,7 +63,10 @@ export const BoardMembersManager: React.FC<BoardMembersManagerProps> = ({
         .order('joined_at', { ascending: false });
 
       if (error) throw error;
-      setMembers((data || []) as BoardMember[]);
+      setMembers((data || []).map(item => ({
+        ...item,
+        profile: item.profiles
+      })) as BoardMember[]);
     } catch (error) {
       console.error('Error loading board members:', error);
       toast({
