@@ -26,21 +26,20 @@ interface CustomerBoard {
   name: string;
   slug: string;
   description: string;
-  board_type: string;
-  access_type: string;
+  organization_id: string | null;
+  customer_organization_id: string | null;
+  board_type: string | null;
+  access_type: string | null;
   is_public: boolean;
   is_active: boolean;
-  features_enabled: {
-    feedback: boolean;
-    roadmap: boolean;
-    changelog: boolean;
-    knowledge_center: boolean;
-  };
+  features_enabled: any;
+  branding_config?: any;
   created_at: string;
-  organization: {
+  updated_at?: string;
+  organization?: {
     name: string;
     slug: string;
-  };
+  } | null;
   _count?: {
     feedback_items: number;
     board_memberships: number;
@@ -84,11 +83,11 @@ export const BoardAdminDashboard: React.FC = () => {
         }
       })) || [];
 
-      setBoards(transformedBoards);
+      setBoards(transformedBoards as any);
       
       // Select first board if none selected
       if (!selectedBoard && transformedBoards.length > 0) {
-        setSelectedBoard(transformedBoards[0]);
+        setSelectedBoard(transformedBoards[0] as any);
       }
     } catch (error) {
       console.error('Error loading boards:', error);
@@ -295,7 +294,7 @@ export const BoardAdminDashboard: React.FC = () => {
                         <Button
                           variant="outline"
                           size="sm"
-                          onClick={() => window.open(`/portal/${selectedBoard.organization.slug}/${selectedBoard.slug}`, '_blank')}
+                          onClick={() => window.open(`/portal/${selectedBoard.organization?.slug || 'org'}/${selectedBoard.slug}`, '_blank')}
                         >
                           <ExternalLink className="h-4 w-4 mr-2" />
                           View Board
@@ -314,11 +313,11 @@ export const BoardAdminDashboard: React.FC = () => {
                     <div className="grid grid-cols-2 md:grid-cols-4 gap-4 text-sm">
                       <div>
                         <p className="text-muted-foreground">Type</p>
-                        <p className="font-medium capitalize">{selectedBoard.board_type.replace('_', ' ')}</p>
+                        <p className="font-medium capitalize">{selectedBoard.board_type?.replace('_', ' ') || 'General'}</p>
                       </div>
                       <div>
                         <p className="text-muted-foreground">Organization</p>
-                        <p className="font-medium">{selectedBoard.organization.name}</p>
+                        <p className="font-medium">{selectedBoard.organization?.name || 'Unknown'}</p>
                       </div>
                       <div>
                         <p className="text-muted-foreground">Created</p>
@@ -327,10 +326,10 @@ export const BoardAdminDashboard: React.FC = () => {
                       <div>
                         <p className="text-muted-foreground">Features</p>
                         <div className="flex gap-1 mt-1">
-                          {selectedBoard.features_enabled.feedback && (
+                          {selectedBoard.features_enabled?.feedback && (
                             <Badge variant="outline" className="text-xs">Feedback</Badge>
                           )}
-                          {selectedBoard.features_enabled.roadmap && (
+                          {selectedBoard.features_enabled?.roadmap && (
                             <Badge variant="outline" className="text-xs">Roadmap</Badge>
                           )}
                         </div>
@@ -391,7 +390,7 @@ export const BoardAdminDashboard: React.FC = () => {
                   </TabsContent>
 
                   <TabsContent value="analytics">
-                    <BoardAnalytics board={selectedBoard} />
+                    <BoardAnalytics board={selectedBoard as any} />
                   </TabsContent>
 
                   <TabsContent value="members">
