@@ -442,6 +442,11 @@ export const CustomerPortal = () => {
             <ChangelogView boardId={board.id} />
           </TabsContent>
         </Tabs>
+        
+        <RealtimeUpdates 
+          boardId={board.id} 
+          onFeedbackUpdate={loadBoardData}
+        />
       </div>
 
       {/* Feedback Detail Dialog */}

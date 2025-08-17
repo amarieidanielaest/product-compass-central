@@ -7,6 +7,8 @@ import { BoardSelector } from './BoardSelector';
 import { CreateBoardDialog } from './CreateBoardDialog';
 import { BoardMembersManager } from './BoardMembersManager';
 import { BoardAnalytics } from './BoardAnalytics';
+import { AdvancedAnalytics } from './AdvancedAnalytics';
+import { IntegrationSettings } from './IntegrationSettings';
 import { 
   Settings, 
   BarChart3, 
@@ -342,9 +344,10 @@ export const BoardAdminDashboard: React.FC = () => {
                 <Tabs value={activeTab} onValueChange={setActiveTab}>
                   <TabsList>
                     <TabsTrigger value="overview">Overview</TabsTrigger>
-                    <TabsTrigger value="analytics">Analytics</TabsTrigger>
-                    <TabsTrigger value="members">Members</TabsTrigger>
-                    <TabsTrigger value="settings">Settings</TabsTrigger>
+                  <TabsTrigger value="analytics">Analytics</TabsTrigger>
+                  <TabsTrigger value="members">Members</TabsTrigger>
+                  <TabsTrigger value="advanced">Advanced Analytics</TabsTrigger>
+                  <TabsTrigger value="integrations">Integrations</TabsTrigger>
                   </TabsList>
 
                   <TabsContent value="overview" className="space-y-6">
@@ -400,20 +403,12 @@ export const BoardAdminDashboard: React.FC = () => {
                     />
                   </TabsContent>
 
-                  <TabsContent value="settings">
-                    <Card>
-                      <CardHeader>
-                        <CardTitle>Board Settings</CardTitle>
-                        <CardDescription>
-                          Configure board preferences and features
-                        </CardDescription>
-                      </CardHeader>
-                      <CardContent>
-                        <p className="text-muted-foreground">
-                          Board settings configuration coming soon...
-                        </p>
-                      </CardContent>
-                    </Card>
+                  <TabsContent value="advanced">
+                    <AdvancedAnalytics boardId={selectedBoard.id} />
+                  </TabsContent>
+
+                  <TabsContent value="integrations">
+                    <IntegrationSettings boardId={selectedBoard.id} />
                   </TabsContent>
                 </Tabs>
               </div>
