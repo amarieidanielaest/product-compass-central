@@ -14,6 +14,44 @@ export type Database = {
   }
   public: {
     Tables: {
+      board_integrations: {
+        Row: {
+          board_id: string
+          config: Json | null
+          created_at: string | null
+          enabled: boolean
+          id: string
+          integration_type: string
+          updated_at: string | null
+        }
+        Insert: {
+          board_id: string
+          config?: Json | null
+          created_at?: string | null
+          enabled?: boolean
+          id?: string
+          integration_type: string
+          updated_at?: string | null
+        }
+        Update: {
+          board_id?: string
+          config?: Json | null
+          created_at?: string | null
+          enabled?: boolean
+          id?: string
+          integration_type?: string
+          updated_at?: string | null
+        }
+        Relationships: [
+          {
+            foreignKeyName: "board_integrations_board_id_fkey"
+            columns: ["board_id"]
+            isOneToOne: false
+            referencedRelation: "customer_boards"
+            referencedColumns: ["id"]
+          },
+        ]
+      }
       board_memberships: {
         Row: {
           board_id: string

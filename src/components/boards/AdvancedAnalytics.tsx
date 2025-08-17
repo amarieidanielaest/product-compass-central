@@ -2,13 +2,12 @@ import React, { useState, useEffect } from 'react';
 import { Card, CardContent, CardDescription, CardHeader, CardTitle } from '@/components/ui/card';
 import { Tabs, TabsContent, TabsList, TabsTrigger } from '@/components/ui/tabs';
 import { Button } from '@/components/ui/button';
-import { DatePickerWithRange } from '@/components/ui/calendar';
+import { Input } from '@/components/ui/input';
 import { LineChart, Line, BarChart, Bar, PieChart, Pie, Cell, XAxis, YAxis, CartesianGrid, Tooltip, Legend, ResponsiveContainer } from 'recharts';
-import { TrendingUp, TrendingDown, Users, MessageSquare, ThumbsUp, Activity, Download } from 'lucide-react';
+import { TrendingUp, TrendingDown, Users, MessageSquare, ThumbsUp, Activity, Download, Calendar } from 'lucide-react';
 import { Badge } from '@/components/ui/badge';
 import { supabase } from '@/integrations/supabase/client';
 import { useToast } from '@/hooks/use-toast';
-import { DateRange } from 'react-day-picker';
 
 interface AdvancedAnalyticsProps {
   boardId: string;
@@ -43,15 +42,13 @@ const COLORS = ['hsl(var(--primary))', 'hsl(var(--secondary))', 'hsl(var(--accen
 export const AdvancedAnalytics: React.FC<AdvancedAnalyticsProps> = ({ boardId }) => {
   const [data, setData] = useState<AnalyticsData | null>(null);
   const [loading, setLoading] = useState(true);
-  const [dateRange, setDateRange] = useState<DateRange>({
-    from: new Date(Date.now() - 30 * 24 * 60 * 60 * 1000), // 30 days ago
-    to: new Date()
-  });
+  const [startDate, setStartDate] = useState(new Date(Date.now() - 30 * 24 * 60 * 60 * 1000).toISOString().split('T')[0]);
+  const [endDate, setEndDate] = useState(new Date().toISOString().split('T')[0]);
   const { toast } = useToast();
 
   useEffect(() => {
     loadAnalytics();
-  }, [boardId, dateRange]);
+  }, [boardId, startDate, endDate]);
 
   const loadAnalytics = async () => {
     try {
@@ -62,8 +59,8 @@ export const AdvancedAnalytics: React.FC<AdvancedAnalyticsProps> = ({ boardId })
         .from('feedback_items')
         .select('*')
         .eq('board_id', boardId)
-        .gte('created_at', dateRange.from?.toISOString())
-        .lte('created_at', dateRange.to?.toISOString());
+        .gte('created_at', new Date(startDate).toISOString())
+        .lte('created_at', new Date(endDate).toISOString());
 
       if (feedbackError) throw feedbackError;
 
@@ -84,35 +81,36 @@ export const AdvancedAnalytics: React.FC<AdvancedAnalyticsProps> = ({ boardId })
   };
 
   const processAnalyticsData = (feedbackItems: any[]): AnalyticsData => {
-    // Process feedback trends by day
-    const trendsByDay = feedbackItems.reduce((acc, item) => {
+    const trendsByDay: Record<string, { submissions: number; resolved: number }> = {};
+    
+    feedbackItems.forEach(item => {
       const date = new Date(item.created_at).toISOString().split('T')[0];
-      if (!acc[date]) {
-        acc[date] = { submissions: 0, resolved: 0 };
+      if (!trendsByDay[date]) {
+        trendsByDay[date] = { submissions: 0, resolved: 0 };
       }
-      acc[date].submissions++;
+      trendsByDay[date].submissions++;
       if (item.status === 'completed' || item.status === 'released') {
-        acc[date].resolved++;
+        trendsByDay[date].resolved++;
       }
-      return acc;
-    }, {} as Record<string, { submissions: number; resolved: number }>);
+    });
 
     const feedback_trends = Object.entries(trendsByDay).map(([date, data]) => ({
       date,
-      ...data
+      submissions: data.submissions,
+      resolved: data.resolved
     })).sort((a, b) => a.date.localeCompare(b.date));
 
     // Process category breakdown
-    const categoryCount = feedbackItems.reduce((acc, item) => {
+    const categoryCount: Record<string, number> = {};
+    feedbackItems.forEach(item => {
       const category = item.category || 'Uncategorized';
-      acc[category] = (acc[category] || 0) + 1;
-      return acc;
-    }, {} as Record<string, number>);
+      categoryCount[category] = (categoryCount[category] || 0) + 1;
+    });
 
-    const totalItems = feedbackItems.length;
+    const totalItems = feedbackItems.length || 1;
     const category_breakdown = Object.entries(categoryCount).map(([category, count]) => ({
       category,
-      count,
+      count: count as number,
       percentage: Math.round((count / totalItems) * 100)
     }));
 
@@ -143,7 +141,7 @@ export const AdvancedAnalytics: React.FC<AdvancedAnalyticsProps> = ({ boardId })
     
     const exportData = {
       board_id: boardId,
-      date_range: dateRange,
+      date_range: { from: startDate, to: endDate },
       analytics: data,
       exported_at: new Date().toISOString()
     };
@@ -190,7 +188,20 @@ export const AdvancedAnalytics: React.FC<AdvancedAnalyticsProps> = ({ boardId })
             <CardDescription>Detailed insights into your customer board performance</CardDescription>
           </div>
           <div className="flex gap-2">
-            <DatePickerWithRange date={dateRange} setDate={setDateRange} />
+            <div className="flex gap-2">
+              <Input
+                type="date"
+                value={startDate}
+                onChange={(e) => setStartDate(e.target.value)}
+                className="w-40"
+              />
+              <Input
+                type="date"
+                value={endDate}
+                onChange={(e) => setEndDate(e.target.value)}
+                className="w-40"
+              />
+            </div>
             <Button onClick={exportData} variant="outline" size="sm">
               <Download className="h-4 w-4 mr-2" />
               Export
