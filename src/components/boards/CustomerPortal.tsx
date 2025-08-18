@@ -10,10 +10,13 @@ import { Dialog, DialogContent, DialogDescription, DialogFooter, DialogHeader, D
 import { useToast } from '@/hooks/use-toast';
 import { useParams } from 'react-router-dom';
 import { boardService, CustomerBoard, EnhancedFeedbackItem } from '@/services/api';
-import { ArrowUp, MessageCircle, Calendar, CheckCircle2, Clock, AlertCircle, Plus, Search, Filter } from 'lucide-react';
+import { ArrowUp, MessageCircle, Calendar, CheckCircle2, Clock, AlertCircle, Plus, Search, Filter, Brain, Book } from 'lucide-react';
 import { FeedbackDetailDialog } from './FeedbackDetailDialog';
 import { RoadmapView } from './RoadmapView';
 import { ChangelogView } from './ChangelogView';
+import { SmartSearch } from './SmartSearch';
+import { AIInsightPanel } from './AIInsightPanel';
+import { EnhancedKnowledgeBase } from './EnhancedKnowledgeBase';
 
 export const CustomerPortal = () => {
   const { organization, boardSlug } = useParams();
@@ -28,6 +31,15 @@ export const CustomerPortal = () => {
   const [categoryFilter, setCategoryFilter] = useState<string>('all');
   const [selectedFeedback, setSelectedFeedback] = useState<EnhancedFeedbackItem | null>(null);
   const [isFeedbackDetailOpen, setIsFeedbackDetailOpen] = useState(false);
+  const [smartSearchQuery, setSmartSearchQuery] = useState('');
+  const [smartSearchFilters, setSmartSearchFilters] = useState<any>({
+    status: [],
+    priority: [],
+    category: [],
+    dateRange: 'all',
+    assignee: [],
+    tags: []
+  });
 
   // Form state for new feedback
   const [newFeedback, setNewFeedback] = useState({
@@ -315,14 +327,34 @@ export const CustomerPortal = () => {
       {/* Content */}
       <div className="container mx-auto p-6">
         <Tabs defaultValue="feedback" className="w-full">
-          <TabsList className="grid w-full grid-cols-3">
+          <TabsList className="grid w-full grid-cols-5">
             <TabsTrigger value="feedback">Feedback</TabsTrigger>
             <TabsTrigger value="roadmap">Roadmap</TabsTrigger>
             <TabsTrigger value="changelog">Changelog</TabsTrigger>
+            <TabsTrigger value="insights">
+              <Brain className="h-4 w-4 mr-2" />
+              AI Insights
+            </TabsTrigger>
+            <TabsTrigger value="knowledge">
+              <Book className="h-4 w-4 mr-2" />
+              Help Center
+            </TabsTrigger>
           </TabsList>
 
           <TabsContent value="feedback" className="space-y-6">
-            {/* Filters */}
+            {/* Enhanced Search */}
+            <SmartSearch
+              onSearchChange={(query, filters) => {
+                setSmartSearchQuery(query);
+                setSmartSearchFilters(filters);
+              }}
+              availableCategories={categories}
+              availableAssignees={[]}
+              availableTags={[]}
+              totalResults={filteredFeedback.length}
+            />
+
+            {/* Legacy Filters - keeping for compatibility */}
             <div className="flex flex-col sm:flex-row gap-4">
               <div className="flex-1">
                 <div className="relative">
@@ -440,6 +472,21 @@ export const CustomerPortal = () => {
 
           <TabsContent value="changelog">
             <ChangelogView boardId={board.id} />
+          </TabsContent>
+
+          <TabsContent value="insights">
+            <AIInsightPanel
+              boardId={board.id}
+              feedbackItems={feedback}
+              className="w-full"
+            />
+          </TabsContent>
+
+          <TabsContent value="knowledge">
+            <EnhancedKnowledgeBase
+              boardId={board.id}
+              className="w-full"
+            />
           </TabsContent>
         </Tabs>
       </div>
