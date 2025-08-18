@@ -30,7 +30,7 @@ serve(async (req) => {
     console.log('Boards API called:', method, pathParts)
 
     // GET /boards - List all accessible boards
-    if (method === 'GET' && pathParts.length === 0) {
+    if (method === 'GET' && (pathParts.length === 0 || pathParts.length === 1)) {
       const searchParams = url.searchParams;
       let query = supabase
         .from('customer_boards')
@@ -60,7 +60,7 @@ serve(async (req) => {
     }
 
     // POST /boards - Create new board
-    if (method === 'POST' && pathParts.length === 0) {
+    if (method === 'POST' && (pathParts.length === 0 || pathParts.length === 1)) {
       const body = await req.json()
       
       const { data: board, error } = await supabase

@@ -14,14 +14,16 @@ import UserManagement from '../components/UserManagement';
 import QuickActions from '../components/QuickActions';
 import Settings from '../components/Settings';
 import KnowledgeCenter from '../components/KnowledgeCenter';
+import { Phase5Demo } from '../components/Phase5Demo';
 
 const Index = () => {
   console.log('Index component rendering');
-  const [activeModule, setActiveModule] = useState('dashboard');
+  const [activeModule, setActiveModule] = useState('phase5-demo');
   const [selectedProductId, setSelectedProductId] = useState('main');
 
   const getModuleName = (moduleId: string) => {
     const moduleNames: Record<string, string> = {
+      'phase5-demo': 'Phase 5 Demo',
       dashboard: 'Dashboard',
       products: 'Products',
       strategy: 'Strategy',
@@ -64,6 +66,8 @@ const Index = () => {
 
   const renderModule = () => {
     switch (activeModule) {
+      case 'phase5-demo':
+        return <Phase5Demo selectedProductId={selectedProductId} onNavigate={setActiveModule} />;
       case 'dashboard':
         return <Dashboard selectedProductId={selectedProductId} onNavigate={setActiveModule} />;
       case 'products':
@@ -85,7 +89,7 @@ const Index = () => {
       case 'settings':
         return <Settings currentTeamId={selectedProductId} />;
       default:
-        return <Dashboard selectedProductId={selectedProductId} onNavigate={setActiveModule} />;
+        return <Phase5Demo selectedProductId={selectedProductId} onNavigate={setActiveModule} />;
     }
   };
 
