@@ -187,7 +187,16 @@ serve(async (req) => {
       
       const { data: members, error } = await supabase
         .from('board_memberships')
-        .select('*')
+        .select(`
+          *,
+          profile:profiles(
+            id,
+            email,
+            first_name,
+            last_name,
+            avatar_url
+          )
+        `)
         .eq('board_id', boardId)
 
       if (error) {
@@ -203,35 +212,48 @@ serve(async (req) => {
       })
     }
 
-    // POST /boards/{boardId}/invite - Invite user to board
-    if (method === 'POST' && pathParts.length === 2 && pathParts[1] === 'invite') {
-      const boardId = pathParts[0]
-      const { email, role } = await req.json()
-      
-      // TODO: Implement proper invitation system with email notifications
-      // For now, create a basic membership record
-      const { data: membership, error } = await supabase
-        .from('board_memberships')
-        .insert([{
-          board_id: boardId,
-          user_id: null, // Will be updated when user accepts
-          role: role || 'viewer'
-        }])
-        .select()
-        .single()
+      // POST /boards/{boardId}/invite - Invite user to board  
+      if (method === 'POST' && pathParts.length === 2 && pathParts[1] === 'invite') {
+        const boardId = pathParts[0]
+        const { email, role } = await req.json()
+        
+        // Find user by email
+        const { data: user, error: userError } = await supabase
+          .from('profiles')
+          .select('id')
+          .eq('email', email)
+          .single()
 
-      if (error) {
-        console.error('Error creating invitation:', error)
-        return new Response(JSON.stringify({ error: error.message }), {
-          status: 400,
+        if (userError || !user) {
+          return new Response(JSON.stringify({ error: 'User not found with this email' }), {
+            status: 400,
+            headers: { ...corsHeaders, 'Content-Type': 'application/json' },
+          })
+        }
+        
+        // Create membership record
+        const { data: membership, error } = await supabase
+          .from('board_memberships')
+          .insert([{
+            board_id: boardId,
+            user_id: user.id,
+            role: role || 'viewer'
+          }])
+          .select()
+          .single()
+
+        if (error) {
+          console.error('Error creating invitation:', error)
+          return new Response(JSON.stringify({ error: error.message }), {
+            status: 400,
+            headers: { ...corsHeaders, 'Content-Type': 'application/json' },
+          })
+        }
+
+        return new Response(JSON.stringify({ success: true, data: membership }), {
           headers: { ...corsHeaders, 'Content-Type': 'application/json' },
         })
       }
-
-      return new Response(JSON.stringify({ success: true, data: membership }), {
-        headers: { ...corsHeaders, 'Content-Type': 'application/json' },
-      })
-    }
 
     return new Response(JSON.stringify({ error: 'Not found' }), {
       status: 404,
