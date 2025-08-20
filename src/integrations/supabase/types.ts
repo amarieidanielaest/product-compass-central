@@ -2083,6 +2083,10 @@ export type Database = {
         Args: { board_uuid: string; user_uuid: string }
         Returns: boolean
       }
+      get_user_organization_role: {
+        Args: { org_uuid: string; user_uuid: string }
+        Returns: string
+      }
       get_user_roles: {
         Args: { _user_id: string }
         Returns: Database["public"]["Enums"]["app_role"][]
@@ -2097,6 +2101,10 @@ export type Database = {
       increment_article_views: {
         Args: { article_id: string }
         Returns: undefined
+      }
+      is_organization_member: {
+        Args: { org_uuid: string; user_uuid: string }
+        Returns: boolean
       }
     }
     Enums: {
