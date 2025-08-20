@@ -2066,6 +2066,10 @@ export type Database = {
         Args: { invitation_token: string }
         Returns: boolean
       }
+      can_manage_board: {
+        Args: { board_uuid: string; user_uuid: string }
+        Returns: boolean
+      }
       create_team_with_owner: {
         Args: {
           plan_id?: string
@@ -2074,6 +2078,10 @@ export type Database = {
           team_slug: string
         }
         Returns: string
+      }
+      get_user_board_access: {
+        Args: { board_uuid: string; user_uuid: string }
+        Returns: boolean
       }
       get_user_roles: {
         Args: { _user_id: string }
