@@ -138,10 +138,7 @@ class BoardApiService {
   // Board Memberships
   async getBoardMembers(boardId: string): Promise<ApiResponse<BoardMembership[]>> {
     try {
-      const { data: result, error } = await supabase.functions.invoke('boards-api', {
-        method: 'GET',
-        body: { path: `${boardId}/members` }
-      });
+      const { data: result, error } = await supabase.functions.invoke(`boards-api/${boardId}/members`);
 
       if (error) {
         return { success: false, message: error.message, data: null };
@@ -159,9 +156,8 @@ class BoardApiService {
 
   async inviteUserToBoard(boardId: string, email: string, role: string): Promise<ApiResponse<BoardMembership>> {
     try {
-      const { data: result, error } = await supabase.functions.invoke('boards-api', {
-        method: 'POST',
-        body: { path: `${boardId}/invite`, email, role }
+      const { data: result, error } = await supabase.functions.invoke(`boards-api/${boardId}/invite`, {
+        body: { email, role }
       });
 
       if (error) {
@@ -231,9 +227,8 @@ class BoardApiService {
 
   async createFeedback(boardId: string, feedback: Partial<EnhancedFeedbackItem>): Promise<ApiResponse<EnhancedFeedbackItem>> {
     try {
-      const { data: result, error } = await supabase.functions.invoke('boards-api', {
-        method: 'POST',
-        body: { path: `${boardId}/feedback`, ...feedback }
+      const { data: result, error } = await supabase.functions.invoke(`boards-api/${boardId}/feedback`, {
+        body: feedback
       });
 
       if (error) {
