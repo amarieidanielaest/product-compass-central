@@ -78,9 +78,7 @@ class BoardApiService {
   // Board Management
   async getBoards(filters: any = {}): Promise<ApiResponse<CustomerBoard[]>> {
     try {
-      const { data: boards, error } = await supabase.functions.invoke('boards-api', {
-        method: 'GET'
-      });
+      const { data: boards, error } = await supabase.functions.invoke('boards-api');
 
       if (error) {
         return { success: false, message: error.message, data: null };
@@ -99,7 +97,6 @@ class BoardApiService {
   async createBoard(board: Omit<CustomerBoard, 'id' | 'created_at' | 'updated_at'>): Promise<ApiResponse<CustomerBoard>> {
     try {
       const { data: result, error } = await supabase.functions.invoke('boards-api', {
-        method: 'POST',
         body: board
       });
 
@@ -209,16 +206,14 @@ class BoardApiService {
     pagination: PaginationParams = { page: 1, limit: 20 }
   ): Promise<ApiResponse<PaginatedResponse<EnhancedFeedbackItem>>> {
     try {
-      const queryParams = {
+      const queryParams = new URLSearchParams({
         page: pagination.page.toString(),
         limit: pagination.limit.toString(),
+        boardId,
         ...filters
-      };
-
-      const { data: result, error } = await supabase.functions.invoke('boards-api', {
-        method: 'GET',
-        body: { path: `${boardId}/feedback`, params: queryParams }
       });
+
+      const { data: result, error } = await supabase.functions.invoke(`boards-api/${boardId}/feedback?${queryParams}`);
 
       if (error) {
         return { success: false, message: error.message, data: null };

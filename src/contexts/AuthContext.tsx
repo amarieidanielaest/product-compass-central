@@ -32,7 +32,7 @@ export const AuthProvider: React.FC<{ children: React.ReactNode }> = ({ children
   // Development mode: simulate logged in user with Enterprise plan
   const DEV_MODE = true; // Set to false for production
   const mockUser = DEV_MODE ? {
-    id: 'mock-user-123',
+    id: '550e8400-e29b-41d4-a716-446655440000',
     email: 'admin@enterprise.com',
     created_at: new Date().toISOString(),
     app_metadata: {},
@@ -42,7 +42,7 @@ export const AuthProvider: React.FC<{ children: React.ReactNode }> = ({ children
   } as User : null;
 
   const mockProfile = DEV_MODE ? {
-    id: 'mock-user-123',
+    id: '550e8400-e29b-41d4-a716-446655440000',
     email: 'admin@enterprise.com',
     first_name: 'John',
     last_name: 'Enterprise',
