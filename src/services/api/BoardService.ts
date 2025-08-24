@@ -97,6 +97,7 @@ class BoardApiService {
   async createBoard(board: Omit<CustomerBoard, 'id' | 'created_at' | 'updated_at'>): Promise<ApiResponse<CustomerBoard>> {
     try {
       const { data: result, error } = await supabase.functions.invoke('boards-api', {
+        method: 'POST',
         body: board
       });
 
@@ -157,6 +158,7 @@ class BoardApiService {
   async inviteUserToBoard(boardId: string, email: string, role: string): Promise<ApiResponse<BoardMembership>> {
     try {
       const { data: result, error } = await supabase.functions.invoke(`boards-api/${boardId}/invite`, {
+        method: 'POST',
         body: { email, role }
       });
 
@@ -228,6 +230,7 @@ class BoardApiService {
   async createFeedback(boardId: string, feedback: Partial<EnhancedFeedbackItem>): Promise<ApiResponse<EnhancedFeedbackItem>> {
     try {
       const { data: result, error } = await supabase.functions.invoke(`boards-api/${boardId}/feedback`, {
+        method: 'POST',
         body: feedback
       });
 
