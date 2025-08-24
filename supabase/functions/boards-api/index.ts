@@ -61,7 +61,17 @@ serve(async (req) => {
 
     // POST /boards - Create new board
     if (method === 'POST' && (pathParts.length === 0 || pathParts.length === 1)) {
-      const body = await req.json()
+      const bodyText = await req.text();
+      console.log('Raw request body:', bodyText);
+      
+      if (!bodyText) {
+        return new Response(JSON.stringify({ success: false, message: 'Request body is empty', data: null }), {
+          status: 400,
+          headers: { ...corsHeaders, 'Content-Type': 'application/json' },
+        });
+      }
+      
+      const body = JSON.parse(bodyText);
       
       const { data: board, error } = await supabase
         .from('customer_boards')
@@ -133,7 +143,16 @@ serve(async (req) => {
     // POST /boards/{boardId}/feedback - Create feedback for a board
     if (method === 'POST' && pathParts.length === 2 && pathParts[1] === 'feedback') {
       const boardId = pathParts[0]
-      const body = await req.json()
+      const bodyText = await req.text();
+      
+      if (!bodyText) {
+        return new Response(JSON.stringify({ success: false, message: 'Request body is empty', data: null }), {
+          status: 400,
+          headers: { ...corsHeaders, 'Content-Type': 'application/json' },
+        });
+      }
+      
+      const body = JSON.parse(bodyText);
       
       const { data: feedback, error } = await supabase
         .from('feedback_items')
@@ -215,7 +234,16 @@ serve(async (req) => {
       // POST /boards/{boardId}/invite - Invite user to board  
       if (method === 'POST' && pathParts.length === 2 && pathParts[1] === 'invite') {
         const boardId = pathParts[0]
-        const { email, role } = await req.json()
+        const bodyText = await req.text();
+        
+        if (!bodyText) {
+          return new Response(JSON.stringify({ success: false, message: 'Request body is empty', data: null }), {
+            status: 400,
+            headers: { ...corsHeaders, 'Content-Type': 'application/json' },
+          });
+        }
+        
+        const { email, role } = JSON.parse(bodyText);
         
         // Find user by email
         const { data: user, error: userError } = await supabase

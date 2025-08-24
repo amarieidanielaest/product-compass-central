@@ -30,7 +30,7 @@ export const AuthProvider: React.FC<{ children: React.ReactNode }> = ({ children
   const [loading, setLoading] = useState(true);
 
   // Development mode: simulate logged in user with Enterprise plan
-  const DEV_MODE = true; // Set to false for production
+  const DEV_MODE = false; // Set to false for production
   const mockUser = DEV_MODE ? {
     id: 'afae4ea9-4d63-4615-b2f2-7b9c1871e40d',
     email: 'amariei.daniel1@gmail.com',
