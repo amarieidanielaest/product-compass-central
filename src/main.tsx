@@ -10,16 +10,29 @@ import NotFound from "./pages/NotFound.tsx";
 import HelpCenter from "./pages/HelpCenter.tsx";
 import { RoadmapIntegration } from "./pages/RoadmapIntegration.tsx";
 import CustomerPortal from "./pages/CustomerPortal.tsx";
+import { ProtectedRoute } from "./components/ProtectedRoute.tsx";
 
 createRoot(document.getElementById("root")!).render(
   <StrictMode>
     <BrowserRouter>
       <Routes>
         <Route path="/" element={<App />}>
-          <Route index element={<Index />} />
+          <Route index element={
+            <ProtectedRoute>
+              <Index />
+            </ProtectedRoute>
+          } />
           <Route path="auth" element={<Auth />} />
-          <Route path="help" element={<HelpCenter />} />
-          <Route path="roadmap-integration" element={<RoadmapIntegration />} />
+          <Route path="help" element={
+            <ProtectedRoute>
+              <HelpCenter />
+            </ProtectedRoute>
+          } />
+          <Route path="roadmap-integration" element={
+            <ProtectedRoute>
+              <RoadmapIntegration />
+            </ProtectedRoute>
+          } />
           <Route path="portal/:organization/:boardSlug" element={<CustomerPortal />} />
         </Route>
         <Route path="*" element={<NotFound />} />

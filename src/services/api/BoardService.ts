@@ -102,15 +102,25 @@ class BoardApiService {
       });
 
       if (error) {
-        return { success: false, message: error.message, data: null };
+        throw new Error(error.message);
       }
 
-      return result;
+      // Handle the invoke response format
+      if (result && typeof result === 'object') {
+        if ('success' in result && result.success) {
+          return { success: true, data: result.data as CustomerBoard, message: 'Board created successfully' };
+        } else if ('error' in result) {
+          throw new Error(result.error as string);
+        }
+      }
+
+      return { success: true, data: result as CustomerBoard, message: 'Board created successfully' };
     } catch (error) {
+      console.error('Error creating board:', error);
       return { 
         success: false, 
-        message: error instanceof Error ? error.message : 'Unknown error',
-        data: null
+        data: null as any, 
+        message: error instanceof Error ? error.message : 'Failed to create board' 
       };
     }
   }
@@ -163,15 +173,25 @@ class BoardApiService {
       });
 
       if (error) {
-        return { success: false, message: error.message, data: null };
+        throw new Error(error.message);
       }
 
-      return result;
+      // Handle the invoke response format
+      if (result && typeof result === 'object') {
+        if ('success' in result && result.success) {
+          return { success: true, data: result.data as BoardMembership, message: 'User invited successfully' };
+        } else if ('error' in result) {
+          throw new Error(result.error as string);
+        }
+      }
+
+      return { success: true, data: result as BoardMembership, message: 'User invited successfully' };
     } catch (error) {
+      console.error('Error inviting user to board:', error);
       return { 
         success: false, 
-        message: error instanceof Error ? error.message : 'Unknown error',
-        data: null
+        data: null as any, 
+        message: error instanceof Error ? error.message : 'Failed to invite user' 
       };
     }
   }
@@ -235,15 +255,25 @@ class BoardApiService {
       });
 
       if (error) {
-        return { success: false, message: error.message, data: null };
+        throw new Error(error.message);
       }
 
-      return result;
+      // Handle the invoke response format
+      if (result && typeof result === 'object') {
+        if ('success' in result && result.success) {
+          return { success: true, data: result.data as EnhancedFeedbackItem, message: 'Feedback created successfully' };
+        } else if ('error' in result) {
+          throw new Error(result.error as string);
+        }
+      }
+
+      return { success: true, data: result as EnhancedFeedbackItem, message: 'Feedback created successfully' };
     } catch (error) {
+      console.error('Error creating feedback:', error);
       return { 
         success: false, 
-        message: error instanceof Error ? error.message : 'Unknown error',
-        data: null
+        data: null as any, 
+        message: error instanceof Error ? error.message : 'Failed to create feedback' 
       };
     }
   }
