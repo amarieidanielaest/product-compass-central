@@ -10,6 +10,8 @@ import { Dialog, DialogContent, DialogDescription, DialogFooter, DialogHeader, D
 import { useToast } from '@/hooks/use-toast';
 import { useParams } from 'react-router-dom';
 import { boardService, CustomerBoard, EnhancedFeedbackItem } from '@/services/api';
+import { customerService } from '@/services/api/CustomerService';
+import { useCustomerAuth } from '@/contexts/CustomerAuthContext';
 import { ArrowUp, MessageCircle, Calendar, CheckCircle2, Clock, AlertCircle, Plus, Search, Filter, Brain, Book } from 'lucide-react';
 import { FeedbackDetailDialog } from './FeedbackDetailDialog';
 import { RoadmapView } from './RoadmapView';
@@ -21,6 +23,7 @@ import { EnhancedKnowledgeBase } from './EnhancedKnowledgeBase';
 export const CustomerPortal = () => {
   const { organization, boardSlug } = useParams();
   const { toast } = useToast();
+  const { user: customerUser, token: customerToken, isAuthenticated } = useCustomerAuth();
   
   const [board, setBoard] = useState<CustomerBoard | null>(null);
   const [feedback, setFeedback] = useState<EnhancedFeedbackItem[]>([]);
@@ -63,8 +66,14 @@ export const CustomerPortal = () => {
         const boardData = boardsResponse.data[0];
         setBoard(boardData);
         
-        // Load feedback for this board
-        const feedbackResponse = await boardService.getBoardFeedback(boardData.id);
+        // Load feedback - use customer service if authenticated, otherwise use regular service
+        let feedbackResponse;
+        if (isAuthenticated() && customerToken) {
+          feedbackResponse = await customerService.getBoardFeedback(boardData.id, customerToken);
+        } else {
+          feedbackResponse = await boardService.getBoardFeedback(boardData.id);
+        }
+        
         if (feedbackResponse.success && feedbackResponse.data) {
           setFeedback(feedbackResponse.data.data || []);
         }
@@ -92,16 +101,28 @@ export const CustomerPortal = () => {
     }
 
     try {
-      const response = await boardService.createFeedback(board.id, {
-        ...newFeedback,
-        status: 'submitted',
-        votes_count: 0,
-        comments_count: 0,
-        impact_score: 0,
-        effort_estimate: 0,
-        tags: [],
-        customer_info: {}
-      });
+      let response;
+      
+      // Use customer service if authenticated, otherwise use regular service
+      if (isAuthenticated() && customerToken) {
+        response = await customerService.submitFeedback(board.id, {
+          title: newFeedback.title,
+          description: newFeedback.description,
+          category: newFeedback.category,
+          priority: newFeedback.priority,
+        }, customerToken);
+      } else {
+        response = await boardService.createFeedback(board.id, {
+          ...newFeedback,
+          status: 'submitted',
+          votes_count: 0,
+          comments_count: 0,
+          impact_score: 0,
+          effort_estimate: 0,
+          tags: [],
+          customer_info: {}
+        });
+      }
 
       if (response.success) {
         toast({
@@ -125,7 +146,15 @@ export const CustomerPortal = () => {
 
   const handleVote = async (feedbackId: string, voteType: 'upvote' | 'downvote' = 'upvote') => {
     try {
-      const response = await boardService.voteFeedback(feedbackId, voteType);
+      let response;
+      
+      // Use customer service if authenticated, otherwise use regular service
+      if (isAuthenticated() && customerToken) {
+        response = await customerService.voteOnFeedback(feedbackId, voteType, customerToken);
+      } else {
+        response = await boardService.voteFeedback(feedbackId, voteType);
+      }
+      
       if (response.success) {
         // Update the feedback item locally
         setFeedback(prev => prev.map(item => 
@@ -135,7 +164,13 @@ export const CustomerPortal = () => {
         ));
         toast({
           title: 'Success',
-          description: 'Vote recorded!',
+          description: response.message || 'Vote recorded!',
+        });
+      } else {
+        toast({
+          title: 'Error',
+          description: response.message || 'Failed to record vote',
+          variant: 'destructive',
         });
       }
     } catch (error) {

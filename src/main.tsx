@@ -9,7 +9,8 @@ import Auth from "./pages/Auth.tsx";
 import NotFound from "./pages/NotFound.tsx";
 import HelpCenter from "./pages/HelpCenter.tsx";
 import { RoadmapIntegration } from "./pages/RoadmapIntegration.tsx";
-import CustomerPortal from "./pages/CustomerPortal.tsx";
+import { CustomerPortalRoute } from "./components/customer/CustomerPortalRoute.tsx";
+import { CustomerInvitation } from "./pages/CustomerInvitation.tsx";
 import { ProtectedRoute } from "./components/ProtectedRoute.tsx";
 
 createRoot(document.getElementById("root")!).render(
@@ -33,7 +34,8 @@ createRoot(document.getElementById("root")!).render(
               <RoadmapIntegration />
             </ProtectedRoute>
           } />
-          <Route path="portal/:organization/:boardSlug" element={<CustomerPortal />} />
+          <Route path="portal/:organization/:boardSlug" element={<CustomerPortalRoute />} />
+          <Route path="invitation/:token" element={<CustomerInvitation />} />
         </Route>
         <Route path="*" element={<NotFound />} />
       </Routes>
