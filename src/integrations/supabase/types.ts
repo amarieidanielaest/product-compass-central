@@ -56,29 +56,32 @@ export type Database = {
         Row: {
           board_id: string
           created_at: string | null
+          customer_user_id: string | null
           id: string
           invited_by: string | null
           joined_at: string | null
           role: string
-          user_id: string
+          user_id: string | null
         }
         Insert: {
           board_id: string
           created_at?: string | null
+          customer_user_id?: string | null
           id?: string
           invited_by?: string | null
           joined_at?: string | null
           role?: string
-          user_id: string
+          user_id?: string | null
         }
         Update: {
           board_id?: string
           created_at?: string | null
+          customer_user_id?: string | null
           id?: string
           invited_by?: string | null
           joined_at?: string | null
           role?: string
-          user_id?: string
+          user_id?: string | null
         }
         Relationships: [
           {
@@ -86,6 +89,13 @@ export type Database = {
             columns: ["board_id"]
             isOneToOne: false
             referencedRelation: "customer_boards"
+            referencedColumns: ["id"]
+          },
+          {
+            foreignKeyName: "board_memberships_customer_user_id_fkey"
+            columns: ["customer_user_id"]
+            isOneToOne: false
+            referencedRelation: "customer_users"
             referencedColumns: ["id"]
           },
         ]
@@ -163,6 +173,50 @@ export type Database = {
           },
         ]
       }
+      customer_board_invitations: {
+        Row: {
+          accepted_at: string | null
+          board_id: string
+          created_at: string | null
+          email: string
+          expires_at: string
+          id: string
+          invited_by: string | null
+          role: string | null
+          token: string
+        }
+        Insert: {
+          accepted_at?: string | null
+          board_id: string
+          created_at?: string | null
+          email: string
+          expires_at: string
+          id?: string
+          invited_by?: string | null
+          role?: string | null
+          token: string
+        }
+        Update: {
+          accepted_at?: string | null
+          board_id?: string
+          created_at?: string | null
+          email?: string
+          expires_at?: string
+          id?: string
+          invited_by?: string | null
+          role?: string | null
+          token?: string
+        }
+        Relationships: [
+          {
+            foreignKeyName: "customer_board_invitations_board_id_fkey"
+            columns: ["board_id"]
+            isOneToOne: false
+            referencedRelation: "customer_boards"
+            referencedColumns: ["id"]
+          },
+        ]
+      }
       customer_boards: {
         Row: {
           access_type: string | null
@@ -228,6 +282,80 @@ export type Database = {
             referencedColumns: ["id"]
           },
         ]
+      }
+      customer_sessions: {
+        Row: {
+          created_at: string | null
+          customer_user_id: string
+          expires_at: string
+          id: string
+          token: string
+        }
+        Insert: {
+          created_at?: string | null
+          customer_user_id: string
+          expires_at: string
+          id?: string
+          token: string
+        }
+        Update: {
+          created_at?: string | null
+          customer_user_id?: string
+          expires_at?: string
+          id?: string
+          token?: string
+        }
+        Relationships: [
+          {
+            foreignKeyName: "customer_sessions_customer_user_id_fkey"
+            columns: ["customer_user_id"]
+            isOneToOne: false
+            referencedRelation: "customer_users"
+            referencedColumns: ["id"]
+          },
+        ]
+      }
+      customer_users: {
+        Row: {
+          avatar_url: string | null
+          company: string | null
+          created_at: string | null
+          email: string
+          first_name: string | null
+          id: string
+          is_verified: boolean | null
+          job_title: string | null
+          last_name: string | null
+          password_hash: string
+          updated_at: string | null
+        }
+        Insert: {
+          avatar_url?: string | null
+          company?: string | null
+          created_at?: string | null
+          email: string
+          first_name?: string | null
+          id?: string
+          is_verified?: boolean | null
+          job_title?: string | null
+          last_name?: string | null
+          password_hash: string
+          updated_at?: string | null
+        }
+        Update: {
+          avatar_url?: string | null
+          company?: string | null
+          created_at?: string | null
+          email?: string
+          first_name?: string | null
+          id?: string
+          is_verified?: boolean | null
+          job_title?: string | null
+          last_name?: string | null
+          password_hash?: string
+          updated_at?: string | null
+        }
+        Relationships: []
       }
       feedback_comments: {
         Row: {
@@ -2062,13 +2190,32 @@ export type Database = {
       [_ in never]: never
     }
     Functions: {
+      accept_customer_board_invitation: {
+        Args: { p_customer_user_id: string; p_token: string }
+        Returns: Json
+      }
       accept_team_invitation: {
         Args: { invitation_token: string }
         Returns: boolean
       }
+      authenticate_customer_user: {
+        Args: { p_email: string; p_password: string }
+        Returns: Json
+      }
       can_manage_board: {
         Args: { board_uuid: string; user_uuid: string }
         Returns: boolean
+      }
+      create_customer_user: {
+        Args: {
+          p_company?: string
+          p_email: string
+          p_first_name?: string
+          p_job_title?: string
+          p_last_name?: string
+          p_password: string
+        }
+        Returns: Json
       }
       create_team_with_owner: {
         Args: {
@@ -2078,6 +2225,10 @@ export type Database = {
           team_slug: string
         }
         Returns: string
+      }
+      get_customer_user_by_token: {
+        Args: { p_token: string }
+        Returns: Json
       }
       get_user_board_access: {
         Args: { board_uuid: string; user_uuid: string }
