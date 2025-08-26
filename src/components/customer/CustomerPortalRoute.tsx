@@ -38,9 +38,22 @@ const CustomerPortalContent: React.FC = () => {
           
           // If user is authenticated, check if they have access to this board
           if (isAuthenticated()) {
-            // Check board membership - this would require updating the board service
-            // For now, assume authenticated users have access to private boards
-            setRequiresAuth(false);
+            try {
+              // Check board membership for customer user
+              const membershipResponse = await boardService.getBoardMemberships(boardData.id);
+              
+              if (membershipResponse.success && membershipResponse.data) {
+                const userHasAccess = membershipResponse.data.some(
+                  membership => membership.customer_user_id === user?.id
+                );
+                setRequiresAuth(!userHasAccess);
+              } else {
+                setRequiresAuth(true);
+              }
+            } catch (error) {
+              console.error('Error checking board membership:', error);
+              setRequiresAuth(true);
+            }
           }
         } else {
           setRequiresAuth(false);

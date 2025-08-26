@@ -161,8 +161,26 @@ export const CustomerManagement: React.FC<CustomerManagementProps> = ({ boardId,
       setInviteForm({ email: '', role: 'member' });
       loadBoardInvitations();
       
-      // In a real app, you would send an email here
-      console.log('Invitation link:', `${window.location.origin}/portal/invitation/${token}`);
+      // Send invitation email
+      try {
+        const invitationUrl = `${window.location.origin}/invitation/${token}`;
+        
+        await supabase.functions.invoke('customer-invitation-email', {
+          body: {
+            email: inviteForm.email,
+            boardName,
+            inviterName: 'Admin', // TODO: Get from current user
+            invitationUrl,
+            role: inviteForm.role,
+            organizationName: 'Your Organization' // TODO: Get from board data
+          }
+        });
+        
+        console.log('Invitation email sent successfully');
+      } catch (emailError) {
+        console.error('Failed to send invitation email:', emailError);
+        // Still show success since invitation was created in database
+      }
       
     } catch (error: any) {
       toast({
