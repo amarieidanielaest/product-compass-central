@@ -12,6 +12,7 @@ import { RoadmapIntegration } from "./pages/RoadmapIntegration.tsx";
 import { CustomerPortalIntegration } from "./components/customer/CustomerPortalIntegration.tsx";
 import { CustomerInvitation } from "./pages/CustomerInvitation.tsx";
 import { ProtectedRoute } from "./components/ProtectedRoute.tsx";
+import { CustomerAuthProvider } from "./contexts/CustomerAuthContext.tsx";
 
 createRoot(document.getElementById("root")!).render(
   <StrictMode>
@@ -34,7 +35,11 @@ createRoot(document.getElementById("root")!).render(
               <RoadmapIntegration />
             </ProtectedRoute>
           } />
-          <Route path="portal/:organization/:boardSlug" element={<CustomerPortalIntegration />} />
+          <Route path="portal/:organization/:boardSlug" element={
+            <CustomerAuthProvider>
+              <CustomerPortalIntegration />
+            </CustomerAuthProvider>
+          } />
           <Route path="invitation/:token" element={<CustomerInvitation />} />
         </Route>
         <Route path="*" element={<NotFound />} />

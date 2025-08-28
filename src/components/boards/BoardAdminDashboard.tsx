@@ -62,34 +62,32 @@ export const BoardAdminDashboard: React.FC = () => {
 
   const loadBoards = async () => {
     try {
-      const { data, error } = await supabase
-        .from('customer_boards')
-        .select(`
-          *,
-          organization:organizations(name, slug),
-          feedback_items(count),
-          board_memberships(count)
-        `)
-        .eq('is_active', true)
-        .order('created_at', { ascending: false });
+      // Use the boards-api edge function instead of direct Supabase calls
+      const { data: response, error } = await supabase.functions.invoke('boards-api', {
+        method: 'GET'
+      });
 
       if (error) throw error;
       
-      // Transform the data to include counts
-      const transformedBoards = data?.map(board => ({
+      if (!response.success) {
+        throw new Error(response.message || 'Failed to load boards');
+      }
+
+      // Transform the data to include counts (mock for now)
+      const transformedBoards = response.data?.map((board: any) => ({
         ...board,
-        features_enabled: board.features_enabled as any,
+        features_enabled: board.features_enabled || {},
         _count: {
-          feedback_items: board.feedback_items?.length || 0,
-          board_memberships: board.board_memberships?.length || 0
+          feedback_items: 0, // Will be populated by separate API call
+          board_memberships: 0 // Will be populated by separate API call
         }
       })) || [];
 
-      setBoards(transformedBoards as any);
+      setBoards(transformedBoards);
       
       // Select first board if none selected
       if (!selectedBoard && transformedBoards.length > 0) {
-        setSelectedBoard(transformedBoards[0] as any);
+        setSelectedBoard(transformedBoards[0]);
       }
     } catch (error) {
       console.error('Error loading boards:', error);
@@ -103,23 +101,49 @@ export const BoardAdminDashboard: React.FC = () => {
     }
   };
 
-  const handleBoardCreated = () => {
-    loadBoards();
-    setShowCreateDialog(false);
-    toast({
-      title: "Success",
-      description: "Customer board created successfully",
-    });
+  const handleBoardCreated = async (boardData: any) => {
+    try {
+      // Use the boards-api edge function to create the board
+      const { data: response, error } = await supabase.functions.invoke('boards-api', {
+        method: 'POST',
+        body: boardData
+      });
+
+      if (error) throw error;
+      
+      if (!response.success) {
+        throw new Error(response.message || 'Failed to create board');
+      }
+
+      loadBoards();
+      setShowCreateDialog(false);
+      toast({
+        title: "Success",
+        description: "Customer board created successfully",
+      });
+    } catch (error) {
+      console.error('Error creating board:', error);
+      toast({
+        title: "Error",
+        description: "Failed to create customer board",
+        variant: "destructive"
+      });
+    }
   };
 
   const toggleBoardStatus = async (boardId: string, newStatus: boolean) => {
     try {
-      const { error } = await supabase
-        .from('customer_boards')
-        .update({ is_active: newStatus })
-        .eq('id', boardId);
+      // Use boards-api PATCH endpoint for board updates  
+      const { data: response, error } = await supabase.functions.invoke('boards-api', {
+        method: 'PATCH',
+        body: JSON.stringify({ is_active: newStatus })
+      });
 
       if (error) throw error;
+      
+      if (!response?.success) {
+        throw new Error(response?.message || 'Failed to update board status');
+      }
 
       toast({
         title: "Success",
@@ -130,7 +154,7 @@ export const BoardAdminDashboard: React.FC = () => {
     } catch (error) {
       console.error('Error updating board status:', error);
       toast({
-        title: "Error",
+        title: "Error", 
         description: "Failed to update board status",
         variant: "destructive"
       });
@@ -444,7 +468,7 @@ export const BoardAdminDashboard: React.FC = () => {
       <CreateBoardDialog
         open={showCreateDialog}
         onOpenChange={setShowCreateDialog}
-        onCreateBoard={async () => handleBoardCreated()}
+        onCreateBoard={handleBoardCreated}
       />
     </div>
   );

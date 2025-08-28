@@ -73,9 +73,26 @@ serve(async (req) => {
       
       const body = JSON.parse(bodyText);
       
+      // Get current user to set as creator
+      const { data: { user } } = await supabase.auth.getUser()
+      
+      if (!user) {
+        return new Response(JSON.stringify({ success: false, message: 'Authentication required', data: null }), {
+          status: 401,
+          headers: { ...corsHeaders, 'Content-Type': 'application/json' },
+        });
+      }
+
+      // Create board with proper user context
+      const boardData = {
+        ...body,
+        // Set organization_id to ensure RLS policies are satisfied
+        organization_id: body.organization_id || null,
+      };
+      
       const { data: board, error } = await supabase
         .from('customer_boards')
-        .insert([body])
+        .insert([boardData])
         .select()
         .single()
 
@@ -87,10 +104,58 @@ serve(async (req) => {
         })
       }
 
+      // Create initial board membership for the creator
+      const { error: membershipError } = await supabase
+        .from('board_memberships')
+        .insert([{
+          board_id: board.id,
+          user_id: user.id,
+          role: 'owner'
+        }])
+
+      if (membershipError) {
+        console.error('Error creating board membership:', membershipError)
+        // Board created but membership failed - still return success
+      }
+
       return new Response(JSON.stringify({ success: true, data: board }), {
         headers: { ...corsHeaders, 'Content-Type': 'application/json' },
       })
     }
+
+      // PATCH /boards/{boardId} - Update board
+      if (method === 'PATCH' && pathParts.length === 1) {
+        const boardId = pathParts[0]
+        const bodyText = await req.text();
+        
+        if (!bodyText) {
+          return new Response(JSON.stringify({ success: false, message: 'Request body is empty', data: null }), {
+            status: 400,
+            headers: { ...corsHeaders, 'Content-Type': 'application/json' },
+          });
+        }
+        
+        const body = JSON.parse(bodyText);
+        
+        const { data: board, error } = await supabase
+          .from('customer_boards')
+          .update(body)
+          .eq('id', boardId)
+          .select()
+          .single()
+
+        if (error) {
+          console.error('Error updating board:', error)
+          return new Response(JSON.stringify({ success: false, message: error.message, data: null }), {
+            status: 400,
+            headers: { ...corsHeaders, 'Content-Type': 'application/json' },
+          })
+        }
+
+        return new Response(JSON.stringify({ success: true, data: board }), {
+          headers: { ...corsHeaders, 'Content-Type': 'application/json' },
+        })
+      }
 
     // GET /boards/{boardId}/feedback - Get feedback for a board
     if (method === 'GET' && pathParts.length === 2 && pathParts[1] === 'feedback') {

@@ -1,7 +1,8 @@
 import { useState, useEffect } from 'react';
 import { 
   BarChart3, Target, Map, MessageSquare, Home, FileText, Kanban, Package, 
-  ChevronDown, Settings, ChevronLeft, ChevronRight, BookOpen, Users
+  ChevronDown, Settings, ChevronLeft, ChevronRight, BookOpen, Users, 
+  ChevronUp
 } from 'lucide-react';
 import {
   Sidebar,
@@ -38,14 +39,20 @@ interface AppSidebarProps {
 
 const AppSidebar = ({ activeModule, setActiveModule, selectedProductId, onProductChange }: AppSidebarProps) => {
   const [isProductMenuOpen, setIsProductMenuOpen] = useState(false);
+  const [isCustomerBoardsOpen, setIsCustomerBoardsOpen] = useState(false);
   const { state, setOpen } = useSidebar();
   
-  // Auto-collapse when in settings
+  // Auto-collapse when in settings and auto-expand customer boards submenu
   useEffect(() => {
     console.log('AppSidebar effect:', { activeModule, state });
     if (activeModule === 'settings' && state === 'expanded') {
       console.log('Auto-collapsing sidebar for settings');
       setOpen(false);
+    }
+
+    // Auto-expand customer boards submenu when navigating to customer board modules
+    if (customerBoardModules.some(m => m.id === activeModule)) {
+      setIsCustomerBoardsOpen(true);
     }
   }, [activeModule, state, setOpen]);
   
@@ -58,15 +65,18 @@ const AppSidebar = ({ activeModule, setActiveModule, selectedProductId, onProduc
     { id: 'strategy', name: 'Strategy', icon: Target, badge: null, category: 'core' },
     { id: 'roadmap', name: 'Roadmap', icon: Map, badge: '3', category: 'core' },
     { id: 'sprints', name: 'Sprint Board', icon: Kanban, badge: '12', category: 'core' },
-    { id: 'customer', name: 'Customer Board', icon: MessageSquare, badge: '5', category: 'core' },
     { id: 'prd', name: 'PRD Generator', icon: FileText, badge: null, category: 'core' },
     { id: 'products', name: 'Products', icon: Package, badge: null, category: 'core' },
     { id: 'knowledge', name: 'Knowledge Center', icon: BookOpen, badge: null, category: 'core' },
     { id: 'users', name: 'User Management', icon: Users, badge: null, category: 'core' },
-    { id: 'customer-admin', name: 'Customer Admin', icon: Users, badge: null, category: 'core' },
     
     // Settings & Administration
     { id: 'settings', name: 'Settings', icon: Settings, badge: null, category: 'settings' },
+  ];
+
+  const customerBoardModules = [
+    { id: 'customer', name: 'Board Admin', icon: MessageSquare, badge: '5', category: 'customer-boards' },
+    { id: 'customer-admin', name: 'Customer Admin', icon: Users, badge: null, category: 'customer-boards' },
   ];
 
   const mockProducts = [
@@ -168,6 +178,7 @@ const AppSidebar = ({ activeModule, setActiveModule, selectedProductId, onProduc
           </SidebarGroupLabel>
           <SidebarGroupContent>
             <SidebarMenu className="space-y-1">
+              {/* Main modules */}
               {modules.map((module) => {
                 const Icon = module.icon;
                 const isActive = activeModule === module.id;
@@ -206,6 +217,72 @@ const AppSidebar = ({ activeModule, setActiveModule, selectedProductId, onProduc
                   </SidebarMenuItem>
                 );
               })}
+
+              {/* Customer Boards Submenu */}
+              <SidebarMenuItem>
+                <SidebarMenuButton
+                  onClick={() => setIsCustomerBoardsOpen(!isCustomerBoardsOpen)}
+                  className={cn(
+                    "h-9 px-3 rounded-md text-sm font-medium transition-all duration-200",
+                    customerBoardModules.some(m => activeModule === m.id)
+                      ? "bg-sidebar-accent text-sidebar-accent-foreground shadow-sm" 
+                      : "text-sidebar-foreground hover:bg-sidebar-accent/50 hover:text-sidebar-accent-foreground",
+                    isCollapsed && "justify-center px-0"
+                  )}
+                  tooltip={isCollapsed ? "Customer Boards" : undefined}
+                >
+                  <MessageSquare className={cn(
+                    "h-4 w-4",
+                    isCollapsed ? "mx-auto" : "mr-3"
+                  )} />
+                  
+                  {!isCollapsed && (
+                    <div className="flex-1 flex items-center justify-between">
+                      <span className="truncate">Customer Boards</span>
+                      <div className="flex items-center gap-2">
+                        <Badge variant="secondary" className="text-xs h-4 px-1.5">5</Badge>
+                        {isCustomerBoardsOpen ? (
+                          <ChevronUp className="h-3 w-3" />
+                        ) : (
+                          <ChevronDown className="h-3 w-3" />
+                        )}
+                      </div>
+                    </div>
+                  )}
+                </SidebarMenuButton>
+
+                {/* Submenu Items */}
+                {!isCollapsed && isCustomerBoardsOpen && (
+                  <SidebarMenu className="mt-2 ml-4 space-y-1">
+                    {customerBoardModules.map((module) => {
+                      const Icon = module.icon;
+                      const isActive = activeModule === module.id;
+                      
+                      return (
+                        <SidebarMenuItem key={module.id}>
+                          <SidebarMenuButton
+                            onClick={() => setActiveModule(module.id)}
+                            className={cn(
+                              "h-8 px-3 rounded-md text-sm transition-all duration-200",
+                              isActive 
+                                ? "bg-sidebar-accent text-sidebar-accent-foreground shadow-sm" 
+                                : "text-sidebar-foreground/80 hover:bg-sidebar-accent/50 hover:text-sidebar-accent-foreground"
+                            )}
+                          >
+                            <Icon className="h-3 w-3 mr-2" />
+                            <span className="truncate">{module.name}</span>
+                            {module.badge && (
+                              <Badge variant="secondary" className="ml-2 text-xs h-4 px-1.5">
+                                {module.badge}
+                              </Badge>
+                            )}
+                          </SidebarMenuButton>
+                        </SidebarMenuItem>
+                      );
+                    })}
+                  </SidebarMenu>
+                )}
+              </SidebarMenuItem>
             </SidebarMenu>
           </SidebarGroupContent>
         </SidebarGroup>
