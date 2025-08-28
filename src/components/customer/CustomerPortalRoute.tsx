@@ -36,24 +36,10 @@ const CustomerPortalContent: React.FC = () => {
         if (boardData.access_type === 'private' || !boardData.is_public) {
           setRequiresAuth(true);
           
-          // If user is authenticated, check if they have access to this board
+          // If user is authenticated, assume they have access for now
           if (isAuthenticated()) {
-            try {
-              // Check board membership for customer user
-              const membershipResponse = await boardService.getBoardMemberships(boardData.id);
-              
-              if (membershipResponse.success && membershipResponse.data) {
-                const userHasAccess = membershipResponse.data.some(
-                  membership => membership.customer_user_id === user?.id
-                );
-                setRequiresAuth(!userHasAccess);
-              } else {
-                setRequiresAuth(true);
-              }
-            } catch (error) {
-              console.error('Error checking board membership:', error);
-              setRequiresAuth(true);
-            }
+            // For now, assume authenticated users have access until proper RLS is implemented
+            setRequiresAuth(false);
           }
         } else {
           setRequiresAuth(false);

@@ -10,7 +10,8 @@ import { AdaptableSprintBoard } from '../components/AdaptableSprintBoard';
 import PRDGenerator from '../components/PRDGenerator';
 import CustomerBoard from '../components/CustomerBoard';
 import ProductManager from '../components/ProductManager';
-import UserManagement from '../components/UserManagement';
+import { SimplifiedCustomerAdminDashboard } from '@/components/customer/SimplifiedCustomerAdminDashboard';
+import UserManagement from '@/components/UserManagement';
 import QuickActions from '../components/QuickActions';
 import Settings from '../components/Settings';
 import KnowledgeCenter from '../components/KnowledgeCenter';
@@ -30,6 +31,7 @@ const Index = () => {
       sprints: 'Sprint Board',
       prd: 'PRD Generator',
       customer: 'Customer Board',
+      'customer-admin': 'Customer Admin',
       knowledge: 'Knowledge Center',
       users: 'User Management',
       settings: 'Settings',
@@ -79,6 +81,8 @@ const Index = () => {
         return <PRDGenerator />;
       case 'customer':
         return <CustomerBoard selectedProductId={selectedProductId} onNavigate={setActiveModule} />;
+      case 'customer-admin':
+        return <SimplifiedCustomerAdminDashboard />;
       case 'knowledge':
         return <KnowledgeCenter />;
       case 'users':

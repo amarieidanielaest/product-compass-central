@@ -173,6 +173,56 @@ export type Database = {
           },
         ]
       }
+      customer_access_requests: {
+        Row: {
+          board_id: string
+          company: string | null
+          created_at: string | null
+          email: string
+          first_name: string | null
+          id: string
+          job_title: string | null
+          last_name: string | null
+          message: string | null
+          status: string
+          updated_at: string | null
+        }
+        Insert: {
+          board_id: string
+          company?: string | null
+          created_at?: string | null
+          email: string
+          first_name?: string | null
+          id?: string
+          job_title?: string | null
+          last_name?: string | null
+          message?: string | null
+          status?: string
+          updated_at?: string | null
+        }
+        Update: {
+          board_id?: string
+          company?: string | null
+          created_at?: string | null
+          email?: string
+          first_name?: string | null
+          id?: string
+          job_title?: string | null
+          last_name?: string | null
+          message?: string | null
+          status?: string
+          updated_at?: string | null
+        }
+        Relationships: [
+          {
+            foreignKeyName: "customer_access_requests_board_id_fkey"
+            columns: ["board_id"]
+            isOneToOne: false
+            referencedRelation: "customer_boards"
+            referencedColumns: ["id"]
+          },
+        ]
+      }
       customer_board_invitations: {
         Row: {
           accepted_at: string | null
@@ -279,6 +329,47 @@ export type Database = {
             columns: ["organization_id"]
             isOneToOne: false
             referencedRelation: "organizations"
+            referencedColumns: ["id"]
+          },
+        ]
+      }
+      customer_notifications: {
+        Row: {
+          created_at: string | null
+          customer_user_id: string
+          id: string
+          message: string
+          metadata: Json | null
+          read: boolean | null
+          title: string
+          type: string
+        }
+        Insert: {
+          created_at?: string | null
+          customer_user_id: string
+          id?: string
+          message: string
+          metadata?: Json | null
+          read?: boolean | null
+          title: string
+          type: string
+        }
+        Update: {
+          created_at?: string | null
+          customer_user_id?: string
+          id?: string
+          message?: string
+          metadata?: Json | null
+          read?: boolean | null
+          title?: string
+          type?: string
+        }
+        Relationships: [
+          {
+            foreignKeyName: "customer_notifications_customer_user_id_fkey"
+            columns: ["customer_user_id"]
+            isOneToOne: false
+            referencedRelation: "customer_users"
             referencedColumns: ["id"]
           },
         ]
