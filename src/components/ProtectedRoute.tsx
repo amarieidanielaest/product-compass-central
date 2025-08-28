@@ -10,6 +10,11 @@ interface ProtectedRouteProps {
 export function ProtectedRoute({ children }: ProtectedRouteProps) {
   const { user, loading } = useAuth();
 
+  // Temporarily bypass authentication for development
+  return <>{children}</>;
+
+  // Original authentication logic (commented out)
+  /*
   if (loading) {
     return (
       <div className="min-h-screen flex items-center justify-center">
@@ -23,4 +28,5 @@ export function ProtectedRoute({ children }: ProtectedRouteProps) {
   }
 
   return <>{children}</>;
+  */
 }
