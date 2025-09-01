@@ -62,15 +62,19 @@ export const BoardAdminDashboard: React.FC = () => {
 
   const loadBoards = async () => {
     try {
-      // Use the boards-api edge function instead of direct Supabase calls
-      const { data: response, error } = await supabase.functions.invoke('boards-api', {
-        method: 'GET'
-      });
+      console.log('Loading boards via edge function...');
+      // Use the boards-api edge function - supabase.functions.invoke always uses POST
+      const { data: response, error } = await supabase.functions.invoke('boards-api');
 
-      if (error) throw error;
+      if (error) {
+        console.error('Edge function error:', error);
+        throw error;
+      }
       
-      if (!response.success) {
-        throw new Error(response.message || 'Failed to load boards');
+      console.log('Edge function response:', response);
+      
+      if (!response?.success) {
+        throw new Error(response?.message || 'Failed to load boards');
       }
 
       // Transform the data to include counts (mock for now)
@@ -83,6 +87,7 @@ export const BoardAdminDashboard: React.FC = () => {
         }
       })) || [];
 
+      console.log('Transformed boards:', transformedBoards);
       setBoards(transformedBoards);
       
       // Select first board if none selected
@@ -93,7 +98,7 @@ export const BoardAdminDashboard: React.FC = () => {
       console.error('Error loading boards:', error);
       toast({
         title: "Error",
-        description: "Failed to load customer boards",
+        description: `Failed to load customer boards: ${error.message}`,
         variant: "destructive"
       });
     } finally {
@@ -103,16 +108,21 @@ export const BoardAdminDashboard: React.FC = () => {
 
   const handleBoardCreated = async (boardData: any) => {
     try {
+      console.log('Creating board:', boardData);
       // Use the boards-api edge function to create the board
       const { data: response, error } = await supabase.functions.invoke('boards-api', {
-        method: 'POST',
         body: boardData
       });
 
-      if (error) throw error;
+      if (error) {
+        console.error('Board creation error:', error);
+        throw error;
+      }
       
-      if (!response.success) {
-        throw new Error(response.message || 'Failed to create board');
+      console.log('Board creation response:', response);
+      
+      if (!response?.success) {
+        throw new Error(response?.message || 'Failed to create board');
       }
 
       loadBoards();
@@ -125,7 +135,7 @@ export const BoardAdminDashboard: React.FC = () => {
       console.error('Error creating board:', error);
       toast({
         title: "Error",
-        description: "Failed to create customer board",
+        description: `Failed to create customer board: ${error.message}`,
         variant: "destructive"
       });
     }
@@ -133,13 +143,18 @@ export const BoardAdminDashboard: React.FC = () => {
 
   const toggleBoardStatus = async (boardId: string, newStatus: boolean) => {
     try {
-      // Use boards-api PATCH endpoint for board updates  
-      const { data: response, error } = await supabase.functions.invoke('boards-api', {
-        method: 'PATCH',
-        body: JSON.stringify({ is_active: newStatus })
+      console.log('Toggling board status:', boardId, newStatus);
+      // Use boards-api PATCH endpoint - need to append boardId to the function path
+      const { data: response, error } = await supabase.functions.invoke(`boards-api/${boardId}`, {
+        body: { is_active: newStatus }
       });
 
-      if (error) throw error;
+      if (error) {
+        console.error('Board status toggle error:', error);
+        throw error;
+      }
+      
+      console.log('Board status toggle response:', response);
       
       if (!response?.success) {
         throw new Error(response?.message || 'Failed to update board status');
@@ -155,7 +170,7 @@ export const BoardAdminDashboard: React.FC = () => {
       console.error('Error updating board status:', error);
       toast({
         title: "Error", 
-        description: "Failed to update board status",
+        description: `Failed to update board status: ${error.message}`,
         variant: "destructive"
       });
     }
