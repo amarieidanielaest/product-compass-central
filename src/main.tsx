@@ -37,11 +37,7 @@ createRoot(document.getElementById("root")!).render(
               <RoadmapIntegration />
             </ProtectedRoute>
           } />
-          <Route path="portal/:organization/:boardSlug" element={
-            <CustomerAuthProvider>
-              <CustomerPortalIntegration />
-            </CustomerAuthProvider>
-          } />
+          <Route path="portal/:organization/:boardSlug" element={<CustomerPortalIntegration />} />
           <Route path="invitation/:token" element={<CustomerInvitation />} />
         </Route>
         <Route path="*" element={<NotFound />} />
