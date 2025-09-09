@@ -13,6 +13,8 @@ import { CustomerPortalIntegration } from "./components/customer/CustomerPortalI
 import { CustomerInvitation } from "./pages/CustomerInvitation.tsx";
 import { ProtectedRoute } from "./components/ProtectedRoute.tsx";
 import { CustomerAuthProvider } from "./contexts/CustomerAuthContext.tsx";
+import { Toaster } from '@/components/ui/sonner';
+import { AccessibilityManager } from '@/components/AccessibilityManager';
 
 createRoot(document.getElementById("root")!).render(
   <StrictMode>
@@ -44,6 +46,8 @@ createRoot(document.getElementById("root")!).render(
         </Route>
         <Route path="*" element={<NotFound />} />
       </Routes>
+      <Toaster />
+      <AccessibilityManager />
     </BrowserRouter>
   </StrictMode>
 );

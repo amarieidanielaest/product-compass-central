@@ -19,6 +19,9 @@ import { ChangelogView } from './ChangelogView';
 import { SmartSearch } from './SmartSearch';
 import { AIInsightPanel } from './AIInsightPanel';
 import { BoardKnowledgeCenter } from '../BoardKnowledgeCenter';
+import { ContextualHelpSystem } from '../ContextualHelpSystem';
+import { LoadingStateEnhanced, FeedbackListSkeleton } from '../LoadingStateEnhanced';
+import { ErrorBoundaryEnhanced } from '../ErrorBoundaryEnhanced';
 
 export const CustomerPortal = () => {
   const { organization, boardSlug } = useParams();
@@ -245,21 +248,17 @@ export const CustomerPortal = () => {
 
   if (loading) {
     return (
-      <div className="container mx-auto p-6">
-        <div className="grid grid-cols-1 md:grid-cols-3 gap-6">
-          {[...Array(6)].map((_, i) => (
-            <Card key={i}>
-              <CardHeader>
-                <div className="h-4 bg-gray-200 rounded animate-pulse"></div>
-                <div className="h-3 bg-gray-200 rounded animate-pulse"></div>
-              </CardHeader>
-              <CardContent>
-                <div className="h-20 bg-gray-200 rounded animate-pulse"></div>
-              </CardContent>
-            </Card>
-          ))}
+      <ErrorBoundaryEnhanced level="page">
+        <div className="container mx-auto p-6">
+          <LoadingStateEnhanced 
+            type="custom" 
+            className="space-y-6"
+          >
+            <div className="h-32 bg-muted animate-pulse rounded-lg" />
+            <FeedbackListSkeleton />
+          </LoadingStateEnhanced>
         </div>
-      </div>
+      </ErrorBoundaryEnhanced>
     );
   }
 
@@ -275,7 +274,8 @@ export const CustomerPortal = () => {
   const categories = [...new Set(feedback.map(item => item.category).filter(Boolean))];
 
   return (
-    <div className="min-h-screen bg-gray-50">
+    <ErrorBoundaryEnhanced level="page">
+      <div className="min-h-screen bg-gray-50">
       {/* Header */}
       <div className="bg-white border-b">
         <div className="container mx-auto px-6 py-8">
@@ -538,6 +538,12 @@ export const CustomerPortal = () => {
         }}
         onVote={handleVote}
       />
-    </div>
+      {/* Contextual Help System */}
+      <ContextualHelpSystem 
+        context="customer-portal" 
+        boardId={board?.id}
+      />
+      </div>
+    </ErrorBoundaryEnhanced>
   );
 };

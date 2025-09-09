@@ -18,6 +18,7 @@ import KnowledgeCenter from '../components/KnowledgeCenter';
 import EnterpriseHub from '@/components/EnterpriseHub';
 import CleanEnterpriseConsole from '@/components/CleanEnterpriseConsole';
 import AICopilotDashboard from '@/components/AICopilotDashboard';
+import { BoardContentManager } from '@/components/admin/BoardContentManager';
 
 const Index = () => {
   console.log('Index component rendering');
@@ -35,6 +36,7 @@ const Index = () => {
       customer: 'Customer Board',
       'customer-admin': 'Customer Admin',
       knowledge: 'Knowledge Center',
+      'content-admin': 'Content Management',
       users: 'User Management',
       settings: 'Settings',
       phase4: 'Phase 4: Production Ready',
@@ -88,6 +90,8 @@ const Index = () => {
         return <CustomerBoard selectedProductId={selectedProductId} onNavigate={setActiveModule} />;
       case 'customer-admin':
         return <SimplifiedCustomerAdminDashboard />;
+      case 'content-admin':
+        return <BoardContentManager />;
       case 'knowledge':
         return <KnowledgeCenter />;
       case 'users':

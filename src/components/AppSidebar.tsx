@@ -76,6 +76,7 @@ const AppSidebar = ({ activeModule, setActiveModule, selectedProductId, onProduc
   const adminModules = [
     { id: 'products', name: 'Products', icon: Package, badge: null },
     { id: 'users', name: 'User Management', icon: Users, badge: null },
+    { id: 'content-admin', name: 'Content Management', icon: BookOpen, badge: null },
     { id: 'settings', name: 'Settings', icon: Settings, badge: null },
   ];
 
