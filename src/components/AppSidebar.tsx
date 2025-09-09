@@ -59,20 +59,23 @@ const AppSidebar = ({ activeModule, setActiveModule, selectedProductId, onProduc
   const isCollapsed = state === 'collapsed';
   console.log('AppSidebar render:', { isCollapsed, state, activeModule });
 
-  const modules = [
-    // Core Product Features
-    { id: 'dashboard', name: 'Dashboard', icon: Home, badge: null, category: 'core' },
-    { id: 'strategy', name: 'Strategy', icon: Target, badge: null, category: 'core' },
-    { id: 'roadmap', name: 'Roadmap', icon: Map, badge: '3', category: 'core' },
-    { id: 'sprints', name: 'Sprint Board', icon: Kanban, badge: '12', category: 'core' },
-    { id: 'prd', name: 'PRD Generator', icon: FileText, badge: null, category: 'core' },
-    { id: 'products', name: 'Products', icon: Package, badge: null, category: 'core' },
-    { id: 'knowledge', name: 'Knowledge Center', icon: BookOpen, badge: null, category: 'core' },
-    { id: 'users', name: 'User Management', icon: Users, badge: null, category: 'core' },
-    { id: 'phase4', name: 'Phase 4: Production Ready', icon: BarChart3, badge: 'NEW', category: 'core' },
-    
-    // Settings & Administration
-    { id: 'settings', name: 'Settings', icon: Settings, badge: null, category: 'settings' },
+  const coreModules = [
+    { id: 'dashboard', name: 'Dashboard', icon: Home, badge: null },
+    { id: 'strategy', name: 'Strategy', icon: Target, badge: null },
+    { id: 'roadmap', name: 'Roadmap', icon: Map, badge: '3' },
+    { id: 'sprints', name: 'Sprint Board', icon: Kanban, badge: '12' },
+  ];
+
+  const toolsModules = [
+    { id: 'prd', name: 'PRD Generator', icon: FileText, badge: null },
+    { id: 'knowledge', name: 'Knowledge Center', icon: BookOpen, badge: null },
+    { id: 'phase4', name: 'Enterprise Hub', icon: BarChart3, badge: 'NEW' },
+  ];
+
+  const adminModules = [
+    { id: 'products', name: 'Products', icon: Package, badge: null },
+    { id: 'users', name: 'User Management', icon: Users, badge: null },
+    { id: 'settings', name: 'Settings', icon: Settings, badge: null },
   ];
 
   const customerBoardModules = [
@@ -179,8 +182,53 @@ const AppSidebar = ({ activeModule, setActiveModule, selectedProductId, onProduc
           </SidebarGroupLabel>
           <SidebarGroupContent>
             <SidebarMenu className="space-y-1">
-              {/* Main modules */}
-              {modules.map((module) => {
+              {/* Core Modules */}
+              {coreModules.map((module) => {
+                const Icon = module.icon;
+                const isActive = activeModule === module.id;
+                
+                return (
+                  <SidebarMenuItem key={module.id}>
+                    <SidebarMenuButton
+                      onClick={() => setActiveModule(module.id)}
+                      className={cn(
+                        "h-9 px-3 rounded-md text-sm font-medium transition-all duration-200",
+                        isActive 
+                          ? "bg-sidebar-accent text-sidebar-accent-foreground shadow-sm" 
+                          : "text-sidebar-foreground hover:bg-sidebar-accent/50 hover:text-sidebar-accent-foreground",
+                        isCollapsed && "justify-center px-0"
+                      )}
+                      tooltip={isCollapsed ? module.name : undefined}
+                    >
+                      <Icon className={cn(
+                        "h-4 w-4",
+                        isCollapsed ? "mx-auto" : "mr-3"
+                      )} />
+                      
+                      {!isCollapsed && (
+                        <div className="flex-1 flex items-center justify-between">
+                          <span className="truncate">
+                            {module.name}
+                          </span>
+                          {module.badge && (
+                            <Badge variant="secondary" className="ml-2 text-xs h-4 px-1.5">
+                              {module.badge}
+                            </Badge>
+                          )}
+                        </div>
+                      )}
+                    </SidebarMenuButton>
+                  </SidebarMenuItem>
+                );
+              })}
+
+              {/* Tools Section */}
+              {!isCollapsed && (
+                <div className="pt-4">
+                  <div className="text-xs uppercase tracking-wide text-sidebar-foreground/40 mb-2 px-3">Tools</div>
+                </div>
+              )}
+              {toolsModules.map((module) => {
                 const Icon = module.icon;
                 const isActive = activeModule === module.id;
                 
@@ -284,6 +332,51 @@ const AppSidebar = ({ activeModule, setActiveModule, selectedProductId, onProduc
                   </SidebarMenu>
                 )}
               </SidebarMenuItem>
+
+              {/* Admin Section */}
+              {!isCollapsed && (
+                <div className="pt-4">
+                  <div className="text-xs uppercase tracking-wide text-sidebar-foreground/40 mb-2 px-3">Admin</div>
+                </div>
+              )}
+              {adminModules.map((module) => {
+                const Icon = module.icon;
+                const isActive = activeModule === module.id;
+                
+                return (
+                  <SidebarMenuItem key={module.id}>
+                    <SidebarMenuButton
+                      onClick={() => setActiveModule(module.id)}
+                      className={cn(
+                        "h-9 px-3 rounded-md text-sm font-medium transition-all duration-200",
+                        isActive 
+                          ? "bg-sidebar-accent text-sidebar-accent-foreground shadow-sm" 
+                          : "text-sidebar-foreground hover:bg-sidebar-accent/50 hover:text-sidebar-accent-foreground",
+                        isCollapsed && "justify-center px-0"
+                      )}
+                      tooltip={isCollapsed ? module.name : undefined}
+                    >
+                      <Icon className={cn(
+                        "h-4 w-4",
+                        isCollapsed ? "mx-auto" : "mr-3"
+                      )} />
+                      
+                      {!isCollapsed && (
+                        <div className="flex-1 flex items-center justify-between">
+                          <span className="truncate">
+                            {module.name}
+                          </span>
+                          {module.badge && (
+                            <Badge variant="secondary" className="ml-2 text-xs h-4 px-1.5">
+                              {module.badge}
+                            </Badge>
+                          )}
+                        </div>
+                      )}
+                    </SidebarMenuButton>
+                  </SidebarMenuItem>
+                );
+              })}
             </SidebarMenu>
           </SidebarGroupContent>
         </SidebarGroup>
