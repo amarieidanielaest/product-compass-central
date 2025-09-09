@@ -2,7 +2,7 @@ import { useState, useEffect } from 'react';
 import { 
   BarChart3, Target, Map, MessageSquare, Home, FileText, Kanban, Package, 
   ChevronDown, Settings, ChevronLeft, ChevronRight, BookOpen, Users, 
-  ChevronUp
+  ChevronUp, Brain
 } from 'lucide-react';
 import {
   Sidebar,
@@ -69,7 +69,8 @@ const AppSidebar = ({ activeModule, setActiveModule, selectedProductId, onProduc
   const toolsModules = [
     { id: 'prd', name: 'PRD Generator', icon: FileText, badge: null },
     { id: 'knowledge', name: 'Knowledge Center', icon: BookOpen, badge: null },
-    { id: 'phase4', name: 'Enterprise Hub', icon: BarChart3, badge: 'NEW' },
+    { id: 'phase4', name: 'Enterprise Hub', icon: BarChart3, badge: null },
+    { id: 'phase5', name: 'AI Intelligence', icon: Brain, badge: 'NEW' },
   ];
 
   const adminModules = [

@@ -92,6 +92,8 @@ const Index = () => {
         return <Settings currentTeamId={selectedProductId} />;
       case 'phase4':
         return <Phase5Demo selectedProductId={selectedProductId} onNavigate={setActiveModule} />;
+      case 'phase5':
+        return <Phase5Demo selectedProductId={selectedProductId} onNavigate={setActiveModule} />;
       default:
         return <CustomerBoard selectedProductId={selectedProductId} onNavigate={setActiveModule} />;
     }
