@@ -69,6 +69,7 @@ const AppSidebar = ({ activeModule, setActiveModule, selectedProductId, onProduc
     { id: 'products', name: 'Products', icon: Package, badge: null, category: 'core' },
     { id: 'knowledge', name: 'Knowledge Center', icon: BookOpen, badge: null, category: 'core' },
     { id: 'users', name: 'User Management', icon: Users, badge: null, category: 'core' },
+    { id: 'phase4', name: 'Phase 4: Production Ready', icon: BarChart3, badge: 'NEW', category: 'core' },
     
     // Settings & Administration
     { id: 'settings', name: 'Settings', icon: Settings, badge: null, category: 'settings' },

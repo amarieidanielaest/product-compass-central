@@ -15,7 +15,7 @@ import UserManagement from '@/components/UserManagement';
 import QuickActions from '../components/QuickActions';
 import Settings from '../components/Settings';
 import KnowledgeCenter from '../components/KnowledgeCenter';
-import { Phase5Demo } from '../components/Phase5Demo';
+import Phase5Demo from '../components/Phase5Demo';
 
 const Index = () => {
   console.log('Index component rendering');
@@ -35,6 +35,7 @@ const Index = () => {
       knowledge: 'Knowledge Center',
       users: 'User Management',
       settings: 'Settings',
+      phase4: 'Phase 4: Production Ready',
     };
     return moduleNames[moduleId] || moduleId;
   };
@@ -89,6 +90,8 @@ const Index = () => {
         return <UserManagement />;
       case 'settings':
         return <Settings currentTeamId={selectedProductId} />;
+      case 'phase4':
+        return <Phase5Demo selectedProductId={selectedProductId} onNavigate={setActiveModule} />;
       default:
         return <CustomerBoard selectedProductId={selectedProductId} onNavigate={setActiveModule} />;
     }

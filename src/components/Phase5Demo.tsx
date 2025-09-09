@@ -1,350 +1,273 @@
 import React, { useState } from 'react';
-import { Card, CardContent, CardDescription, CardHeader, CardTitle } from '@/components/ui/card';
+import { Card, CardContent, CardHeader, CardTitle } from '@/components/ui/card';
 import { Button } from '@/components/ui/button';
 import { Badge } from '@/components/ui/badge';
 import { Tabs, TabsContent, TabsList, TabsTrigger } from '@/components/ui/tabs';
 import { 
+  Rocket, 
+  Shield, 
+  BarChart3, 
+  TestTube, 
   Brain, 
-  Book, 
-  Search, 
-  Lightbulb, 
-  MessageCircle, 
+  Monitor,
+  CheckCircle,
+  AlertTriangle,
   TrendingUp,
-  ExternalLink,
   Zap,
+  MessageCircle, 
+  ExternalLink,
   Target,
-  Users
+  Users,
+  Lightbulb,
+  Book,
+  Search
 } from 'lucide-react';
-import { SmartSearch } from './boards/SmartSearch';
-import { AIInsightPanel } from './boards/AIInsightPanel';
-import { EnhancedKnowledgeBase } from './boards/EnhancedKnowledgeBase';
+import ProductionReadinessDashboard from './enterprise/ProductionReadinessDashboard';
+import AdvancedMonitoringDashboard from './enterprise/AdvancedMonitoringDashboard';
+import AutomatedTestingSuite from './enterprise/AutomatedTestingSuite';
+import PredictiveAnalyticsDashboard from './enterprise/PredictiveAnalyticsDashboard';
 
-interface Phase5DemoProps {
+interface Phase4DemoProps {
   selectedProductId?: string;
   onNavigate?: (module: string) => void;
 }
 
-export const Phase5Demo = ({ selectedProductId, onNavigate }: Phase5DemoProps) => {
-  const [activeTab, setActiveTab] = useState('overview');
+const Phase5Demo = ({ selectedProductId, onNavigate }: Phase4DemoProps) => {
+  const [activeDemo, setActiveDemo] = useState<string>('overview');
+
+  const phase4Features = [
+    {
+      id: 'production',
+      title: 'Production Readiness',
+      description: 'Comprehensive production monitoring and health checks',
+      icon: <Rocket className="w-6 h-6" />,
+      status: 'completed',
+      metrics: { readiness: 94, issues: 2, uptime: 99.9 }
+    },
+    {
+      id: 'monitoring',
+      title: 'Advanced Monitoring',
+      description: 'Real-time system metrics and performance tracking',
+      icon: <Monitor className="w-6 h-6" />,
+      status: 'completed',
+      metrics: { alerts: 3, services: 4, response: '47ms' }
+    },
+    {
+      id: 'testing',
+      title: 'Automated Testing',
+      description: 'Comprehensive test automation and quality assurance',
+      icon: <TestTube className="w-6 h-6" />,
+      status: 'completed',
+      metrics: { coverage: 87.5, tests: 246, passRate: 94 }
+    },
+    {
+      id: 'predictive',
+      title: 'Predictive Analytics',
+      description: 'AI-powered predictions and trend forecasting',
+      icon: <Brain className="w-6 h-6" />,
+      status: 'completed',
+      metrics: { accuracy: 89, predictions: 8, risks: 3 }
+    }
+  ];
+
+  const renderFeatureDemo = () => {
+    switch (activeDemo) {
+      case 'production':
+        return <ProductionReadinessDashboard />;
+      case 'monitoring':
+        return <AdvancedMonitoringDashboard />;
+      case 'testing':
+        return <AutomatedTestingSuite />;
+      case 'predictive':
+        return <PredictiveAnalyticsDashboard />;
+      default:
+        return (
+          <div className="space-y-6">
+            {/* Phase 4 Overview */}
+            <Card>
+              <CardHeader>
+                <CardTitle className="flex items-center">
+                  <Rocket className="w-6 h-6 mr-3 text-blue-600" />
+                  Phase 4: Enterprise Production Readiness
+                </CardTitle>
+              </CardHeader>
+              <CardContent>
+                <p className="text-muted-foreground mb-6">
+                  Phase 4 delivers enterprise-grade production readiness with comprehensive monitoring, 
+                  automated testing, predictive analytics, and advanced system observability.
+                </p>
+                
+                <div className="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-4 gap-4">
+                  {[
+                    { label: 'System Health', value: '94%', icon: CheckCircle, color: 'text-green-600' },
+                    { label: 'Test Coverage', value: '87.5%', icon: Shield, color: 'text-blue-600' },
+                    { label: 'Model Accuracy', value: '89%', icon: Brain, color: 'text-purple-600' },
+                    { label: 'Uptime', value: '99.9%', icon: TrendingUp, color: 'text-green-600' }
+                  ].map((stat, index) => (
+                    <Card key={index}>
+                      <CardContent className="p-4 text-center">
+                        <stat.icon className={`w-8 h-8 mx-auto mb-2 ${stat.color}`} />
+                        <div className="text-2xl font-bold">{stat.value}</div>
+                        <div className="text-sm text-muted-foreground">{stat.label}</div>
+                      </CardContent>
+                    </Card>
+                  ))}
+                </div>
+              </CardContent>
+            </Card>
+
+            {/* Feature Grid */}
+            <div className="grid grid-cols-1 md:grid-cols-2 gap-6">
+              {phase4Features.map((feature) => (
+                <Card key={feature.id} className="hover:shadow-lg transition-shadow cursor-pointer"
+                      onClick={() => setActiveDemo(feature.id)}>
+                  <CardHeader>
+                    <CardTitle className="flex items-center justify-between">
+                      <div className="flex items-center">
+                        {feature.icon}
+                        <span className="ml-3">{feature.title}</span>
+                      </div>
+                      <Badge variant={feature.status === 'completed' ? 'default' : 'secondary'}>
+                        {feature.status}
+                      </Badge>
+                    </CardTitle>
+                  </CardHeader>
+                  <CardContent>
+                    <p className="text-muted-foreground mb-4">{feature.description}</p>
+                    
+                    <div className="grid grid-cols-3 gap-2 text-sm">
+                      {Object.entries(feature.metrics).map(([key, value]) => (
+                        <div key={key} className="text-center">
+                          <div className="font-bold text-lg">{value}</div>
+                          <div className="text-muted-foreground capitalize">{key}</div>
+                        </div>
+                      ))}
+                    </div>
+                  </CardContent>
+                </Card>
+              ))}
+            </div>
+
+            {/* Implementation Highlights */}
+            <Card>
+              <CardHeader>
+                <CardTitle className="flex items-center">
+                  <Zap className="w-6 h-6 mr-3 text-yellow-600" />
+                  Phase 4 Implementation Highlights
+                </CardTitle>
+              </CardHeader>
+              <CardContent>
+                <div className="grid grid-cols-1 md:grid-cols-2 gap-6">
+                  <div>
+                    <h3 className="font-semibold mb-3 flex items-center">
+                      <CheckCircle className="w-5 h-5 mr-2 text-green-600" />
+                      Production Features
+                    </h3>
+                    <ul className="space-y-2 text-sm text-muted-foreground">
+                      <li>• Real-time system health monitoring</li>
+                      <li>• Automated deployment readiness checks</li>
+                      <li>• Performance bottleneck detection</li>
+                      <li>• Security vulnerability scanning</li>
+                      <li>• Database migration management</li>
+                    </ul>
+                  </div>
+                  
+                  <div>
+                    <h3 className="font-semibold mb-3 flex items-center">
+                      <Brain className="w-5 h-5 mr-2 text-purple-600" />
+                      AI-Powered Insights
+                    </h3>
+                    <ul className="space-y-2 text-sm text-muted-foreground">
+                      <li>• Predictive churn analysis</li>
+                      <li>• Revenue growth forecasting</li>
+                      <li>• Risk assessment automation</li>
+                      <li>• Opportunity identification</li>
+                      <li>• Performance optimization recommendations</li>
+                    </ul>
+                  </div>
+                </div>
+              </CardContent>
+            </Card>
+
+            {/* Next Steps */}
+            <Card className="border-dashed border-2 border-blue-200 bg-blue-50/50">
+              <CardContent className="p-6 text-center">
+                <Rocket className="w-12 h-12 mx-auto mb-4 text-blue-600" />
+                <h3 className="text-xl font-semibold mb-2">Ready for Production Deployment</h3>
+                <p className="text-muted-foreground mb-4">
+                  Your unified product management ecosystem is now enterprise-ready with comprehensive 
+                  monitoring, testing, and predictive capabilities.
+                </p>
+                <div className="flex justify-center space-x-4">
+                  <Button className="bg-gradient-to-r from-blue-600 to-purple-600 hover:from-blue-700 hover:to-purple-700">
+                    Deploy to Production
+                  </Button>
+                  <Button variant="outline">
+                    View Documentation
+                  </Button>
+                </div>
+              </CardContent>
+            </Card>
+          </div>
+        );
+    }
+  };
 
   return (
     <div className="space-y-6">
-      {/* Header */}
-      <div className="text-center space-y-4">
-        <div className="flex items-center justify-center gap-2 mb-4">
-          <Lightbulb className="h-8 w-8 text-primary" />
-          <h1 className="text-3xl font-bold">Phase 5: AI-Powered Customer Portal</h1>
-        </div>
-        <p className="text-lg text-muted-foreground max-w-2xl mx-auto">
-          Experience the latest enhancements to the unified product management ecosystem with 
-          AI insights, smart search, and enhanced knowledge base capabilities.
-        </p>
-        <Badge variant="secondary" className="px-4 py-2">
-          ✨ All New Features Active
-        </Badge>
-      </div>
-
-      {/* Feature Overview Cards */}
-      <div className="grid grid-cols-1 md:grid-cols-3 gap-6">
-        <Card className="border-primary/20 bg-primary/5">
-          <CardHeader className="text-center">
-            <Brain className="h-12 w-12 mx-auto text-primary mb-2" />
-            <CardTitle>AI Insights Panel</CardTitle>
-            <CardDescription>
-              Real-time analysis of feedback patterns, sentiment trends, and actionable recommendations
-            </CardDescription>
-          </CardHeader>
-          <CardContent>
-            <ul className="space-y-2 text-sm">
-              <li>• Sentiment analysis with confidence scores</li>
-              <li>• Pattern recognition for categories</li>
-              <li>• Automated priority suggestions</li>
-              <li>• Trend visualization and forecasting</li>
-            </ul>
-          </CardContent>
-        </Card>
-
-        <Card className="border-secondary/20 bg-secondary/5">
-          <CardHeader className="text-center">
-            <Search className="h-12 w-12 mx-auto text-secondary-foreground mb-2" />
-            <CardTitle>Smart Search</CardTitle>
-            <CardDescription>
-              Advanced filtering with search suggestions, active filter management, and instant results
-            </CardDescription>
-          </CardHeader>
-          <CardContent>
-            <ul className="space-y-2 text-sm">
-              <li>• Intelligent search suggestions</li>
-              <li>• Multi-dimensional filtering</li>
-              <li>• Real-time result updates</li>
-              <li>• Advanced date range options</li>
-            </ul>
-          </CardContent>
-        </Card>
-
-        <Card className="border-accent/20 bg-accent/5">
-          <CardHeader className="text-center">
-            <Book className="h-12 w-12 mx-auto text-accent-foreground mb-2" />
-            <CardTitle>Enhanced Knowledge Base</CardTitle>
-            <CardDescription>
-              Comprehensive help center with categorized articles, featured content, and popularity tracking
-            </CardDescription>
-          </CardHeader>
-          <CardContent>
-            <ul className="space-y-2 text-sm">
-              <li>• Categorized article browsing</li>
-              <li>• Featured and popular content</li>
-              <li>• Advanced article search</li>
-              <li>• Rating and feedback system</li>
-            </ul>
-          </CardContent>
-        </Card>
-      </div>
-
-      {/* Interactive Demo Tabs */}
-      <Card>
-        <CardHeader>
-          <CardTitle className="flex items-center gap-2">
-            <Zap className="h-5 w-5 text-primary" />
-            Interactive Feature Demo
-          </CardTitle>
-          <CardDescription>
-            Try out each of the new Phase 5 features in this interactive demonstration
-          </CardDescription>
-        </CardHeader>
-        <CardContent>
-          <Tabs value={activeTab} onValueChange={setActiveTab} className="w-full">
-            <TabsList className="grid w-full grid-cols-4">
-              <TabsTrigger value="overview">Overview</TabsTrigger>
-              <TabsTrigger value="smart-search">Smart Search</TabsTrigger>
-              <TabsTrigger value="ai-insights">AI Insights</TabsTrigger>
-              <TabsTrigger value="knowledge-base">Knowledge Base</TabsTrigger>
-            </TabsList>
-
-            <TabsContent value="overview" className="space-y-6 mt-6">
-              <div className="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-4 gap-4">
-                <Card>
-                  <CardHeader className="flex flex-row items-center justify-between space-y-0 pb-2">
-                    <CardTitle className="text-sm font-medium">Total Features</CardTitle>
-                    <Lightbulb className="h-4 w-4 text-muted-foreground" />
-                  </CardHeader>
-                  <CardContent>
-                    <div className="text-2xl font-bold">5</div>
-                    <p className="text-xs text-muted-foreground">
-                      New Phase 5 enhancements
-                    </p>
-                  </CardContent>
-                </Card>
-
-                <Card>
-                  <CardHeader className="flex flex-row items-center justify-between space-y-0 pb-2">
-                    <CardTitle className="text-sm font-medium">AI Insights</CardTitle>
-                    <Brain className="h-4 w-4 text-muted-foreground" />
-                  </CardHeader>
-                  <CardContent>
-                    <div className="text-2xl font-bold">✓</div>
-                    <p className="text-xs text-muted-foreground">
-                      Real-time analysis ready
-                    </p>
-                  </CardContent>
-                </Card>
-
-                <Card>
-                  <CardHeader className="flex flex-row items-center justify-between space-y-0 pb-2">
-                    <CardTitle className="text-sm font-medium">Smart Search</CardTitle>
-                    <Search className="h-4 w-4 text-muted-foreground" />
-                  </CardHeader>
-                  <CardContent>
-                    <div className="text-2xl font-bold">✓</div>
-                    <p className="text-xs text-muted-foreground">
-                      Advanced filtering active
-                    </p>
-                  </CardContent>
-                </Card>
-
-                <Card>
-                  <CardHeader className="flex flex-row items-center justify-between space-y-0 pb-2">
-                    <CardTitle className="text-sm font-medium">Knowledge Base</CardTitle>
-                    <Book className="h-4 w-4 text-muted-foreground" />
-                  </CardHeader>
-                  <CardContent>
-                    <div className="text-2xl font-bold">✓</div>
-                    <p className="text-xs text-muted-foreground">
-                      Enhanced help center
-                    </p>
-                  </CardContent>
-                </Card>
-              </div>
-
-              <div className="space-y-4">
-                <h3 className="text-lg font-semibold">What's New in Phase 5</h3>
-                <div className="grid grid-cols-1 md:grid-cols-2 gap-4">
-                  <div className="space-y-3">
-                    <div className="flex items-start gap-3">
-                      <div className="p-2 bg-primary/10 rounded-lg">
-                        <Brain className="h-4 w-4 text-primary" />
-                      </div>
-                      <div>
-                        <h4 className="font-medium">AI-Powered Insights</h4>
-                        <p className="text-sm text-muted-foreground">
-                          Automated analysis of feedback patterns, sentiment tracking, and predictive recommendations
-                        </p>
-                      </div>
-                    </div>
-
-                    <div className="flex items-start gap-3">
-                      <div className="p-2 bg-secondary/10 rounded-lg">
-                        <Search className="h-4 w-4 text-secondary-foreground" />
-                      </div>
-                      <div>
-                        <h4 className="font-medium">Smart Search & Filtering</h4>
-                        <p className="text-sm text-muted-foreground">
-                          Intelligent search suggestions, advanced multi-dimensional filtering, and real-time results
-                        </p>
-                      </div>
-                    </div>
-
-                    <div className="flex items-start gap-3">
-                      <div className="p-2 bg-accent/10 rounded-lg">
-                        <Book className="h-4 w-4 text-accent-foreground" />
-                      </div>
-                      <div>
-                        <h4 className="font-medium">Enhanced Knowledge Base</h4>
-                        <p className="text-sm text-muted-foreground">
-                          Comprehensive help center with categorized browsing, featured articles, and advanced search
-                        </p>
-                      </div>
-                    </div>
-                  </div>
-
-                  <div className="space-y-3">
-                    <div className="flex items-start gap-3">
-                      <div className="p-2 bg-primary/10 rounded-lg">
-                        <Target className="h-4 w-4 text-primary" />
-                      </div>
-                      <div>
-                        <h4 className="font-medium">Real-time Collaboration</h4>
-                        <p className="text-sm text-muted-foreground">
-                          Live updates, team collaboration features, and synchronized data across all users
-                        </p>
-                      </div>
-                    </div>
-
-                    <div className="flex items-start gap-3">
-                      <div className="p-2 bg-secondary/10 rounded-lg">
-                        <TrendingUp className="h-4 w-4 text-secondary-foreground" />
-                      </div>
-                      <div>
-                        <h4 className="font-medium">Advanced Analytics</h4>
-                        <p className="text-sm text-muted-foreground">
-                          Comprehensive metrics, trend analysis, and data-driven insights for better decision making
-                        </p>
-                      </div>
-                    </div>
-
-                    <div className="flex items-start gap-3">
-                      <div className="p-2 bg-accent/10 rounded-lg">
-                        <Users className="h-4 w-4 text-accent-foreground" />
-                      </div>
-                      <div>
-                        <h4 className="font-medium">Integration Hub</h4>
-                        <p className="text-sm text-muted-foreground">
-                          Seamless integration with external tools, webhooks, and third-party services
-                        </p>
-                      </div>
-                    </div>
-                  </div>
-                </div>
-              </div>
-            </TabsContent>
-
-            <TabsContent value="smart-search" className="space-y-6 mt-6">
-              <div className="space-y-4">
-                <div className="flex items-center justify-between">
-                  <h3 className="text-lg font-semibold">Smart Search Demo</h3>
-                  <Badge variant="outline">Interactive Demo</Badge>
-                </div>
-                <p className="text-muted-foreground">
-                  Try the new intelligent search and filtering system. This demo shows real search suggestions, 
-                  active filter management, and instant result updates.
-                </p>
-              </div>
-              
-              <SmartSearch
-                onSearchChange={(query, filters) => {
-                  console.log('Search:', query, 'Filters:', filters);
-                }}
-                availableCategories={['Feature Request', 'Bug Report', 'Integration', 'UI/UX', 'Performance', 'Security']}
-                availableAssignees={[
-                  { id: '1', name: 'Sarah Johnson' },
-                  { id: '2', name: 'Mike Chen' },
-                  { id: '3', name: 'Alex Rivera' },
-                  { id: '4', name: 'Emma Thompson' }
-                ]}
-                availableTags={['urgent', 'mobile', 'api', 'dashboard', 'auth', 'export', 'analytics']}
-                totalResults={42}
-              />
-            </TabsContent>
-
-            <TabsContent value="ai-insights" className="space-y-6 mt-6">
-              <div className="space-y-4">
-                <div className="flex items-center justify-between">
-                  <h3 className="text-lg font-semibold">AI Insights Demo</h3>
-                  <Badge variant="outline">Live Analysis</Badge>
-                </div>
-                <p className="text-muted-foreground">
-                  Experience real-time AI analysis of feedback data with sentiment tracking, 
-                  pattern recognition, and actionable recommendations.
-                </p>
-              </div>
-
-              <AIInsightPanel
-                boardId="demo-board"
-                feedbackItems={[]}
-                className="w-full"
-              />
-            </TabsContent>
-
-            <TabsContent value="knowledge-base" className="space-y-6 mt-6">
-              <div className="space-y-4">
-                <div className="flex items-center justify-between">
-                  <h3 className="text-lg font-semibold">Enhanced Knowledge Base Demo</h3>
-                  <Badge variant="outline">Comprehensive Help</Badge>
-                </div>
-                <p className="text-muted-foreground">
-                  Explore the new knowledge base with categorized articles, advanced search, 
-                  featured content, and popularity tracking.
-                </p>
-              </div>
-
-              <EnhancedKnowledgeBase
-                boardId="demo-board"
-                className="w-full"
-              />
-            </TabsContent>
-          </Tabs>
-        </CardContent>
-      </Card>
-
-      {/* Call to Action */}
-      <Card className="bg-gradient-to-r from-primary/10 to-secondary/10 border-primary/20">
-        <CardContent className="text-center py-8">
-          <h3 className="text-xl font-semibold mb-2">Ready to experience the full portal?</h3>
-          <p className="text-muted-foreground mb-4">
-            Create your first customer board to unlock all the new AI-powered features in a real environment.
+      <div className="flex items-center justify-between">
+        <div>
+          <h1 className="text-3xl font-bold bg-gradient-to-r from-blue-600 to-purple-600 bg-clip-text text-transparent">
+            Phase 4: Enterprise Production Readiness
+          </h1>
+          <p className="text-muted-foreground mt-2">
+            Advanced monitoring, testing, and predictive analytics for production deployment
           </p>
-          <div className="flex flex-col sm:flex-row gap-2 justify-center">
-            <Button onClick={() => onNavigate?.('customer')} className="gap-2">
-              <ExternalLink className="h-4 w-4" />
-              Go to Customer Boards
-            </Button>
-            <Button variant="outline" onClick={() => onNavigate?.('dashboard')} className="gap-2">
-              <TrendingUp className="h-4 w-4" />
-              View Dashboard
-            </Button>
-          </div>
-        </CardContent>
-      </Card>
+        </div>
+        
+        {activeDemo !== 'overview' && (
+          <Button variant="outline" onClick={() => setActiveDemo('overview')}>
+            ← Back to Overview
+          </Button>
+        )}
+      </div>
+
+      {/* Navigation Tabs */}
+      {activeDemo === 'overview' && (
+        <Tabs value="overview" className="w-full">
+          <TabsList className="grid w-full grid-cols-5">
+            <TabsTrigger value="overview">Overview</TabsTrigger>
+            <Badge 
+              className="cursor-pointer px-3 py-1" 
+              onClick={() => setActiveDemo('production')}
+            >
+              Production
+            </Badge>
+            <Badge 
+              className="cursor-pointer px-3 py-1" 
+              onClick={() => setActiveDemo('monitoring')}
+            >
+              Monitoring
+            </Badge>
+            <Badge 
+              className="cursor-pointer px-3 py-1" 
+              onClick={() => setActiveDemo('testing')}
+            >
+              Testing
+            </Badge>
+            <Badge 
+              className="cursor-pointer px-3 py-1" 
+              onClick={() => setActiveDemo('predictive')}
+            >
+              Predictive
+            </Badge>
+          </TabsList>
+        </Tabs>
+      )}
+
+      {renderFeatureDemo()}
     </div>
   );
 };
+
+export default Phase5Demo;
