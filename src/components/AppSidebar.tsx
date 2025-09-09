@@ -99,12 +99,21 @@ const AppSidebar = ({ activeModule, setActiveModule, selectedProductId, onProduc
   return (
     <Sidebar 
       collapsible="icon"
-      className="border-r bg-sidebar w-60"
+      className={cn(
+        "border-r bg-sidebar transition-all duration-200",
+        isCollapsed ? "w-16" : "w-60"
+      )}
     >
-      <SidebarHeader className="p-3 border-b">
+      <SidebarHeader className={cn(
+        "border-b transition-all duration-200",
+        isCollapsed ? "p-2" : "p-3"
+      )}>
         <div className="flex items-center justify-between">
-          <div className="flex items-center gap-2">
-            <div className="w-7 h-7 rounded-lg bg-primary flex items-center justify-center">
+          <div className={cn(
+            "flex items-center transition-all duration-200",
+            isCollapsed ? "justify-center w-full" : "gap-2"
+          )}>
+            <div className="w-7 h-7 rounded-lg bg-primary flex items-center justify-center flex-shrink-0">
               <svg viewBox="0 0 30 20" className="w-4 h-3">
                 <defs>
                   <linearGradient id="loomWave" x1="0%" y1="0%" x2="100%" y2="0%">
@@ -122,13 +131,11 @@ const AppSidebar = ({ activeModule, setActiveModule, selectedProductId, onProduc
             )}
           </div>
           
-          <SidebarTrigger className="h-7 w-7">
-            {isCollapsed ? (
-              <ChevronRight className="h-4 w-4" />
-            ) : (
+          {!isCollapsed && (
+            <SidebarTrigger className="h-7 w-7 flex-shrink-0">
               <ChevronLeft className="h-4 w-4" />
-            )}
-          </SidebarTrigger>
+            </SidebarTrigger>
+          )}
         </div>
         
         {/* Product Selector */}
@@ -137,11 +144,11 @@ const AppSidebar = ({ activeModule, setActiveModule, selectedProductId, onProduc
             <DropdownMenu open={isProductMenuOpen} onOpenChange={setIsProductMenuOpen}>
               <DropdownMenuTrigger asChild>
                 <Button variant="outline" size="sm" className="w-full justify-between h-8 text-xs">
-                  <div className="flex items-center gap-2">
-                    <Package className="w-3 h-3" />
+                  <div className="flex items-center gap-2 min-w-0">
+                    <Package className="w-3 h-3 flex-shrink-0" />
                     <span className="truncate">{getCurrentProduct()}</span>
                   </div>
-                  <ChevronDown className="w-3 h-3" />
+                  <ChevronDown className="w-3 h-3 flex-shrink-0" />
                 </Button>
               </DropdownMenuTrigger>
               <DropdownMenuContent className="w-56">
@@ -177,11 +184,20 @@ const AppSidebar = ({ activeModule, setActiveModule, selectedProductId, onProduc
         )}
       </SidebarHeader>
 
-      <SidebarContent className="p-3">
+      <SidebarContent className={cn("transition-all duration-200", isCollapsed ? "p-1" : "p-3")}>
         <SidebarGroup>
           <SidebarGroupLabel className={cn("text-xs uppercase tracking-wide text-sidebar-foreground/60 mb-2", isCollapsed && "sr-only")}>
             Navigation
           </SidebarGroupLabel>
+          
+          {/* Collapsed Sidebar Toggle */}
+          {isCollapsed && (
+            <div className="mb-4 flex justify-center">
+              <SidebarTrigger className="h-8 w-8">
+                <ChevronRight className="h-4 w-4" />
+              </SidebarTrigger>
+            </div>
+          )}
           <SidebarGroupContent>
             <SidebarMenu className="space-y-1">
               {/* Core Modules */}

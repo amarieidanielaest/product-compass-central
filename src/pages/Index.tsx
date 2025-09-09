@@ -1,6 +1,8 @@
 
 import { useState } from 'react';
 import { SidebarProvider } from '@/components/ui/sidebar';
+import { AccessibilityManager } from '@/components/AccessibilityManager';
+import { ErrorBoundaryEnhanced } from '@/components/ErrorBoundaryEnhanced';
 import AppSidebar from '../components/AppSidebar';
 import PageHeader from '../components/PageHeader';
 import Dashboard from '../components/Dashboard';
@@ -108,27 +110,32 @@ const Index = () => {
   };
 
   return (
-    <SidebarProvider>
-      <div className="min-h-screen flex w-full font-body bg-background">
-        <AppSidebar 
-          activeModule={activeModule} 
-          setActiveModule={setActiveModule}
-          selectedProductId={selectedProductId}
-          onProductChange={setSelectedProductId}
-        />
-        <div className="flex-1 flex flex-col overflow-hidden">
-          <PageHeader 
-            title={getModuleName(activeModule)}
-            breadcrumbs={getBreadcrumbs()}
+    <ErrorBoundaryEnhanced level="page">
+      <SidebarProvider>
+        <div className="min-h-screen flex w-full font-body bg-background">
+          <AppSidebar 
+            activeModule={activeModule} 
+            setActiveModule={setActiveModule}
+            selectedProductId={selectedProductId}
+            onProductChange={setSelectedProductId}
           />
-          <main className="flex-1 overflow-auto bg-background">
-            <div className="w-full max-w-[1600px] mx-auto px-6 lg:px-8 py-6">
-              {renderModule()}
-            </div>
-          </main>
+          <div className="flex-1 flex flex-col overflow-hidden">
+            <PageHeader 
+              title={getModuleName(activeModule)}
+              breadcrumbs={getBreadcrumbs()}
+            />
+            <main className="flex-1 overflow-auto bg-background">
+              <div className="w-full max-w-[1600px] mx-auto px-6 lg:px-8 py-6">
+                <ErrorBoundaryEnhanced level="component">
+                  {renderModule()}
+                </ErrorBoundaryEnhanced>
+              </div>
+            </main>
+          </div>
         </div>
-      </div>
-    </SidebarProvider>
+        <AccessibilityManager />
+      </SidebarProvider>
+    </ErrorBoundaryEnhanced>
   );
 };
 

@@ -6,7 +6,6 @@ import { Label } from '@/components/ui/label';
 import { Slider } from '@/components/ui/slider';
 import { Popover, PopoverContent, PopoverTrigger } from '@/components/ui/popover';
 import {
-  Settings,
   Eye,
   Volume2,
   Keyboard,
@@ -15,7 +14,8 @@ import {
   Type,
   Focus,
   Pause,
-  Play
+  Play,
+  Users
 } from 'lucide-react';
 import { cn } from '@/lib/utils';
 
@@ -261,22 +261,22 @@ export const AccessibilityManager: React.FC<AccessibilityManagerProps> = ({ clas
       </a>
 
       {/* Accessibility Widget */}
-      <div className={cn("fixed bottom-4 left-4 z-50", className)}>
+      <div className={cn("fixed bottom-4 right-4 z-50", className)}>
         <Popover open={isOpen} onOpenChange={setIsOpen}>
           <PopoverTrigger asChild>
             <Button
               variant="outline"
               size="sm"
-              className="rounded-full w-12 h-12 shadow-lg"
+              className="rounded-full w-12 h-12 shadow-lg hover:shadow-xl transition-shadow"
               aria-label="Accessibility settings"
             >
-              <Settings className="h-5 w-5" />
+              <Users className="h-5 w-5" />
             </Button>
           </PopoverTrigger>
 
           <PopoverContent 
-            align="start" 
-            className="w-80 p-0 shadow-xl"
+            align="end" 
+            className="w-80 p-0 shadow-xl max-w-[calc(100vw-2rem)] sm:w-80"
             sideOffset={8}
           >
             <Card className="border-0">

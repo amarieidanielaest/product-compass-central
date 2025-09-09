@@ -241,7 +241,10 @@ export const BoardContentManager: React.FC<BoardContentManagerProps> = ({ classN
 
         <Dialog open={isCreateDialogOpen} onOpenChange={setIsCreateDialogOpen}>
           <DialogTrigger asChild>
-            <Button className="flex items-center gap-2">
+            <Button 
+              className="flex items-center gap-2"
+              onClick={() => setIsCreateDialogOpen(true)}
+            >
               <Plus className="h-4 w-4" />
               Create Article
             </Button>
@@ -375,11 +378,11 @@ export const BoardContentManager: React.FC<BoardContentManagerProps> = ({ classN
               </div>
             </div>
 
-            <DialogFooter>
+            <DialogFooter className="gap-2 sm:gap-0">
               <Button variant="outline" onClick={() => setIsCreateDialogOpen(false)}>
                 Cancel
               </Button>
-              <Button onClick={handleCreateArticle}>
+              <Button onClick={handleCreateArticle} disabled={!articleForm.title || !articleForm.categoryId}>
                 Create Article
               </Button>
             </DialogFooter>
