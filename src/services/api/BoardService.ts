@@ -97,7 +97,6 @@ class BoardApiService {
   async createBoard(board: Omit<CustomerBoard, 'id' | 'created_at' | 'updated_at'>): Promise<ApiResponse<CustomerBoard>> {
     try {
       const { data: result, error } = await supabase.functions.invoke('boards-api', {
-        method: 'POST',
         body: board
       });
 
@@ -127,13 +126,20 @@ class BoardApiService {
 
   async updateBoard(id: string, updates: Partial<CustomerBoard>): Promise<ApiResponse<CustomerBoard>> {
     try {
-      const { data: result, error } = await supabase.functions.invoke('boards-api', {
+      // For PATCH operations, we need to make a fetch request directly to the edge function
+      const response = await fetch(`https://spubjrvuggyrozoawofp.supabase.co/functions/v1/boards-api/${id}`, {
         method: 'PATCH',
-        body: updates
+        headers: {
+          'Content-Type': 'application/json',
+          'Authorization': `Bearer eyJhbGciOiJIUzI1NiIsInR5cCI6IkpXVCJ9.eyJpc3MiOiJzdXBhYmFzZSIsInJlZiI6InNwdWJqcnZ1Z2d5cm96b2F3b2ZwIiwicm9sZSI6ImFub24iLCJpYXQiOjE3NTE2MzM1NTYsImV4cCI6MjA2NzIwOTU1Nn0.X4f0Ouq6evWVNwXBkTjnSXqHiwf7rc6LlgWN9HodCxM`,
+        },
+        body: JSON.stringify(updates)
       });
 
-      if (error) {
-        return { success: false, message: error.message, data: null };
+      const result = await response.json();
+
+      if (!response.ok) {
+        throw new Error(result.message || 'Failed to update board');
       }
 
       return result;

@@ -1,54 +1,13 @@
-import { serve } from "https://deno.land/std@0.190.0/http/server.ts";
-import { createClient } from "https://esm.sh/@supabase/supabase-js@2.39.3";
+import { serve } from "https://deno.land/std@0.168.0/http/server.ts"
+import { createClient } from 'https://esm.sh/@supabase/supabase-js@2'
 
 const corsHeaders = {
   'Access-Control-Allow-Origin': '*',
   'Access-Control-Allow-Headers': 'authorization, x-client-info, apikey, content-type',
-};
-
-interface CustomerUser {
-  id: string;
-  email: string;
-  first_name?: string;
-  last_name?: string;
-  company?: string;
-  job_title?: string;
-  avatar_url?: string;
 }
 
-interface CustomerSession {
-  user: CustomerUser;
-  token: string;
-  expires_at: string;
-}
-
-interface AuthRequest {
-  action: 'register' | 'login' | 'verify-token' | 'logout' | 'accept-invitation';
-  email?: string;
-  password?: string;
-  first_name?: string;
-  last_name?: string;
-  company?: string;
-  job_title?: string;
-  token?: string;
-  invitation_token?: string;
-}
-
-const logStep = (step: string, details?: any) => {
-  console.log(`[Customer Auth] ${step}`, details ? JSON.stringify(details) : '');
-};
-
-// Simple password hashing (in production, use bcrypt)
-const hashPassword = (password: string): string => {
-  // This is a simple hash for demo purposes - use proper hashing in production
-  return btoa(password + 'salt123');
-};
-
-const verifyPassword = (password: string, hash: string): boolean => {
-  return hashPassword(password) === hash;
-};
-
-const handler = async (req: Request): Promise<Response> => {
+serve(async (req) => {
+  // Handle CORS preflight requests
   if (req.method === 'OPTIONS') {
     return new Response(null, { headers: corsHeaders });
   }
@@ -57,250 +16,249 @@ const handler = async (req: Request): Promise<Response> => {
     const supabase = createClient(
       Deno.env.get('SUPABASE_URL') ?? '',
       Deno.env.get('SUPABASE_SERVICE_ROLE_KEY') ?? ''
-    );
+    )
 
-    const body: AuthRequest = await req.json();
-    logStep('Customer auth request', { action: body.action, email: body.email });
+    const { action, email, password, first_name, last_name, company, job_title, token, invitation_token } = await req.json()
+    console.log('Customer Auth called:', action)
 
-    switch (body.action) {
+    switch (action) {
       case 'register': {
-        const { email, password, first_name, last_name, company, job_title } = body;
+        console.log('Registering customer user:', email)
         
-        if (!email || !password) {
+        // Check if user already exists
+        const { data: existingUser } = await supabase
+          .from('customer_users')
+          .select('*')
+          .eq('email', email)
+          .single()
+
+        if (existingUser) {
           return new Response(
-            JSON.stringify({ error: 'Email and password are required' }),
-            { status: 400, headers: { ...corsHeaders, 'Content-Type': 'application/json' } }
-          );
+            JSON.stringify({ error: 'User already exists' }),
+            { 
+              status: 400, 
+              headers: { ...corsHeaders, 'Content-Type': 'application/json' } 
+            }
+          )
         }
 
-        // Hash password
-        const passwordHash = hashPassword(password);
+        // Create customer user using database function
+        const { data: createResult, error: createError } = await supabase.rpc(
+          'create_customer_user',
+          {
+            p_email: email,
+            p_password: password, // In production, hash this password
+            p_first_name: first_name,
+            p_last_name: last_name,
+            p_company: company,
+            p_job_title: job_title
+          }
+        )
 
-        // Call database function to create user
-        const { data, error } = await supabase.rpc('create_customer_user', {
-          p_email: email,
-          p_password: passwordHash,
-          p_first_name: first_name || null,
-          p_last_name: last_name || null,
-          p_company: company || null,
-          p_job_title: job_title || null,
-        });
-
-        if (error) {
-          logStep('Registration error', error);
+        if (createError) {
+          console.error('Error creating customer user:', createError)
           return new Response(
-            JSON.stringify({ error: error.message }),
-            { status: 400, headers: { ...corsHeaders, 'Content-Type': 'application/json' } }
-          );
+            JSON.stringify({ error: createError.message }),
+            { 
+              status: 500, 
+              headers: { ...corsHeaders, 'Content-Type': 'application/json' } 
+            }
+          )
         }
 
-        if (data.error) {
+        if (createResult.error) {
           return new Response(
-            JSON.stringify({ error: data.error }),
-            { status: 400, headers: { ...corsHeaders, 'Content-Type': 'application/json' } }
-          );
+            JSON.stringify({ error: createResult.error }),
+            { 
+              status: 400, 
+              headers: { ...corsHeaders, 'Content-Type': 'application/json' } 
+            }
+          )
         }
-
-        logStep('User registered successfully', { user_id: data.user_id });
 
         return new Response(
           JSON.stringify({
-            user_id: data.user_id,
-            token: data.token,
-            expires_at: data.expires_at,
-            message: 'Account created successfully'
+            token: createResult.token,
+            expires_at: createResult.expires_at
           }),
-          { status: 201, headers: { ...corsHeaders, 'Content-Type': 'application/json' } }
-        );
+          { headers: { ...corsHeaders, 'Content-Type': 'application/json' } }
+        )
       }
 
       case 'login': {
-        const { email, password } = body;
+        console.log('Authenticating customer user:', email)
         
-        if (!email || !password) {
+        // Authenticate customer user using database function
+        const { data: authResult, error: authError } = await supabase.rpc(
+          'authenticate_customer_user',
+          {
+            p_email: email,
+            p_password: password
+          }
+        )
+
+        if (authError) {
+          console.error('Error authenticating customer user:', authError)
           return new Response(
-            JSON.stringify({ error: 'Email and password are required' }),
-            { status: 400, headers: { ...corsHeaders, 'Content-Type': 'application/json' } }
-          );
+            JSON.stringify({ error: authError.message }),
+            { 
+              status: 500, 
+              headers: { ...corsHeaders, 'Content-Type': 'application/json' } 
+            }
+          )
         }
 
-        // Hash password for comparison
-        const passwordHash = hashPassword(password);
-
-        // Call database function to authenticate
-        const { data, error } = await supabase.rpc('authenticate_customer_user', {
-          p_email: email,
-          p_password: passwordHash
-        });
-
-        if (error) {
-          logStep('Login error', error);
+        if (authResult.error) {
           return new Response(
-            JSON.stringify({ error: error.message }),
-            { status: 400, headers: { ...corsHeaders, 'Content-Type': 'application/json' } }
-          );
+            JSON.stringify({ error: authResult.error }),
+            { 
+              status: 400, 
+              headers: { ...corsHeaders, 'Content-Type': 'application/json' } 
+            }
+          )
         }
-
-        if (data.error) {
-          return new Response(
-            JSON.stringify({ error: data.error }),
-            { status: 401, headers: { ...corsHeaders, 'Content-Type': 'application/json' } }
-          );
-        }
-
-        logStep('User logged in successfully', { email });
 
         return new Response(
           JSON.stringify({
-            user: data.user,
-            token: data.token,
-            expires_at: data.expires_at,
-            message: 'Login successful'
+            token: authResult.token,
+            user: authResult.user,
+            expires_at: authResult.expires_at
           }),
-          { status: 200, headers: { ...corsHeaders, 'Content-Type': 'application/json' } }
-        );
+          { headers: { ...corsHeaders, 'Content-Type': 'application/json' } }
+        )
       }
 
       case 'verify-token': {
-        const { token } = body;
+        console.log('Verifying customer token')
         
-        if (!token) {
+        // Verify token using database function
+        const { data: verifyResult, error: verifyError } = await supabase.rpc(
+          'get_customer_user_by_token',
+          { p_token: token }
+        )
+
+        if (verifyError) {
+          console.error('Error verifying token:', verifyError)
           return new Response(
-            JSON.stringify({ error: 'Token is required' }),
-            { status: 400, headers: { ...corsHeaders, 'Content-Type': 'application/json' } }
-          );
+            JSON.stringify({ error: verifyError.message }),
+            { 
+              status: 500, 
+              headers: { ...corsHeaders, 'Content-Type': 'application/json' } 
+            }
+          )
         }
 
-        // Call database function to verify token
-        const { data, error } = await supabase.rpc('get_customer_user_by_token', {
-          p_token: token
-        });
-
-        if (error) {
-          logStep('Token verification error', error);
+        if (verifyResult.error) {
           return new Response(
-            JSON.stringify({ error: error.message }),
-            { status: 400, headers: { ...corsHeaders, 'Content-Type': 'application/json' } }
-          );
-        }
-
-        if (data.error) {
-          return new Response(
-            JSON.stringify({ error: data.error }),
-            { status: 401, headers: { ...corsHeaders, 'Content-Type': 'application/json' } }
-          );
+            JSON.stringify({ valid: false, error: verifyResult.error }),
+            { headers: { ...corsHeaders, 'Content-Type': 'application/json' } }
+          )
         }
 
         return new Response(
           JSON.stringify({
-            user: data.user,
-            expires_at: data.expires_at,
-            valid: true
+            valid: true,
+            user: verifyResult.user,
+            expires_at: verifyResult.expires_at
           }),
-          { status: 200, headers: { ...corsHeaders, 'Content-Type': 'application/json' } }
-        );
+          { headers: { ...corsHeaders, 'Content-Type': 'application/json' } }
+        )
       }
 
       case 'logout': {
-        const { token } = body;
+        console.log('Logging out customer user')
         
-        if (!token) {
-          return new Response(
-            JSON.stringify({ error: 'Token is required' }),
-            { status: 400, headers: { ...corsHeaders, 'Content-Type': 'application/json' } }
-          );
-        }
-
-        // Delete session from database
-        const { error } = await supabase
+        // Delete session
+        const { error: deleteError } = await supabase
           .from('customer_sessions')
           .delete()
-          .eq('token', token);
+          .eq('token', token)
 
-        if (error) {
-          logStep('Logout error', error);
-          return new Response(
-            JSON.stringify({ error: error.message }),
-            { status: 400, headers: { ...corsHeaders, 'Content-Type': 'application/json' } }
-          );
+        if (deleteError) {
+          console.error('Error deleting session:', deleteError)
         }
 
-        logStep('User logged out successfully');
-
         return new Response(
-          JSON.stringify({ message: 'Logout successful' }),
-          { status: 200, headers: { ...corsHeaders, 'Content-Type': 'application/json' } }
-        );
+          JSON.stringify({ success: true }),
+          { headers: { ...corsHeaders, 'Content-Type': 'application/json' } }
+        )
       }
 
       case 'accept-invitation': {
-        const { invitation_token, token } = body;
+        console.log('Accepting board invitation')
         
-        if (!invitation_token || !token) {
+        // Get customer user ID from token first
+        const { data: tokenResult } = await supabase.rpc(
+          'get_customer_user_by_token',
+          { p_token: token }
+        )
+
+        if (tokenResult?.error || !tokenResult?.user) {
           return new Response(
-            JSON.stringify({ error: 'Invitation token and user token are required' }),
-            { status: 400, headers: { ...corsHeaders, 'Content-Type': 'application/json' } }
-          );
+            JSON.stringify({ error: 'Invalid session' }),
+            { 
+              status: 401, 
+              headers: { ...corsHeaders, 'Content-Type': 'application/json' } 
+            }
+          )
         }
 
-        // First verify the user token to get customer user ID
-        const { data: userData, error: userError } = await supabase.rpc('get_customer_user_by_token', {
-          p_token: token
-        });
+        // Accept invitation using database function
+        const { data: acceptResult, error: acceptError } = await supabase.rpc(
+          'accept_customer_board_invitation',
+          {
+            p_token: invitation_token,
+            p_customer_user_id: tokenResult.user.id
+          }
+        )
 
-        if (userError || userData.error) {
+        if (acceptError) {
+          console.error('Error accepting invitation:', acceptError)
           return new Response(
-            JSON.stringify({ error: 'Invalid user token' }),
-            { status: 401, headers: { ...corsHeaders, 'Content-Type': 'application/json' } }
-          );
+            JSON.stringify({ error: acceptError.message }),
+            { 
+              status: 500, 
+              headers: { ...corsHeaders, 'Content-Type': 'application/json' } 
+            }
+          )
         }
 
-        // Accept the invitation
-        const { data, error } = await supabase.rpc('accept_customer_board_invitation', {
-          p_token: invitation_token,
-          p_customer_user_id: userData.user.id
-        });
-
-        if (error) {
-          logStep('Accept invitation error', error);
+        if (acceptResult.error) {
           return new Response(
-            JSON.stringify({ error: error.message }),
-            { status: 400, headers: { ...corsHeaders, 'Content-Type': 'application/json' } }
-          );
+            JSON.stringify({ error: acceptResult.error }),
+            { 
+              status: 400, 
+              headers: { ...corsHeaders, 'Content-Type': 'application/json' } 
+            }
+          )
         }
-
-        if (data.error) {
-          return new Response(
-            JSON.stringify({ error: data.error }),
-            { status: 400, headers: { ...corsHeaders, 'Content-Type': 'application/json' } }
-          );
-        }
-
-        logStep('Invitation accepted successfully', { board_id: data.board_id });
 
         return new Response(
           JSON.stringify({
-            board_id: data.board_id,
-            message: 'Invitation accepted successfully'
+            success: true,
+            board_id: acceptResult.board_id
           }),
-          { status: 200, headers: { ...corsHeaders, 'Content-Type': 'application/json' } }
-        );
+          { headers: { ...corsHeaders, 'Content-Type': 'application/json' } }
+        )
       }
 
       default:
         return new Response(
           JSON.stringify({ error: 'Invalid action' }),
-          { status: 400, headers: { ...corsHeaders, 'Content-Type': 'application/json' } }
-        );
+          { 
+            status: 400, 
+            headers: { ...corsHeaders, 'Content-Type': 'application/json' } 
+          }
+        )
     }
-
-  } catch (error: any) {
-    logStep('Customer auth error', error);
+  } catch (error) {
+    console.error('Customer auth error:', error)
     return new Response(
-      JSON.stringify({ error: error.message || 'Internal server error' }),
-      { status: 500, headers: { ...corsHeaders, 'Content-Type': 'application/json' } }
-    );
+      JSON.stringify({ error: 'Internal server error' }),
+      { 
+        status: 500, 
+        headers: { ...corsHeaders, 'Content-Type': 'application/json' } 
+      }
+    )
   }
-};
-
-serve(handler);
+})

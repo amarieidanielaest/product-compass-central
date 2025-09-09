@@ -144,20 +144,21 @@ export const BoardAdminDashboard: React.FC = () => {
   const toggleBoardStatus = async (boardId: string, newStatus: boolean) => {
     try {
       console.log('Toggling board status:', boardId, newStatus);
-      // Use boards-api PATCH endpoint - need to append boardId to the function path
-      const { data: response, error } = await supabase.functions.invoke(`boards-api/${boardId}`, {
-        body: { is_active: newStatus }
+      // Use direct fetch for PATCH operations to the boards-api endpoint
+      const response = await fetch(`https://spubjrvuggyrozoawofp.supabase.co/functions/v1/boards-api/${boardId}`, {
+        method: 'PATCH',
+        headers: {
+          'Content-Type': 'application/json',
+          'Authorization': `Bearer eyJhbGciOiJIUzI1NiIsInR5cCI6IkpXVCJ9.eyJpc3MiOiJzdXBhYmFzZSIsInJlZiI6InNwdWJqcnZ1Z2d5cm96b2F3b2ZwIiwicm9sZSI6ImFub24iLCJpYXQiOjE3NTE2MzM1NTYsImV4cCI6MjA2NzIwOTU1Nn0.X4f0Ouq6evWVNwXBkTjnSXqHiwf7rc6LlgWN9HodCxM`,
+        },
+        body: JSON.stringify({ is_active: newStatus })
       });
 
-      if (error) {
-        console.error('Board status toggle error:', error);
-        throw error;
-      }
-      
-      console.log('Board status toggle response:', response);
-      
-      if (!response?.success) {
-        throw new Error(response?.message || 'Failed to update board status');
+      const result = await response.json();
+      console.log('Board status toggle response:', result);
+
+      if (!response.ok || !result?.success) {
+        throw new Error(result?.message || 'Failed to update board status');
       }
 
       toast({

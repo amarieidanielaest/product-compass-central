@@ -1,249 +1,293 @@
+import { BaseApiService, ApiResponse, PaginatedResponse } from './BaseApiService';
 import { supabase } from '@/integrations/supabase/client';
 
-export interface CustomerBoardAccess {
-  board_id: string;
-  role: string;
-  joined_at: string;
-  board: {
-    id: string;
-    name: string;
-    slug: string;
-    description?: string;
-    organization_id?: string;
-    access_type: string;
-    is_public: boolean;
-  };
-}
-
-export interface CustomerFeedbackSubmission {
+export interface CustomerFeedback {
+  id: string;
   title: string;
   description?: string;
   category?: string;
   priority: 'low' | 'medium' | 'high' | 'critical';
-  customer_info?: Record<string, any>;
+  status: 'submitted' | 'under_review' | 'planned' | 'in_progress' | 'completed' | 'rejected';
+  votes_count: number;
+  comments_count: number;
+  created_at: string;
+  updated_at: string;
 }
 
-class CustomerApiService {
-  private getAuthHeaders(token?: string) {
-    const customerToken = token || localStorage.getItem('customer_auth_token');
-    return {
-      'Content-Type': 'application/json',
-      ...(customerToken && { 'Authorization': `Bearer ${customerToken}` })
-    };
+export interface CustomerUser {
+  id: string;
+  email: string;
+  first_name?: string;
+  last_name?: string;
+  company?: string;
+  job_title?: string;
+  avatar_url?: string;
+}
+
+class CustomerApiService extends BaseApiService {
+  constructor() {
+    super('/api/customer');
   }
 
-  // Get customer's accessible boards
-  async getCustomerBoards(token?: string): Promise<{ success: boolean; data?: CustomerBoardAccess[]; message?: string }> {
+  // Authentication
+  async signUp(
+    email: string, 
+    password: string, 
+    firstName?: string, 
+    lastName?: string, 
+    company?: string, 
+    jobTitle?: string
+  ): Promise<ApiResponse<{ token: string; user: CustomerUser }>> {
     try {
-      // First verify the customer token
-      const response = await supabase.functions.invoke('customer-auth', {
+      const { data: result, error } = await supabase.functions.invoke('customer-auth', {
         body: {
-          action: 'verify-token',
-          token: token || localStorage.getItem('customer_auth_token'),
+          action: 'register',
+          email,
+          password,
+          first_name: firstName,
+          last_name: lastName,
+          company,
+          job_title: jobTitle,
         },
       });
 
-      if (!response.data?.user) {
-        return { success: false, message: 'Invalid authentication' };
-      }
-
-      const customerId = response.data.user.id;
-
-      // Get board memberships for this customer
-      const { data, error } = await supabase
-        .from('board_memberships')
-        .select(`
-          board_id,
-          role,
-          joined_at,
-          customer_boards!board_memberships_board_id_fkey (
-            id,
-            name,
-            slug,
-            description,
-            organization_id,
-            access_type,
-            is_public
-          )
-        `)
-        .eq('customer_user_id', customerId);
-
       if (error) {
-        throw error;
+        return { success: false, message: error.message, data: null };
       }
 
-      const boardAccess = data?.map(membership => ({
-        board_id: membership.board_id,
-        role: membership.role,
-        joined_at: membership.joined_at,
-        board: membership.customer_boards
-      })) || [];
+      if (result?.error) {
+        return { success: false, message: result.error, data: null };
+      }
 
-      return { success: true, data: boardAccess };
-    } catch (error: any) {
-      console.error('Error fetching customer boards:', error);
-      return { success: false, message: error.message };
+      return {
+        success: true,
+        data: { token: result.token, user: result.user },
+        message: 'Registration successful'
+      };
+    } catch (error) {
+      return { 
+        success: false, 
+        message: error instanceof Error ? error.message : 'Registration failed',
+        data: null
+      };
     }
   }
 
-  // Get board details (for customers)
-  async getBoardDetails(boardId: string, token?: string): Promise<{ success: boolean; data?: any; message?: string }> {
+  async signIn(email: string, password: string): Promise<ApiResponse<{ token: string; user: CustomerUser }>> {
     try {
-      // Check if customer has access to this board
-      const accessCheck = await this.getCustomerBoards(token);
-      if (!accessCheck.success || !accessCheck.data) {
-        return { success: false, message: 'Access denied' };
-      }
-
-      const hasAccess = accessCheck.data.some(board => board.board_id === boardId);
-      if (!hasAccess) {
-        return { success: false, message: 'You do not have access to this board' };
-      }
-
-      // Get board details
-      const { data, error } = await supabase
-        .from('customer_boards')
-        .select('*')
-        .eq('id', boardId)
-        .single();
-
-      if (error) {
-        throw error;
-      }
-
-      return { success: true, data };
-    } catch (error: any) {
-      console.error('Error fetching board details:', error);
-      return { success: false, message: error.message };
-    }
-  }
-
-  // Submit feedback as a customer
-  async submitFeedback(
-    boardId: string, 
-    feedback: CustomerFeedbackSubmission, 
-    token?: string
-  ): Promise<{ success: boolean; data?: any; message?: string }> {
-    try {
-      // Verify customer token and get user info
-      const response = await supabase.functions.invoke('customer-auth', {
+      const { data: result, error } = await supabase.functions.invoke('customer-auth', {
         body: {
-          action: 'verify-token',
-          token: token || localStorage.getItem('customer_auth_token'),
+          action: 'login',
+          email,
+          password,
         },
       });
 
-      if (!response.data?.user) {
-        return { success: false, message: 'Authentication required' };
-      }
-
-      const customer = response.data.user;
-
-      // Check if customer has access to this board
-      const { data: membership, error: membershipError } = await supabase
-        .from('board_memberships')
-        .select('id')
-        .eq('board_id', boardId)
-        .eq('customer_user_id', customer.id)
-        .single();
-
-      if (membershipError || !membership) {
-        return { success: false, message: 'You do not have access to this board' };
-      }
-
-      // Create feedback item
-      const { data, error } = await supabase
-        .from('feedback_items')
-        .insert({
-          board_id: boardId,
-          title: feedback.title,
-          description: feedback.description,
-          category: feedback.category,
-          priority: feedback.priority,
-          status: 'submitted',
-          votes_count: 0,
-          comments_count: 0,
-          customer_info: {
-            ...feedback.customer_info,
-            submitted_by_customer: customer.id,
-            customer_name: customer.first_name && customer.last_name 
-              ? `${customer.first_name} ${customer.last_name}`
-              : customer.email,
-            customer_email: customer.email,
-            customer_company: customer.company,
-          }
-        })
-        .select()
-        .single();
-
       if (error) {
-        throw error;
+        return { success: false, message: error.message, data: null };
       }
 
-      return { success: true, data };
-    } catch (error: any) {
-      console.error('Error submitting feedback:', error);
-      return { success: false, message: error.message };
+      if (result?.error) {
+        return { success: false, message: result.error, data: null };
+      }
+
+      return {
+        success: true,
+        data: { token: result.token, user: result.user },
+        message: 'Login successful'
+      };
+    } catch (error) {
+      return { 
+        success: false, 
+        message: error instanceof Error ? error.message : 'Login failed',
+        data: null
+      };
     }
   }
 
-  // Get feedback for a board (customer view)
+  async verifyToken(token: string): Promise<ApiResponse<{ user: CustomerUser; expires_at: string }>> {
+    try {
+      const { data: result, error } = await supabase.functions.invoke('customer-auth', {
+        body: {
+          action: 'verify-token',
+          token,
+        },
+      });
+
+      if (error) {
+        return { success: false, message: error.message, data: null };
+      }
+
+      if (!result?.valid || result?.error) {
+        return { success: false, message: result?.error || 'Invalid token', data: null };
+      }
+
+      return {
+        success: true,
+        data: { user: result.user, expires_at: result.expires_at },
+        message: 'Token valid'
+      };
+    } catch (error) {
+      return { 
+        success: false, 
+        message: error instanceof Error ? error.message : 'Token verification failed',
+        data: null
+      };
+    }
+  }
+
+  async signOut(token: string): Promise<ApiResponse<void>> {
+    try {
+      const { data: result, error } = await supabase.functions.invoke('customer-auth', {
+        body: {
+          action: 'logout',
+          token,
+        },
+      });
+
+      if (error) {
+        return { success: false, message: error.message, data: null };
+      }
+
+      return {
+        success: true,
+        data: null as any,
+        message: 'Logout successful'
+      };
+    } catch (error) {
+      return { 
+        success: false, 
+        message: error instanceof Error ? error.message : 'Logout failed',
+        data: null
+      };
+    }
+  }
+
+  // Feedback management
   async getBoardFeedback(
     boardId: string, 
-    token?: string
-  ): Promise<{ success: boolean; data?: any; message?: string }> {
+    token: string,
+    filters: any = {}
+  ): Promise<ApiResponse<PaginatedResponse<CustomerFeedback>>> {
     try {
-      // Check customer access
-      const accessCheck = await this.getBoardDetails(boardId, token);
-      if (!accessCheck.success) {
-        return accessCheck;
-      }
-
-      // Get feedback items
-      const { data, error } = await supabase
-        .from('feedback_items')
-        .select('*')
-        .eq('board_id', boardId)
-        .order('created_at', { ascending: false });
-
-      if (error) {
-        throw error;
-      }
-
-      return { success: true, data: { data } };
-    } catch (error: any) {
-      console.error('Error fetching board feedback:', error);
-      return { success: false, message: error.message };
-    }
-  }
-
-  // Vote on feedback (customer)
-  async voteOnFeedback(
-    feedbackId: string, 
-    voteType: 'upvote' | 'downvote', 
-    token?: string
-  ): Promise<{ success: boolean; message?: string }> {
-    try {
-      // Verify customer token
-      const response = await supabase.functions.invoke('customer-auth', {
-        body: {
-          action: 'verify-token',
-          token: token || localStorage.getItem('customer_auth_token'),
+      const response = await fetch(`https://spubjrvuggyrozoawofp.supabase.co/functions/v1/boards-api/${boardId}/feedback`, {
+        method: 'GET',
+        headers: {
+          'Content-Type': 'application/json',
+          'Authorization': `Bearer ${token}`,
         },
       });
 
-      if (!response.data?.user) {
-        return { success: false, message: 'Authentication required' };
+      const result = await response.json();
+
+      if (!response.ok) {
+        throw new Error(result.message || 'Failed to load feedback');
       }
 
-      const customerId = response.data.user.id;
+      return result;
+    } catch (error) {
+      return { 
+        success: false, 
+        message: error instanceof Error ? error.message : 'Failed to load feedback',
+        data: null
+      };
+    }
+  }
 
-      // For now, use a simplified approach without customer voting
-      // In production, you would need to add customer_user_id to feedback_votes table
-      return { success: true, message: 'Vote recorded (demo mode)' };
-    } catch (error: any) {
-      console.error('Error voting on feedback:', error);
-      return { success: false, message: error.message };
+  async submitFeedback(
+    boardId: string, 
+    feedback: Partial<CustomerFeedback>,
+    token: string
+  ): Promise<ApiResponse<CustomerFeedback>> {
+    try {
+      const response = await fetch(`https://spubjrvuggyrozoawofp.supabase.co/functions/v1/boards-api/${boardId}/feedback`, {
+        method: 'POST',
+        headers: {
+          'Content-Type': 'application/json',
+          'Authorization': `Bearer ${token}`,
+        },
+        body: JSON.stringify(feedback)
+      });
+
+      const result = await response.json();
+
+      if (!response.ok) {
+        throw new Error(result.message || 'Failed to submit feedback');
+      }
+
+      return result;
+    } catch (error) {
+      return { 
+        success: false, 
+        message: error instanceof Error ? error.message : 'Failed to submit feedback',
+        data: null
+      };
+    }
+  }
+
+  async voteOnFeedback(
+    feedbackId: string, 
+    voteType: 'upvote' | 'downvote',
+    token: string
+  ): Promise<ApiResponse<void>> {
+    try {
+      const response = await fetch(`https://spubjrvuggyrozoawofp.supabase.co/functions/v1/boards-api/feedback/${feedbackId}/vote`, {
+        method: 'POST',
+        headers: {
+          'Content-Type': 'application/json',
+          'Authorization': `Bearer ${token}`,
+        },
+        body: JSON.stringify({ vote_type: voteType })
+      });
+
+      const result = await response.json();
+
+      if (!response.ok) {
+        throw new Error(result.message || 'Failed to record vote');
+      }
+
+      return result;
+    } catch (error) {
+      return { 
+        success: false, 
+        message: error instanceof Error ? error.message : 'Failed to record vote',
+        data: null
+      };
+    }
+  }
+
+  async acceptInvitation(
+    invitationToken: string, 
+    customerToken: string
+  ): Promise<ApiResponse<{ board_id: string }>> {
+    try {
+      const { data: result, error } = await supabase.functions.invoke('customer-auth', {
+        body: {
+          action: 'accept-invitation',
+          invitation_token: invitationToken,
+          token: customerToken,
+        },
+      });
+
+      if (error) {
+        return { success: false, message: error.message, data: null };
+      }
+
+      if (result?.error) {
+        return { success: false, message: result.error, data: null };
+      }
+
+      return {
+        success: true,
+        data: { board_id: result.board_id },
+        message: 'Invitation accepted successfully'
+      };
+    } catch (error) {
+      return { 
+        success: false, 
+        message: error instanceof Error ? error.message : 'Failed to accept invitation',
+        data: null
+      };
     }
   }
 }

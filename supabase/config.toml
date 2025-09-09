@@ -20,6 +20,9 @@ enable_manual_linking = false
 [functions.boards-api]
 verify_jwt = false
 
+[functions.customer-auth]
+verify_jwt = false
+
 [functions.create-checkout]
 verify_jwt = true
 
