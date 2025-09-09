@@ -9,6 +9,8 @@ import { Menu, Search, Filter, Plus, ChevronUp, MessageSquare, Calendar, Flag } 
 import { EnhancedFeedbackItem } from '@/services/api/BoardService';
 import { formatDistanceToNow } from 'date-fns';
 
+type BadgeVariant = "destructive" | "default" | "secondary" | "outline" | "loom-coral" | "loom-accent" | "loom-amber" | "loom-indigo";
+
 interface MobileResponsiveProps {
   feedback: EnhancedFeedbackItem[];
   onFeedbackClick: (feedback: EnhancedFeedbackItem) => void;
@@ -38,7 +40,7 @@ export const MobileResponsive: React.FC<MobileResponsiveProps> = ({
 }) => {
   const [filtersOpen, setFiltersOpen] = useState(false);
 
-  const getPriorityColor = (priority: string) => {
+  const getPriorityColor = (priority: string): BadgeVariant => {
     switch (priority) {
       case 'critical': return 'destructive';
       case 'high': return 'destructive';
@@ -48,12 +50,12 @@ export const MobileResponsive: React.FC<MobileResponsiveProps> = ({
     }
   };
 
-  const getStatusColor = (status: string) => {
+  const getStatusColor = (status: string): BadgeVariant => {
     switch (status) {
-      case 'completed': return 'default';
-      case 'in_progress': return 'default';
+      case 'completed': return 'loom-accent';
+      case 'in_progress': return 'loom-amber';
       case 'planned': return 'secondary';
-      case 'under_review': return 'secondary';
+      case 'under_review': return 'outline';
       case 'rejected': return 'destructive';
       default: return 'outline';
     }
@@ -246,15 +248,15 @@ const MobileFeedbackCard: React.FC<MobileFeedbackCardProps> = ({
               </p>
             )}
             
-            <div className="flex items-center gap-1 flex-wrap mb-3">
-              <Badge variant={getStatusColor(feedback.status)} className="text-xs">
-                {getStatusLabel(feedback.status)}
-              </Badge>
-              
-              <Badge variant={getPriorityColor(feedback.priority)} className="text-xs">
-                <Flag className="h-2 w-2 mr-1" />
-                {feedback.priority}
-              </Badge>
+             <div className="flex items-center gap-1 flex-wrap mb-3">
+               <Badge variant={getStatusColor(feedback.status) as BadgeVariant} className="text-xs">
+                 {getStatusLabel(feedback.status)}
+               </Badge>
+               
+               <Badge variant={getPriorityColor(feedback.priority) as BadgeVariant} className="text-xs">
+                 <Flag className="h-2 w-2 mr-1" />
+                 {feedback.priority}
+               </Badge>
 
               {feedback.category && (
                 <Badge variant="outline" className="text-xs">
