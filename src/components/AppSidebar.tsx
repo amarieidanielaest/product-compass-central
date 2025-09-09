@@ -69,8 +69,8 @@ const AppSidebar = ({ activeModule, setActiveModule, selectedProductId, onProduc
   const toolsModules = [
     { id: 'prd', name: 'PRD Generator', icon: FileText, badge: null },
     { id: 'knowledge', name: 'Knowledge Center', icon: BookOpen, badge: null },
-    { id: 'phase4', name: 'Enterprise Hub', icon: BarChart3, badge: null },
-    { id: 'phase5', name: 'AI Intelligence', icon: Brain, badge: 'NEW' },
+    { id: 'enterprise', name: 'Enterprise Console', icon: BarChart3, badge: null },
+    { id: 'ai-copilot', name: 'AI CoPilot', icon: Brain, badge: 'AI' },
   ];
 
   const adminModules = [

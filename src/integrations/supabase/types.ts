@@ -52,6 +52,57 @@ export type Database = {
           },
         ]
       }
+      board_knowledge_sections: {
+        Row: {
+          board_id: string
+          category_id: string
+          created_at: string | null
+          custom_description: string | null
+          custom_title: string | null
+          id: string
+          is_enabled: boolean
+          sort_order: number | null
+          updated_at: string | null
+        }
+        Insert: {
+          board_id: string
+          category_id: string
+          created_at?: string | null
+          custom_description?: string | null
+          custom_title?: string | null
+          id?: string
+          is_enabled?: boolean
+          sort_order?: number | null
+          updated_at?: string | null
+        }
+        Update: {
+          board_id?: string
+          category_id?: string
+          created_at?: string | null
+          custom_description?: string | null
+          custom_title?: string | null
+          id?: string
+          is_enabled?: boolean
+          sort_order?: number | null
+          updated_at?: string | null
+        }
+        Relationships: [
+          {
+            foreignKeyName: "board_knowledge_sections_board_id_fkey"
+            columns: ["board_id"]
+            isOneToOne: false
+            referencedRelation: "customer_boards"
+            referencedColumns: ["id"]
+          },
+          {
+            foreignKeyName: "board_knowledge_sections_category_id_fkey"
+            columns: ["category_id"]
+            isOneToOne: false
+            referencedRelation: "help_categories"
+            referencedColumns: ["id"]
+          },
+        ]
+      }
       board_memberships: {
         Row: {
           board_id: string
@@ -1011,6 +1062,54 @@ export type Database = {
           visibility?: string | null
         }
         Relationships: []
+      }
+      kb_board_associations: {
+        Row: {
+          article_id: string
+          board_id: string
+          created_at: string | null
+          custom_description: string | null
+          custom_title: string | null
+          id: string
+          is_featured: boolean | null
+          sort_order: number | null
+        }
+        Insert: {
+          article_id: string
+          board_id: string
+          created_at?: string | null
+          custom_description?: string | null
+          custom_title?: string | null
+          id?: string
+          is_featured?: boolean | null
+          sort_order?: number | null
+        }
+        Update: {
+          article_id?: string
+          board_id?: string
+          created_at?: string | null
+          custom_description?: string | null
+          custom_title?: string | null
+          id?: string
+          is_featured?: boolean | null
+          sort_order?: number | null
+        }
+        Relationships: [
+          {
+            foreignKeyName: "kb_board_associations_article_id_fkey"
+            columns: ["article_id"]
+            isOneToOne: false
+            referencedRelation: "help_articles"
+            referencedColumns: ["id"]
+          },
+          {
+            foreignKeyName: "kb_board_associations_board_id_fkey"
+            columns: ["board_id"]
+            isOneToOne: false
+            referencedRelation: "customer_boards"
+            referencedColumns: ["id"]
+          },
+        ]
       }
       kb_categories: {
         Row: {

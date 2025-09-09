@@ -18,7 +18,7 @@ import { RoadmapView } from './RoadmapView';
 import { ChangelogView } from './ChangelogView';
 import { SmartSearch } from './SmartSearch';
 import { AIInsightPanel } from './AIInsightPanel';
-import { EnhancedKnowledgeBase } from './EnhancedKnowledgeBase';
+import { BoardKnowledgeCenter } from '../BoardKnowledgeCenter';
 
 export const CustomerPortal = () => {
   const { organization, boardSlug } = useParams();
@@ -372,7 +372,7 @@ export const CustomerPortal = () => {
             </TabsTrigger>
             <TabsTrigger value="knowledge">
               <Book className="h-4 w-4 mr-2" />
-              Help Center
+              Knowledge
             </TabsTrigger>
           </TabsList>
 
@@ -518,8 +518,10 @@ export const CustomerPortal = () => {
           </TabsContent>
 
           <TabsContent value="knowledge">
-            <EnhancedKnowledgeBase
-              boardId={board.id}
+            <BoardKnowledgeCenter 
+              boardId={board?.id}
+              boardName={board?.name}
+              showBoardSpecific={true}
               className="w-full"
             />
           </TabsContent>

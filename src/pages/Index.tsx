@@ -15,7 +15,9 @@ import UserManagement from '@/components/UserManagement';
 import QuickActions from '../components/QuickActions';
 import Settings from '../components/Settings';
 import KnowledgeCenter from '../components/KnowledgeCenter';
-import Phase5Demo from '../components/Phase5Demo';
+import EnterpriseHub from '@/components/EnterpriseHub';
+import CleanEnterpriseConsole from '@/components/CleanEnterpriseConsole';
+import AICopilotDashboard from '@/components/AICopilotDashboard';
 
 const Index = () => {
   console.log('Index component rendering');
@@ -36,6 +38,8 @@ const Index = () => {
       users: 'User Management',
       settings: 'Settings',
       phase4: 'Phase 4: Production Ready',
+      enterprise: 'Enterprise Console',
+      'ai-copilot': 'AI CoPilot',
     };
     return moduleNames[moduleId] || moduleId;
   };
@@ -90,10 +94,10 @@ const Index = () => {
         return <UserManagement />;
       case 'settings':
         return <Settings currentTeamId={selectedProductId} />;
-      case 'phase4':
-        return <Phase5Demo selectedProductId={selectedProductId} onNavigate={setActiveModule} />;
-      case 'phase5':
-        return <Phase5Demo selectedProductId={selectedProductId} onNavigate={setActiveModule} />;
+      case 'enterprise':
+        return <CleanEnterpriseConsole onNavigateBack={() => setActiveModule('dashboard')} />;
+      case 'ai-copilot':
+        return <AICopilotDashboard onNavigate={setActiveModule} />;
       default:
         return <CustomerBoard selectedProductId={selectedProductId} onNavigate={setActiveModule} />;
     }
