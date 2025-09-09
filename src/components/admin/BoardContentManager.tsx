@@ -243,7 +243,6 @@ export const BoardContentManager: React.FC<BoardContentManagerProps> = ({ classN
           <DialogTrigger asChild>
             <Button 
               className="flex items-center gap-2"
-              onClick={() => setIsCreateDialogOpen(true)}
             >
               <Plus className="h-4 w-4" />
               Create Article
@@ -258,7 +257,7 @@ export const BoardContentManager: React.FC<BoardContentManagerProps> = ({ classN
             </DialogHeader>
 
             <div className="grid gap-6 py-4">
-              <div className="grid grid-cols-2 gap-4">
+              <div className="grid grid-cols-1 sm:grid-cols-2 gap-4">
                 <div>
                   <Label htmlFor="title">Title *</Label>
                   <Input
@@ -310,7 +309,7 @@ export const BoardContentManager: React.FC<BoardContentManagerProps> = ({ classN
                 />
               </div>
 
-              <div className="grid grid-cols-2 gap-4">
+              <div className="grid grid-cols-1 sm:grid-cols-2 gap-4">
                 <div>
                   <Label htmlFor="visibility">Visibility</Label>
                   <Select
@@ -407,7 +406,7 @@ export const BoardContentManager: React.FC<BoardContentManagerProps> = ({ classN
             </div>
 
             <Select value={selectedBoard} onValueChange={setSelectedBoard}>
-              <SelectTrigger className="w-[200px]">
+              <SelectTrigger className="w-full sm:w-[200px]">
                 <SelectValue placeholder="All boards" />
               </SelectTrigger>
               <SelectContent>
@@ -422,7 +421,7 @@ export const BoardContentManager: React.FC<BoardContentManagerProps> = ({ classN
             </Select>
 
             <Select value={statusFilter} onValueChange={setStatusFilter}>
-              <SelectTrigger className="w-[150px]">
+              <SelectTrigger className="w-full sm:w-[150px]">
                 <SelectValue placeholder="All statuses" />
               </SelectTrigger>
               <SelectContent>

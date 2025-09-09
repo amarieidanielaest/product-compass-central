@@ -2,7 +2,7 @@ import { useState, useEffect } from 'react';
 import { 
   BarChart3, Target, Map, MessageSquare, Home, FileText, Kanban, Package, 
   ChevronDown, Settings, ChevronLeft, ChevronRight, BookOpen, Users, 
-  ChevronUp, Brain
+  ChevronUp, Brain, Menu
 } from 'lucide-react';
 import {
   Sidebar,
@@ -136,6 +136,12 @@ const AppSidebar = ({ activeModule, setActiveModule, selectedProductId, onProduc
               <ChevronLeft className="h-4 w-4" />
             </SidebarTrigger>
           )}
+          
+          {isCollapsed && (
+            <SidebarTrigger className="h-7 w-7 flex-shrink-0 ml-auto">
+              <ChevronRight className="h-4 w-4" />
+            </SidebarTrigger>
+          )}
         </div>
         
         {/* Product Selector */}
@@ -190,14 +196,6 @@ const AppSidebar = ({ activeModule, setActiveModule, selectedProductId, onProduc
             Navigation
           </SidebarGroupLabel>
           
-          {/* Collapsed Sidebar Toggle */}
-          {isCollapsed && (
-            <div className="mb-4 flex justify-center">
-              <SidebarTrigger className="h-8 w-8">
-                <ChevronRight className="h-4 w-4" />
-              </SidebarTrigger>
-            </div>
-          )}
           <SidebarGroupContent>
             <SidebarMenu className="space-y-1">
               {/* Core Modules */}
@@ -288,7 +286,14 @@ const AppSidebar = ({ activeModule, setActiveModule, selectedProductId, onProduc
               {/* Customer Boards Submenu */}
               <SidebarMenuItem>
                 <SidebarMenuButton
-                  onClick={() => setIsCustomerBoardsOpen(!isCustomerBoardsOpen)}
+                  onClick={() => {
+                    if (isCollapsed) {
+                      // In collapsed mode, just navigate to the first customer board module
+                      setActiveModule(customerBoardModules[0].id);
+                    } else {
+                      setIsCustomerBoardsOpen(!isCustomerBoardsOpen);
+                    }
+                  }}
                   className={cn(
                     "h-9 px-3 rounded-md text-sm font-medium transition-all duration-200",
                     customerBoardModules.some(m => activeModule === m.id)
@@ -318,7 +323,7 @@ const AppSidebar = ({ activeModule, setActiveModule, selectedProductId, onProduc
                   )}
                 </SidebarMenuButton>
 
-                {/* Submenu Items */}
+                {/* Submenu Items - Only show when expanded */}
                 {!isCollapsed && isCustomerBoardsOpen && (
                   <SidebarMenu className="mt-2 ml-4 space-y-1">
                     {customerBoardModules.map((module) => {
@@ -349,6 +354,29 @@ const AppSidebar = ({ activeModule, setActiveModule, selectedProductId, onProduc
                     })}
                   </SidebarMenu>
                 )}
+                
+                {/* Collapsed mode: Show customer board modules directly */}
+                {isCollapsed && customerBoardModules.map((module) => {
+                  const Icon = module.icon;
+                  const isActive = activeModule === module.id;
+                  
+                  return (
+                    <SidebarMenuItem key={`collapsed-${module.id}`} className="mt-1">
+                      <SidebarMenuButton
+                        onClick={() => setActiveModule(module.id)}
+                        className={cn(
+                          "h-9 px-0 rounded-md text-sm font-medium transition-all duration-200 justify-center",
+                          isActive 
+                            ? "bg-sidebar-accent text-sidebar-accent-foreground shadow-sm" 
+                            : "text-sidebar-foreground hover:bg-sidebar-accent/50 hover:text-sidebar-accent-foreground"
+                        )}
+                        tooltip={module.name}
+                      >
+                        <Icon className="h-4 w-4 mx-auto" />
+                      </SidebarMenuButton>
+                    </SidebarMenuItem>
+                  );
+                })}
               </SidebarMenuItem>
 
               {/* Admin Section */}

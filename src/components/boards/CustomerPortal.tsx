@@ -14,6 +14,7 @@ import { customerService } from '@/services/api/CustomerService';
 import { useCustomerAuth } from '@/contexts/CustomerAuthContext';
 import { ArrowUp, MessageCircle, Calendar, CheckCircle2, Clock, AlertCircle, Plus, Search, Filter, Brain, Book } from 'lucide-react';
 import { FeedbackDetailDialog } from './FeedbackDetailDialog';
+import { FeedbackEditDialog } from './FeedbackEditDialog';
 import { RoadmapView } from './RoadmapView';
 import { ChangelogView } from './ChangelogView';
 import { SmartSearch } from './SmartSearch';
@@ -37,6 +38,8 @@ export const CustomerPortal = () => {
   const [categoryFilter, setCategoryFilter] = useState<string>('all');
   const [selectedFeedback, setSelectedFeedback] = useState<EnhancedFeedbackItem | null>(null);
   const [isFeedbackDetailOpen, setIsFeedbackDetailOpen] = useState(false);
+  const [isEditDialogOpen, setIsEditDialogOpen] = useState(false);
+  const [isAdminView, setIsAdminView] = useState(false);
   const [smartSearchQuery, setSmartSearchQuery] = useState('');
   const [smartSearchFilters, setSmartSearchFilters] = useState<any>({
     status: [],
@@ -188,6 +191,39 @@ export const CustomerPortal = () => {
   const handleFeedbackClick = (feedback: EnhancedFeedbackItem) => {
     setSelectedFeedback(feedback);
     setIsFeedbackDetailOpen(true);
+  };
+
+  const handleEditFeedback = (feedback: EnhancedFeedbackItem) => {
+    setSelectedFeedback(feedback);
+    setIsEditDialogOpen(true);
+  };
+
+  const handleSaveFeedback = async (updatedData: Partial<EnhancedFeedbackItem>) => {
+    if (!selectedFeedback) return;
+
+    try {
+      // Update feedback via API
+      const response = await boardService.updateFeedback(board.id, selectedFeedback.id, updatedData);
+      
+      if (response.success) {
+        // Update local state
+        setFeedback(prev => prev.map(item => 
+          item.id === selectedFeedback.id 
+            ? { ...item, ...updatedData }
+            : item
+        ));
+        
+        toast({
+          title: 'Success',
+          description: 'Feedback updated successfully'
+        });
+      } else {
+        throw new Error(response.message);
+      }
+    } catch (error) {
+      console.error('Error updating feedback:', error);
+      throw error;
+    }
   };
 
   const getStatusIcon = (status: string) => {
@@ -475,22 +511,44 @@ export const CustomerPortal = () => {
                             </Badge>
                           )}
                         </div>
-                        <div className="flex items-center gap-2 ml-4">
-                          <Button
-                            variant="ghost"
-                            size="sm"
-                            onClick={(e) => {
-                              e.stopPropagation();
-                              handleVote(item.id);
-                            }}
-                            className="flex items-center gap-1"
-                          >
-                            <ArrowUp className="h-4 w-4" />
-                            {item.votes_count}
-                          </Button>
-                          <div className="flex items-center gap-1 text-gray-500">
-                            <MessageCircle className="h-4 w-4" />
-                            {item.comments_count}
+                        <div className="flex items-center justify-between mt-4">
+                          <div className="flex items-center gap-2">
+                            <Button
+                              variant="ghost"
+                              size="sm"
+                              onClick={(e) => {
+                                e.stopPropagation();
+                                handleVote(item.id);
+                              }}
+                              className="flex items-center gap-1"
+                            >
+                              <ArrowUp className="h-4 w-4" />
+                              {item.votes_count}
+                            </Button>
+                            <div className="flex items-center gap-1 text-gray-500">
+                              <MessageCircle className="h-4 w-4" />
+                              {item.comments_count}
+                            </div>
+                          </div>
+                          <div className="flex items-center gap-2">
+                            <Button
+                              variant="ghost"
+                              size="sm"
+                              onClick={() => handleFeedbackClick(item)}
+                              className="text-xs"
+                            >
+                              View Details
+                            </Button>
+                            {isAuthenticated() && (
+                              <Button
+                                variant="outline"
+                                size="sm"
+                                onClick={() => handleEditFeedback(item)}
+                                className="text-xs"
+                              >
+                                Edit
+                              </Button>
+                            )}
                           </div>
                         </div>
                       </div>

@@ -15,7 +15,7 @@ import {
   Focus,
   Pause,
   Play,
-  Users
+  Accessibility
 } from 'lucide-react';
 import { cn } from '@/lib/utils';
 
@@ -261,28 +261,28 @@ export const AccessibilityManager: React.FC<AccessibilityManagerProps> = ({ clas
       </a>
 
       {/* Accessibility Widget */}
-      <div className={cn("fixed bottom-4 right-4 z-50", className)}>
+      <div className={cn("fixed bottom-4 left-4 z-50", className)}>
         <Popover open={isOpen} onOpenChange={setIsOpen}>
           <PopoverTrigger asChild>
             <Button
               variant="outline"
               size="sm"
-              className="rounded-full w-12 h-12 shadow-lg hover:shadow-xl transition-shadow"
+              className="rounded-full w-12 h-12 shadow-lg hover:shadow-xl transition-shadow bg-primary text-primary-foreground hover:bg-primary/90"
               aria-label="Accessibility settings"
             >
-              <Users className="h-5 w-5" />
+              <Accessibility className="h-5 w-5" />
             </Button>
           </PopoverTrigger>
 
           <PopoverContent 
-            align="end" 
+            align="start" 
             className="w-80 p-0 shadow-xl max-w-[calc(100vw-2rem)] sm:w-80"
             sideOffset={8}
           >
             <Card className="border-0">
               <CardHeader className="pb-4">
                 <CardTitle className="text-lg flex items-center gap-2">
-                  <Eye className="h-5 w-5" />
+                  <Accessibility className="h-5 w-5" />
                   Accessibility
                 </CardTitle>
                 <CardDescription>
