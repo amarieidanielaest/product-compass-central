@@ -14,6 +14,51 @@ export type Database = {
   }
   public: {
     Tables: {
+      analytics_events: {
+        Row: {
+          action: string
+          component: string | null
+          created_at: string
+          currency: string | null
+          event_type: string
+          feature: string | null
+          id: string
+          page: string | null
+          properties: Json | null
+          session_id: string
+          user_id: string | null
+          value: number | null
+        }
+        Insert: {
+          action: string
+          component?: string | null
+          created_at?: string
+          currency?: string | null
+          event_type: string
+          feature?: string | null
+          id?: string
+          page?: string | null
+          properties?: Json | null
+          session_id: string
+          user_id?: string | null
+          value?: number | null
+        }
+        Update: {
+          action?: string
+          component?: string | null
+          created_at?: string
+          currency?: string | null
+          event_type?: string
+          feature?: string | null
+          id?: string
+          page?: string | null
+          properties?: Json | null
+          session_id?: string
+          user_id?: string | null
+          value?: number | null
+        }
+        Relationships: []
+      }
       board_integrations: {
         Row: {
           board_id: string
@@ -496,6 +541,39 @@ export type Database = {
           last_name?: string | null
           password_hash?: string
           updated_at?: string | null
+        }
+        Relationships: []
+      }
+      feature_adoption: {
+        Row: {
+          adoption_rate: number
+          created_at: string
+          date: string
+          feature: string
+          id: string
+          trend: string
+          updated_at: string
+          usage_count: number
+        }
+        Insert: {
+          adoption_rate?: number
+          created_at?: string
+          date?: string
+          feature: string
+          id?: string
+          trend?: string
+          updated_at?: string
+          usage_count?: number
+        }
+        Update: {
+          adoption_rate?: number
+          created_at?: string
+          date?: string
+          feature?: string
+          id?: string
+          trend?: string
+          updated_at?: string
+          usage_count?: number
         }
         Relationships: []
       }
@@ -1427,6 +1505,42 @@ export type Database = {
         }
         Relationships: []
       }
+      product_health: {
+        Row: {
+          created_at: string
+          date: string
+          id: string
+          overall_health: number
+          performance_score: number
+          reliability_score: number
+          satisfaction_score: number
+          trends: Json | null
+          updated_at: string
+        }
+        Insert: {
+          created_at?: string
+          date?: string
+          id?: string
+          overall_health?: number
+          performance_score?: number
+          reliability_score?: number
+          satisfaction_score?: number
+          trends?: Json | null
+          updated_at?: string
+        }
+        Update: {
+          created_at?: string
+          date?: string
+          id?: string
+          overall_health?: number
+          performance_score?: number
+          reliability_score?: number
+          satisfaction_score?: number
+          trends?: Json | null
+          updated_at?: string
+        }
+        Relationships: []
+      }
       profiles: {
         Row: {
           avatar_url: string | null
@@ -1989,6 +2103,42 @@ export type Database = {
           metric_name?: string
           unit_name?: string
           updated_at?: string | null
+        }
+        Relationships: []
+      }
+      user_metrics: {
+        Row: {
+          active_users: number
+          churn_rate: number
+          created_at: string
+          date: string
+          engagement_score: number
+          id: string
+          new_users: number
+          retention_rate: number
+          updated_at: string
+        }
+        Insert: {
+          active_users?: number
+          churn_rate?: number
+          created_at?: string
+          date: string
+          engagement_score?: number
+          id?: string
+          new_users?: number
+          retention_rate?: number
+          updated_at?: string
+        }
+        Update: {
+          active_users?: number
+          churn_rate?: number
+          created_at?: string
+          date?: string
+          engagement_score?: number
+          id?: string
+          new_users?: number
+          retention_rate?: number
+          updated_at?: string
         }
         Relationships: []
       }

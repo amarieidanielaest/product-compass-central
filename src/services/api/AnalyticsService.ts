@@ -36,7 +36,7 @@ export interface EventBatch {
 
 class AnalyticsApiService extends BaseApiService {
   constructor() {
-    super('/api/analytics');
+    super('https://spubjrvuggyrozoawofp.supabase.co/functions/v1/analytics-api');
   }
 
   async getUserMetrics(timeRange: '7d' | '30d' | '90d' = '30d'): Promise<ApiResponse<UserMetrics>> {

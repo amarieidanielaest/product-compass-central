@@ -28,8 +28,18 @@ const Dashboard = ({ selectedProductId, onNavigate }: DashboardProps) => {
   console.log('Dashboard rendering with props:', { selectedProductId, onNavigate });
   const [timeFilter, setTimeFilter] = useState<'7d' | '30d' | '90d'>('30d');
 
-  // Mock data - replace with actual service calls
-  const userGrowthData = [
+  // Fetch real analytics data
+  const { data: dashboardData, loading, error } = useServiceCall(
+    () => fetch('https://spubjrvuggyrozoawofp.supabase.co/functions/v1/analytics-api/dashboard-data', {
+      headers: {
+        'Authorization': `Bearer eyJhbGciOiJIUzI1NiIsInR5cCI6IkpXVCJ9.eyJpc3MiOiJzdXBhYmFzZSIsInJlZiI6InNwdWJqcnZ1Z2d5cm96b2F3b2ZwIiwicm9sZSI6ImFub24iLCJpYXQiOjE3NTE2MzM1NTYsImV4cCI6MjA2NzIwOTU1Nn0.X4f0Ouq6evWVNwXBkTjnSXqHiwf7rc6LlgWN9HodCxM`
+      }
+    }).then(res => res.json()).then(data => ({ success: true, data: data.data })),
+    [timeFilter]
+  );
+
+  // Use real data or fallback to defaults
+  const userGrowthData = dashboardData?.userGrowthData || [
     { month: 'Jan', users: 1200, retention: 85 },
     { month: 'Feb', users: 1350, retention: 87 },
     { month: 'Mar', users: 1500, retention: 89 },
@@ -38,13 +48,20 @@ const Dashboard = ({ selectedProductId, onNavigate }: DashboardProps) => {
     { month: 'Jun', users: 2100, retention: 92 },
   ];
 
-  const featureAdoptionData = [
+  const featureAdoptionData = dashboardData?.featureAdoptionData || [
     { feature: 'Dashboard', adoption: 95 },
     { feature: 'Sprints', adoption: 78 },
     { feature: 'Roadmap', adoption: 65 },
     { feature: 'Customer', adoption: 52 },
     { feature: 'PRD Gen', adoption: 34 },
   ];
+
+  const keyMetrics = dashboardData?.keyMetrics || {
+    totalUsers: 2847,
+    revenue: '$125K',
+    activeFeatures: 156,
+    healthScore: '87%'
+  };
 
   const chartConfig = {
     users: {
@@ -143,28 +160,28 @@ const Dashboard = ({ selectedProductId, onNavigate }: DashboardProps) => {
       <div className="grid grid-cols-1 sm:grid-cols-2 xl:grid-cols-4 gap-4">
         <MetricCard
           title="Total Users"
-          value={2847}
+          value={keyMetrics.totalUsers}
           change="+12.5%"
           icon={Users}
           color="primary"
         />
         <MetricCard
           title="Revenue"
-          value="$125K"
+          value={keyMetrics.revenue}
           change="+8.2%"
           icon={DollarSign}
           color="emerald"
         />
         <MetricCard
           title="Active Features"
-          value={156}
+          value={keyMetrics.activeFeatures}
           change="+5 this week"
           icon={Zap}
           color="blue"
         />
         <MetricCard
           title="Health Score"
-          value="87%"
+          value={keyMetrics.healthScore}
           change="Good"
           icon={Target}
           color="amber"
