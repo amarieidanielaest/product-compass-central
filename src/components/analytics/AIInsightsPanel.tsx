@@ -16,6 +16,7 @@ import {
 } from 'lucide-react';
 import { aiService, AIInsight } from '@/services/api';
 import { useAnalytics } from '@/hooks/useAnalytics';
+import { AIInsightsSetupCard } from './AIInsightsSetupCard';
 
 interface InsightCategory {
   category: 'product' | 'roadmap' | 'feedback' | 'strategy';
@@ -33,7 +34,12 @@ export const AIInsightsPanel = () => {
   const [chatMode, setChatMode] = useState(false);
   const [chatMessage, setChatMessage] = useState('');
   const [chatResponse, setChatResponse] = useState<any>(null);
+  const [needsSetup, setNeedsSetup] = useState(false);
   const { trackFeature } = useAnalytics();
+
+  const handleSetupClick = () => {
+    window.open('https://docs.lovable.dev/features/ai-insights-setup', '_blank');
+  };
 
   useEffect(() => {
     trackFeature('ai_insights_panel');
@@ -41,6 +47,8 @@ export const AIInsightsPanel = () => {
   }, []);
 
   const loadAllInsights = async () => {
+    let allFailed = true;
+    
     const updatedCategories = await Promise.all(
       categories.map(async (cat) => {
         try {
@@ -48,6 +56,10 @@ export const AIInsightsPanel = () => {
             filters: { boardId: 'main' },
             productId: 'main'
           });
+          
+          if (response.success) {
+            allFailed = false;
+          }
           
           return {
             ...cat,
@@ -60,6 +72,11 @@ export const AIInsightsPanel = () => {
         }
       })
     );
+
+    // If all categories failed, show setup instead of empty state
+    if (allFailed) {
+      setNeedsSetup(true);
+    }
 
     setCategories(updatedCategories);
   };
@@ -122,6 +139,10 @@ export const AIInsightsPanel = () => {
       default: return category;
     }
   };
+
+  if (needsSetup) {
+    return <AIInsightsSetupCard onSetupClick={handleSetupClick} />;
+  }
 
   if (chatMode) {
     return (

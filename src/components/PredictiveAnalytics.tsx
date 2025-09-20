@@ -7,11 +7,17 @@ import { Progress } from '@/components/ui/progress';
 import { Badge } from '@/components/ui/badge';
 import { portfolioAnalyticsService, PredictiveAnalytics as PredictiveAnalyticsType } from '@/services/analytics/PortfolioAnalyticsService';
 import { useToast } from '@/hooks/use-toast';
+import { PredictiveAnalyticsSetupCard } from './analytics/PredictiveAnalyticsSetupCard';
 
 const PredictiveAnalytics = () => {
   const [analytics, setAnalytics] = useState<PredictiveAnalyticsType | null>(null);
   const [loading, setLoading] = useState(false);
+  const [needsSetup, setNeedsSetup] = useState(false);
   const { toast } = useToast();
+
+  const handleSetupClick = () => {
+    window.open('https://docs.lovable.dev/features/ai-setup', '_blank');
+  };
 
   useEffect(() => {
     loadPredictiveAnalytics();
@@ -25,11 +31,16 @@ const PredictiveAnalytics = () => {
         setAnalytics(response.data);
       }
     } catch (error) {
-      toast({
-        title: "Error loading predictive analytics",
-        description: "Failed to load predictive analytics data",
-        variant: "destructive"
-      });
+      const errorMessage = error instanceof Error ? error.message : 'Unknown error';
+      if (errorMessage.includes('Failed to fetch') || errorMessage.includes('404') || errorMessage.includes('Not Found')) {
+        setNeedsSetup(true);
+      } else {
+        toast({
+          title: "Error loading predictive analytics",
+          description: "Failed to load predictive analytics data",
+          variant: "destructive"
+        });
+      }
     } finally {
       setLoading(false);
     }
@@ -40,6 +51,10 @@ const PredictiveAnalytics = () => {
     if (confidence >= 0.6) return 'text-yellow-600';
     return 'text-red-600';
   };
+
+  if (needsSetup) {
+    return <PredictiveAnalyticsSetupCard onSetupClick={handleSetupClick} />;
+  }
 
   if (loading) {
     return (

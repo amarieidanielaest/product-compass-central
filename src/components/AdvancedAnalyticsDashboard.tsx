@@ -7,13 +7,19 @@ import { Tabs, TabsContent, TabsList, TabsTrigger } from '@/components/ui/tabs';
 import { Badge } from '@/components/ui/badge';
 import { portfolioAnalyticsService, PortfolioInsight, CrossProductMetrics, PortfolioHealthScore } from '@/services/analytics/PortfolioAnalyticsService';
 import { useToast } from '@/hooks/use-toast';
+import { PredictiveAnalyticsSetupCard } from './analytics/PredictiveAnalyticsSetupCard';
 
 const AdvancedAnalyticsDashboard = () => {
   const [insights, setInsights] = useState<PortfolioInsight[]>([]);
   const [crossProductMetrics, setCrossProductMetrics] = useState<CrossProductMetrics | null>(null);
   const [healthScore, setHealthScore] = useState<PortfolioHealthScore | null>(null);
   const [loading, setLoading] = useState(true);
+  const [needsSetup, setNeedsSetup] = useState(false);
   const { toast } = useToast();
+
+  const handleSetupClick = () => {
+    window.open('https://docs.lovable.dev/features/advanced-analytics-setup', '_blank');
+  };
 
   useEffect(() => {
     loadAnalyticsData();
@@ -32,11 +38,16 @@ const AdvancedAnalyticsDashboard = () => {
       if (metricsResponse.data) setCrossProductMetrics(metricsResponse.data);
       if (healthResponse.data) setHealthScore(healthResponse.data);
     } catch (error) {
-      toast({
-        title: "Error loading analytics",
-        description: "Failed to load portfolio analytics data",
-        variant: "destructive"
-      });
+      const errorMessage = error instanceof Error ? error.message : 'Unknown error';
+      if (errorMessage.includes('Failed to fetch') || errorMessage.includes('404') || errorMessage.includes('Not Found')) {
+        setNeedsSetup(true);
+      } else {
+        toast({
+          title: "Error loading analytics",
+          description: "Failed to load portfolio analytics data",
+          variant: "destructive"
+        });
+      }
     } finally {
       setLoading(false);
     }
@@ -84,6 +95,10 @@ const AdvancedAnalyticsDashboard = () => {
       default: return 'bg-gray-100 text-gray-800 border-gray-200';
     }
   };
+
+  if (needsSetup) {
+    return <PredictiveAnalyticsSetupCard onSetupClick={handleSetupClick} />;
+  }
 
   if (loading) {
     return (

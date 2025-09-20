@@ -17,6 +17,7 @@ import {
 import { LineChart, Line, XAxis, YAxis, CartesianGrid, Tooltip, ResponsiveContainer, AreaChart, Area } from 'recharts';
 import { aiService } from '@/services/api';
 import { useAnalytics } from '@/hooks/useAnalytics';
+import { PredictiveAnalyticsSetupCard } from './PredictiveAnalyticsSetupCard';
 
 interface PredictiveMetric {
   metric: string;
@@ -43,7 +44,12 @@ export const PredictiveAnalyticsDashboard = () => {
   const [recommendations, setRecommendations] = useState<AIRecommendation[]>([]);
   const [forecastData, setForecastData] = useState<any[]>([]);
   const [loading, setLoading] = useState(true);
+  const [needsSetup, setNeedsSetup] = useState(false);
   const { trackFeature } = useAnalytics();
+
+  const handleSetupClick = () => {
+    window.open('https://docs.lovable.dev/features/predictive-analytics-setup', '_blank');
+  };
 
   useEffect(() => {
     trackFeature('predictive_analytics_dashboard');
@@ -53,6 +59,18 @@ export const PredictiveAnalyticsDashboard = () => {
   const loadPredictiveAnalytics = async () => {
     setLoading(true);
     try {
+      // Check if AI service is configured by making a test call
+      const testResponse = await aiService.generateContent({
+        prompt: "Test connection",
+        type: "insights",
+        context: { test: true }
+      });
+
+      if (!testResponse.success) {
+        setNeedsSetup(true);
+        return;
+      }
+
       // Generate mock predictive data
       const mockPredictions: PredictiveMetric[] = [
         {
@@ -142,6 +160,11 @@ export const PredictiveAnalyticsDashboard = () => {
       setForecastData(mockForecast);
     } catch (error) {
       console.error('Failed to load predictive analytics:', error);
+      // If it's a connection or setup issue, show setup card
+      const errorMessage = error instanceof Error ? error.message : 'Unknown error';
+      if (errorMessage.includes('API key') || errorMessage.includes('configuration') || errorMessage.includes('401')) {
+        setNeedsSetup(true);
+      }
     } finally {
       setLoading(false);
     }
@@ -190,6 +213,10 @@ export const PredictiveAnalyticsDashboard = () => {
       default: return <Brain className="w-4 h-4" />;
     }
   };
+
+  if (needsSetup) {
+    return <PredictiveAnalyticsSetupCard onSetupClick={handleSetupClick} />;
+  }
 
   if (loading) {
     return (
