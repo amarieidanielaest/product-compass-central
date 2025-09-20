@@ -17,7 +17,8 @@ import {
   ResponsiveContainer 
 } from 'recharts';
 import { useServiceCall } from '@/hooks/useServiceIntegration';
-import { analyticsService, aiService } from '@/services/api';
+import { analyticsService } from '@/services/api';
+import { RealTimeDashboard } from '@/components/analytics/RealTimeDashboard';
 
 interface DashboardProps {
   selectedProductId?: string;
@@ -139,11 +140,12 @@ const Dashboard = ({ selectedProductId, onNavigate }: DashboardProps) => {
   };
 
   return (
-    <div className="space-y-6">
+    <div className="space-y-8">
       {/* Header Controls */}
       <div className="flex flex-col sm:flex-row sm:items-center justify-between gap-4">
         <div>
-          <p className="text-muted-foreground text-sm">
+          <h1 className="text-3xl font-bold tracking-tight">Analytics Dashboard</h1>
+          <p className="text-muted-foreground text-sm mt-1">
             Welcome back! Here's what's happening with your product.
           </p>
         </div>
@@ -155,6 +157,9 @@ const Dashboard = ({ selectedProductId, onNavigate }: DashboardProps) => {
           </TabsList>
         </Tabs>
       </div>
+
+      {/* Real-Time Analytics Dashboard */}
+      <RealTimeDashboard className="mb-8" />
 
       {/* Key Metrics Grid */}
       <div className="grid grid-cols-1 sm:grid-cols-2 xl:grid-cols-4 gap-4">
