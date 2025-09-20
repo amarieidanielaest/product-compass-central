@@ -17,6 +17,7 @@ export const useRealTimeAnalytics = (refreshInterval: number = 30000) => {
   const [metrics, setMetrics] = useState<RealTimeMetrics | null>(null);
   const [loading, setLoading] = useState(true);
   const [error, setError] = useState<string | null>(null);
+  const [needsSetup, setNeedsSetup] = useState(false);
   const [lastUpdate, setLastUpdate] = useState<Date | null>(null);
   const { trackFeature } = useAnalytics();
 
@@ -64,7 +65,15 @@ export const useRealTimeAnalytics = (refreshInterval: number = 30000) => {
       }
     } catch (err) {
       console.error('Error fetching real-time analytics:', err);
-      setError(err instanceof Error ? err.message : 'Unknown error');
+      // Check if this is a setup issue (no analytics configured) vs temporary failure
+      const errorMessage = err instanceof Error ? err.message : 'Unknown error';
+      if (errorMessage.includes('Failed to fetch') || errorMessage.includes('404') || errorMessage.includes('Not Found')) {
+        setNeedsSetup(true);
+        setError(null);
+      } else {
+        setError(errorMessage);
+        setNeedsSetup(false);
+      }
     } finally {
       setLoading(false);
     }
@@ -107,6 +116,7 @@ export const useRealTimeAnalytics = (refreshInterval: number = 30000) => {
     metrics,
     loading,
     error,
+    needsSetup,
     lastUpdate,
     refresh: fetchMetrics
   };

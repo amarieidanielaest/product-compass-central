@@ -15,6 +15,7 @@ import {
   Zap
 } from 'lucide-react';
 import { useRealTimeAnalytics } from '@/hooks/useRealTimeAnalytics';
+import { AnalyticsSetupCard } from './AnalyticsSetupCard';
 import { ChartContainer, ChartTooltip, ChartTooltipContent } from '@/components/ui/chart';
 import { 
   LineChart, 
@@ -35,7 +36,12 @@ interface RealTimeDashboardProps {
 
 export const RealTimeDashboard = ({ className }: RealTimeDashboardProps) => {
   const [refreshInterval, setRefreshInterval] = useState(30000); // 30 seconds
-  const { metrics, loading, error, lastUpdate, refresh } = useRealTimeAnalytics(refreshInterval);
+  const { metrics, loading, error, needsSetup, lastUpdate, refresh } = useRealTimeAnalytics(refreshInterval);
+
+  const handleSetupClick = () => {
+    // Open setup wizard or documentation
+    window.open('https://docs.lovable.dev/features/analytics-setup', '_blank');
+  };
 
   const chartConfig = {
     users: {
@@ -128,6 +134,14 @@ export const RealTimeDashboard = ({ className }: RealTimeDashboardProps) => {
             </Card>
           ))}
         </div>
+      </div>
+    );
+  }
+
+  if (needsSetup) {
+    return (
+      <div className={`${className}`}>
+        <AnalyticsSetupCard onSetupClick={handleSetupClick} />
       </div>
     );
   }
