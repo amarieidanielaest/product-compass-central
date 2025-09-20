@@ -26,8 +26,7 @@ export interface AIInsight {
 
 class AIApiService extends BaseApiService {
   constructor() {
-    // This will be the AI Co-pilot & Generative AI Service microservice URL
-    super('/api/ai');
+    super('https://spubjrvuggyrozoawofp.supabase.co/functions/v1/ai-insights');
   }
 
   async generateContent(request: AIGenerationRequest): Promise<ApiResponse<AIGenerationResponse>> {

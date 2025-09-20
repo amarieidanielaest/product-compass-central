@@ -36,6 +36,8 @@ serve(async (req) => {
       return await handleGetProductHealth(req);
     } else if (path === '/events/analytics' && req.method === 'GET') {
       return await handleGetEventAnalytics(req);
+    } else if (path === '/dashboard-data' && req.method === 'GET') {
+      return await handleGetDashboardData(req);
     }
 
     return new Response(JSON.stringify({ error: 'Not found' }), {
@@ -296,6 +298,40 @@ function groupEventsByTime(events: any[], groupBy: string) {
   });
 
   return Array.from(groups.values()).sort((a, b) => a.date.localeCompare(b.date));
+}
+
+async function handleGetDashboardData(req: Request) {
+  console.log('Getting dashboard data');
+  
+  try {
+    // Get all metrics in parallel
+    const [userMetrics, featureAdoption, productHealth] = await Promise.all([
+      handleGetUserMetrics(new Request(`${req.url}?timeRange=30d`)),
+      handleGetFeatureAdoption(req),
+      handleGetProductHealth(req)
+    ]);
+
+    const userMetricsData = await userMetrics.json();
+    const featureAdoptionData = await featureAdoption.json();  
+    const productHealthData = await productHealth.json();
+
+    const dashboardData = {
+      userMetrics: userMetricsData,
+      featureAdoption: featureAdoptionData,
+      productHealth: productHealthData,
+      lastUpdated: new Date().toISOString()
+    };
+
+    return new Response(JSON.stringify(dashboardData), {
+      headers: { ...corsHeaders, 'Content-Type': 'application/json' },
+    });
+  } catch (error) {
+    console.error('Failed to get dashboard data:', error);
+    return new Response(JSON.stringify({ error: 'Failed to get dashboard data' }), {
+      status: 500,
+      headers: { ...corsHeaders, 'Content-Type': 'application/json' },
+    });
+  }
 }
 
 async function updateFeatureAdoptionMetrics(events: any[]) {

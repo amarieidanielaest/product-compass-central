@@ -19,6 +19,10 @@ import {
 import { useServiceCall } from '@/hooks/useServiceIntegration';
 import { analyticsService } from '@/services/api';
 import { RealTimeDashboard } from '@/components/analytics/RealTimeDashboard';
+import { LiveMetricsWidget } from '@/components/analytics/LiveMetricsWidget';
+import { RealtimeActivityFeed } from '@/components/analytics/RealtimeActivityFeed';
+import { AIInsightsPanel } from '@/components/analytics/AIInsightsPanel';
+import { PredictiveAnalyticsDashboard } from '@/components/analytics/PredictiveAnalyticsDashboard';
 
 interface DashboardProps {
   selectedProductId?: string;
@@ -158,8 +162,46 @@ const Dashboard = ({ selectedProductId, onNavigate }: DashboardProps) => {
         </Tabs>
       </div>
 
-      {/* Real-Time Analytics Dashboard */}
-      <RealTimeDashboard className="mb-8" />
+      <Tabs defaultValue="overview" className="space-y-6">
+        <TabsList className="grid w-full grid-cols-4">
+          <TabsTrigger value="overview">Real-time Overview</TabsTrigger>
+          <TabsTrigger value="predictive">AI Predictions</TabsTrigger>
+          <TabsTrigger value="insights">Smart Insights</TabsTrigger>
+          <TabsTrigger value="performance">Performance</TabsTrigger>
+        </TabsList>
+
+        <TabsContent value="overview">
+          {/* Real-Time Analytics Dashboard */}
+          <div className="grid grid-cols-1 lg:grid-cols-3 gap-6 mb-8">
+            <div className="lg:col-span-2">
+              <RealTimeDashboard />
+            </div>
+            <div className="space-y-6">
+              <LiveMetricsWidget />
+              <RealtimeActivityFeed />
+            </div>
+          </div>
+        </TabsContent>
+
+        <TabsContent value="predictive">
+          <PredictiveAnalyticsDashboard />
+        </TabsContent>
+
+        <TabsContent value="insights">
+          <div className="grid grid-cols-1 lg:grid-cols-3 gap-6">
+            <div className="lg:col-span-2">
+              <PredictiveAnalyticsDashboard />
+            </div>
+            <div>
+              <AIInsightsPanel />
+            </div>
+          </div>
+        </TabsContent>
+
+        <TabsContent value="performance">
+          <RealTimeDashboard />
+        </TabsContent>
+      </Tabs>
 
       {/* Key Metrics Grid */}
       <div className="grid grid-cols-1 sm:grid-cols-2 xl:grid-cols-4 gap-4">
