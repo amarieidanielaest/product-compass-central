@@ -34,6 +34,9 @@ import OrganizationManagement from './OrganizationManagement';
 import KnowledgeCenter from './KnowledgeCenter';
 import { AccessibilityPanel } from './AccessibilityEnhanced';
 import IntegrationsManager from './IntegrationsManager';
+import { NotificationSettings } from './settings/NotificationSettings';
+import { WebhookManagement } from './settings/WebhookManagement'; 
+import { APIManagement } from './settings/APIManagement';
 
 type SettingsSection = 
   | 'overview' 
@@ -147,22 +150,19 @@ const Settings = ({ currentTeamId }: SettingsProps) => {
           id: 'notifications', 
           title: 'Notifications', 
           icon: Bell,
-          description: 'Configure notification preferences',
-          comingSoon: true
+          description: 'Configure notification preferences'
         },
         { 
           id: 'api', 
           title: 'API', 
           icon: Code,
-          description: 'API keys and documentation',
-          comingSoon: true
+          description: 'API keys and documentation'
         },
         { 
           id: 'webhooks', 
           title: 'Webhooks', 
           icon: Webhook,
-          description: 'Configure webhook endpoints',
-          comingSoon: true
+          description: 'Configure webhook endpoints'
         },
       ]
     },
@@ -251,6 +251,12 @@ const Settings = ({ currentTeamId }: SettingsProps) => {
         />;
       case 'integrations':
         return <IntegrationsManager />;
+      case 'notifications':
+        return <NotificationSettings />;
+      case 'api':
+        return <APIManagement />;
+      case 'webhooks':
+        return <WebhookManagement />;
       default:
         return <ComingSoonSection 
           title={visibleSections.flatMap(s => s.items).find(i => i.id === activeSection)?.title || 'Coming Soon'} 
