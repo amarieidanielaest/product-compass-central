@@ -16,7 +16,6 @@ import {
   Loader2
 } from 'lucide-react';
 import { Command, CommandEmpty, CommandGroup, CommandInput, CommandItem, CommandList } from '@/components/ui/command';
-import { Dialog, DialogContent, DialogTrigger } from '@/components/ui/dialog';
 import { Button } from '@/components/ui/button';
 import { Badge } from '@/components/ui/badge';
 import { Avatar, AvatarFallback, AvatarImage } from '@/components/ui/avatar';
@@ -241,8 +240,8 @@ export const JiraLikeSearch = () => {
   };
 
   return (
-    <Dialog open={open} onOpenChange={setOpen}>
-      <DialogTrigger asChild>
+    <Popover open={open} onOpenChange={setOpen}>
+      <PopoverTrigger asChild>
         <Button 
           variant="outline" 
           className="relative h-9 w-9 p-0 xl:h-10 xl:w-60 xl:justify-start xl:px-3 xl:py-2"
@@ -253,8 +252,8 @@ export const JiraLikeSearch = () => {
             <span className="text-xs">⌘</span>K
           </kbd>
         </Button>
-      </DialogTrigger>
-      <DialogContent className="max-w-2xl p-0">
+      </PopoverTrigger>
+      <PopoverContent className="w-[32rem] p-0" align="start" side="bottom" sideOffset={8}>
         <Command className="rounded-lg border-0 shadow-md">
           <div className="flex items-center border-b px-3">
             <Search className="mr-2 h-4 w-4 shrink-0 opacity-50" />
@@ -530,7 +529,7 @@ export const JiraLikeSearch = () => {
             )}
           </CommandList>
         </Command>
-      </DialogContent>
-    </Dialog>
+      </PopoverContent>
+    </Popover>
   );
 };
