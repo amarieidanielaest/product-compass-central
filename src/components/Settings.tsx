@@ -39,6 +39,7 @@ import { WebhookManagement } from './settings/WebhookManagement';
 import { APIManagement } from './settings/APIManagement';
 import { SecuritySettings } from './settings/SecuritySettings';
 import { OrganizationSettings } from './settings/OrganizationSettings';
+import { DangerZone } from './settings/DangerZone';
 
 type SettingsSection = 
   | 'overview' 
@@ -199,8 +200,7 @@ const Settings = ({ currentTeamId }: SettingsProps) => {
           id: 'danger', 
           title: 'Danger Zone', 
           icon: AlertTriangle,
-          description: 'Destructive actions and account deletion',
-          comingSoon: true
+          description: 'Destructive actions and account deletion'
         },
       ]
     },
@@ -261,6 +261,8 @@ const Settings = ({ currentTeamId }: SettingsProps) => {
         return <SecuritySettings />;
       case 'organization':
         return <OrganizationSettings />;
+      case 'danger':
+        return <DangerZone />;
       default:
         return <ComingSoonSection 
           title={visibleSections.flatMap(s => s.items).find(i => i.id === activeSection)?.title || 'Coming Soon'} 
