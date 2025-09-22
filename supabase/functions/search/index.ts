@@ -9,11 +9,21 @@ interface SearchResult {
   id: string;
   title: string;
   description: string;
-  type: 'feedback' | 'article' | 'roadmap' | 'changelog' | 'board' | 'organization';
+  type: 'feedback' | 'article' | 'roadmap' | 'changelog' | 'board' | 'organization' | 'work_item' | 'user';
   url: string;
   createdAt: string;
   relevanceScore: number;
   metadata?: Record<string, any>;
+}
+
+interface SearchFilters {
+  assignee?: string[];
+  reporter?: string[];
+  status?: string[];
+  priority?: string[];
+  dateRange?: string;
+  project?: string[];
+  sprint?: string[];
 }
 
 Deno.serve(async (req) => {
@@ -28,7 +38,7 @@ Deno.serve(async (req) => {
       Deno.env.get('SUPABASE_SERVICE_ROLE_KEY') ?? ''
     )
 
-    const { query, types, limit = 20 } = await req.json();
+    const { query, types, filters, limit = 20 } = await req.json();
     
     if (!query || query.trim().length < 2) {
       return new Response(
@@ -218,6 +228,124 @@ Deno.serve(async (req) => {
             relevanceScore: nameMatch ? 12 : descMatch ? 6 : 1,
             metadata: {
               slug: org.slug
+            }
+          });
+        });
+      }
+    }
+
+    // Search work items
+    if (!types || types.includes('work_item')) {
+      let workItemQuery = supabase
+        .from('work_items_sprint')
+        .select(`
+          id, title, description, created_at, status, priority, item_type,
+          assignee_id, reporter_id, sprint_id,
+          profiles!work_items_sprint_assignee_id_fkey(first_name, last_name),
+          profiles!work_items_sprint_reporter_id_fkey(first_name, last_name)
+        `)
+        .or(`title.ilike.%${searchQuery}%, description.ilike.%${searchQuery}%`);
+
+      // Apply filters
+      if (filters?.assignee && filters.assignee.length > 0) {
+        workItemQuery = workItemQuery.in('assignee_id', filters.assignee);
+      }
+      if (filters?.reporter && filters.reporter.length > 0) {
+        workItemQuery = workItemQuery.in('reporter_id', filters.reporter);
+      }
+      if (filters?.status && filters.status.length > 0) {
+        workItemQuery = workItemQuery.in('status', filters.status);
+      }
+      if (filters?.priority && filters.priority.length > 0) {
+        workItemQuery = workItemQuery.in('priority', filters.priority);
+      }
+      if (filters?.sprint && filters.sprint.length > 0) {
+        workItemQuery = workItemQuery.in('sprint_id', filters.sprint);
+      }
+
+      // Apply date range filter
+      if (filters?.dateRange && filters.dateRange !== 'all') {
+        const now = new Date();
+        let startDate: Date;
+        
+        switch (filters.dateRange) {
+          case 'today':
+            startDate = new Date(now.setHours(0, 0, 0, 0));
+            break;
+          case 'week':
+            startDate = new Date(now.setDate(now.getDate() - 7));
+            break;
+          case 'month':
+            startDate = new Date(now.setMonth(now.getMonth() - 1));
+            break;
+          case 'quarter':
+            startDate = new Date(now.setMonth(now.getMonth() - 3));
+            break;
+          default:
+            startDate = new Date(0);
+        }
+        
+        workItemQuery = workItemQuery.gte('created_at', startDate.toISOString());
+      }
+
+      const { data: workItems } = await workItemQuery.limit(limit);
+
+      if (workItems) {
+        workItems.forEach(item => {
+          const titleMatch = item.title?.toLowerCase().includes(searchQuery);
+          const descMatch = item.description?.toLowerCase().includes(searchQuery);
+          
+          const assigneeName = item.profiles?.first_name && item.profiles?.last_name 
+            ? `${item.profiles.first_name} ${item.profiles.last_name}` 
+            : 'Unassigned';
+          
+          results.push({
+            id: item.id,
+            title: item.title || 'Untitled Work Item',
+            description: item.description || 'No description',
+            type: 'work_item',
+            url: `/sprint/work-item/${item.id}`,
+            createdAt: item.created_at,
+            relevanceScore: titleMatch ? 15 : descMatch ? 8 : 1,
+            metadata: {
+              status: item.status,
+              priority: item.priority,
+              itemType: item.item_type,
+              assignee: assigneeName,
+              sprintId: item.sprint_id
+            }
+          });
+        });
+      }
+    }
+
+    // Search users/profiles
+    if (!types || types.includes('user')) {
+      const { data: users } = await supabase
+        .from('profiles')
+        .select('id, email, first_name, last_name, avatar_url, created_at')
+        .or(`first_name.ilike.%${searchQuery}%, last_name.ilike.%${searchQuery}%, email.ilike.%${searchQuery}%`)
+        .limit(limit);
+
+      if (users) {
+        users.forEach(user => {
+          const firstNameMatch = user.first_name?.toLowerCase().includes(searchQuery);
+          const lastNameMatch = user.last_name?.toLowerCase().includes(searchQuery);
+          const emailMatch = user.email?.toLowerCase().includes(searchQuery);
+          
+          const fullName = [user.first_name, user.last_name].filter(Boolean).join(' ') || 'Unknown User';
+          
+          results.push({
+            id: user.id,
+            title: fullName,
+            description: user.email || 'No email',
+            type: 'user',
+            url: `/users/${user.id}`,
+            createdAt: user.created_at,
+            relevanceScore: firstNameMatch || lastNameMatch ? 10 : emailMatch ? 8 : 1,
+            metadata: {
+              email: user.email,
+              avatarUrl: user.avatar_url
             }
           });
         });

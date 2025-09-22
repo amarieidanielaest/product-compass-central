@@ -1,5 +1,5 @@
 import React from 'react';
-import { Bell, ChevronDown, LogOut, Plus, Search, Settings, User, Home } from 'lucide-react';
+import { Bell, ChevronDown, LogOut, Plus, Settings, User, Home } from 'lucide-react';
 import {
   Breadcrumb,
   BreadcrumbList,
@@ -9,7 +9,6 @@ import {
   BreadcrumbPage,
 } from '@/components/ui/breadcrumb';
 import { Button } from '@/components/ui/button';
-import { Input } from '@/components/ui/input';
 import { Avatar, AvatarFallback, AvatarImage } from '@/components/ui/avatar';
 import {
   DropdownMenu,
@@ -24,6 +23,7 @@ import {
   TooltipProvider,
   TooltipTrigger,
 } from '@/components/ui/tooltip';
+import { JiraLikeSearch } from './search/JiraLikeSearch';
 
 interface BreadcrumbItem {
   label: string;
@@ -77,16 +77,7 @@ const PageHeader = ({ title, subtitle, breadcrumbs }: PageHeaderProps) => {
           <div className="flex items-center gap-2">
             {/* Global Search */}
             <div className="hidden lg:flex items-center gap-2">
-              <div className="relative">
-                <Search className="absolute left-3 top-1/2 transform -translate-y-1/2 text-muted-foreground w-4 h-4" />
-                <Input
-                  placeholder="Search..."
-                  className="pl-10 h-8 w-64 bg-muted/50 border-border/50 focus:border-primary focus:ring-1 focus:ring-primary/20 text-sm"
-                />
-                <kbd className="absolute right-3 top-1/2 transform -translate-y-1/2 pointer-events-none inline-flex h-4 select-none items-center gap-1 rounded border bg-muted px-1.5 font-mono text-[10px] font-medium text-muted-foreground opacity-100">
-                  ⌘K
-                </kbd>
-              </div>
+              <JiraLikeSearch />
             </div>
 
             {/* Quick Actions */}
