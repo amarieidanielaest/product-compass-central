@@ -37,6 +37,8 @@ import IntegrationsManager from './IntegrationsManager';
 import { NotificationSettings } from './settings/NotificationSettings';
 import { WebhookManagement } from './settings/WebhookManagement'; 
 import { APIManagement } from './settings/APIManagement';
+import { SecuritySettings } from './settings/SecuritySettings';
+import { OrganizationSettings } from './settings/OrganizationSettings';
 
 type SettingsSection = 
   | 'overview' 
@@ -114,8 +116,7 @@ const Settings = ({ currentTeamId }: SettingsProps) => {
           id: 'organization', 
           title: 'Organization Access', 
           icon: Building,
-          description: 'Organization-wide settings and access controls',
-          comingSoon: true
+          description: 'Organization-wide settings and access controls'
         },
       ]
     },
@@ -132,8 +133,7 @@ const Settings = ({ currentTeamId }: SettingsProps) => {
           id: 'security', 
           title: 'Auth & Security', 
           icon: Lock,
-          description: 'SSO, 2FA, and security settings',
-          comingSoon: true
+          description: 'SSO, 2FA, and security settings'
         },
       ]
     },
@@ -257,6 +257,10 @@ const Settings = ({ currentTeamId }: SettingsProps) => {
         return <APIManagement />;
       case 'webhooks':
         return <WebhookManagement />;
+      case 'security':
+        return <SecuritySettings />;
+      case 'organization':
+        return <OrganizationSettings />;
       default:
         return <ComingSoonSection 
           title={visibleSections.flatMap(s => s.items).find(i => i.id === activeSection)?.title || 'Coming Soon'} 
