@@ -40,3 +40,6 @@ verify_jwt = false
 
 [functions.sprint-api]
 verify_jwt = false
+
+[functions.configure-auth-security]
+verify_jwt = true
