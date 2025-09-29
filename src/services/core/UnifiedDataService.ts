@@ -119,6 +119,32 @@ class UnifiedDataService {
     }
   }
 
+  async createEntity(entity: DataEntity): Promise<string> {
+    const response = await dataManagementService.createEntity(entity);
+    return response.success ? response.data.id : '';
+  }
+
+  async getEntity(id: string, includeRelationships: boolean = false): Promise<any> {
+    return await dataManagementService.getEntity(id, includeRelationships);
+  }
+
+  async updateEntity(id: string, updates: any): Promise<void> {
+    await dataManagementService.updateEntity(id, updates);
+  }
+
+  async createRelationship(relationship: {
+    sourceId: string;
+    targetId: string;
+    type: string;
+    metadata?: Record<string, any>;
+  }): Promise<void> {
+    await dataManagementService.createRelationship(
+      relationship.sourceId,
+      relationship.targetId,
+      relationship.type
+    );
+  }
+
   async createDataPipeline(pipeline: Omit<DataPipeline, 'id'>): Promise<string> {
     const id = `pipeline_${Date.now()}_${Math.random().toString(36).substr(2, 9)}`;
     const fullPipeline: DataPipeline = { ...pipeline, id };
@@ -132,98 +158,16 @@ class UnifiedDataService {
     return id;
   }
 
-  async activatePipeline(pipelineId: string): Promise<void> {
-    const pipeline = this.pipelines.get(pipelineId);
-    if (!pipeline) {
-      throw new Error(`Pipeline ${pipelineId} not found`);
-    }
+  private calculateQueryComplexity(query: UnifiedDataQuery): number {
+    let complexity = 0;
+    
+    complexity += query.entities.length * 2;
+    complexity += query.relationships ? 5 : 0;
+    complexity += (query.aggregations?.length || 0) * 3;
+    complexity += query.search ? 2 : 0;
+    complexity += Object.keys(query.filters || {}).length;
 
-    // Set up real-time data ingestion if source is realtime
-    if (pipeline.source.type === 'realtime') {
-      await this.setupRealtimeIngestion(pipeline);
-    }
-
-    // Set up scheduled processing if schedule is defined
-    if (pipeline.schedule) {
-      this.setupScheduledProcessing(pipeline);
-    }
-
-    pipeline.isActive = true;
-  }
-
-  async deactivatePipeline(pipelineId: string): Promise<void> {
-    const pipeline = this.pipelines.get(pipelineId);
-    if (!pipeline) return;
-
-    // Clean up real-time subscriptions
-    const subscription = this.realtimeSubscriptions.get(pipelineId);
-    if (subscription) {
-      await supabase.removeChannel(subscription);
-      this.realtimeSubscriptions.delete(pipelineId);
-    }
-
-    pipeline.isActive = false;
-  }
-
-  async processDataTransformation(
-    data: any[],
-    transformations: DataPipeline['transformations']
-  ): Promise<any[]> {
-    let processedData = [...data];
-
-    for (const transformation of transformations) {
-      switch (transformation.type) {
-        case 'filter':
-          processedData = this.applyFilter(processedData, transformation.config);
-          break;
-        case 'map':
-          processedData = this.applyMapping(processedData, transformation.config);
-          break;
-        case 'aggregate':
-          processedData = this.applyAggregation(processedData, transformation.config);
-          break;
-        case 'join':
-          processedData = await this.applyJoin(processedData, transformation.config);
-          break;
-        case 'validate':
-          processedData = this.applyValidation(processedData, transformation.config);
-          break;
-      }
-    }
-
-    return processedData;
-  }
-
-  async getDataLineage(entityId: string): Promise<{
-    upstream: Array<{ id: string; type: string; relationship: string }>;
-    downstream: Array<{ id: string; type: string; relationship: string }>;
-  }> {
-    const entity = await dataManagementService.getEntity(entityId, true);
-    if (!entity.success) {
-      throw new Error(`Entity ${entityId} not found`);
-    }
-
-    const relationships = entity.data.relationships;
-    const upstream: any[] = [];
-    const downstream: any[] = [];
-
-    for (const rel of relationships) {
-      if (rel.type === 'depends_on' || rel.type === 'child_of') {
-        upstream.push({
-          id: rel.targetId,
-          type: rel.targetType,
-          relationship: rel.type
-        });
-      } else {
-        downstream.push({
-          id: rel.targetId,
-          type: rel.targetType,
-          relationship: rel.type
-        });
-      }
-    }
-
-    return { upstream, downstream };
+    return complexity;
   }
 
   private async extractRelationships(entityResults: any[]): Promise<any[]> {
@@ -291,16 +235,23 @@ class UnifiedDataService {
     return results;
   }
 
-  private calculateQueryComplexity(query: UnifiedDataQuery): number {
-    let complexity = 0;
-    
-    complexity += query.entities.length * 2; // Base complexity per entity
-    complexity += query.relationships ? 5 : 0; // Relationship queries add complexity
-    complexity += (query.aggregations?.length || 0) * 3; // Aggregations add complexity
-    complexity += query.search ? 2 : 0; // Search adds complexity
-    complexity += Object.keys(query.filters || {}).length; // Filters add complexity
+  private async activatePipeline(pipelineId: string): Promise<void> {
+    const pipeline = this.pipelines.get(pipelineId);
+    if (!pipeline) {
+      throw new Error(`Pipeline ${pipelineId} not found`);
+    }
 
-    return complexity;
+    // Set up real-time data ingestion if source is realtime
+    if (pipeline.source.type === 'realtime') {
+      await this.setupRealtimeIngestion(pipeline);
+    }
+
+    // Set up scheduled processing if schedule is defined
+    if (pipeline.schedule) {
+      this.setupScheduledProcessing(pipeline);
+    }
+
+    pipeline.isActive = true;
   }
 
   private async setupRealtimeIngestion(pipeline: DataPipeline): Promise<void> {
@@ -353,6 +304,35 @@ class UnifiedDataService {
         console.error(`Scheduled pipeline ${pipeline.id} failed:`, error);
       }
     }, pipeline.schedule.interval * 1000);
+  }
+
+  private async processDataTransformation(
+    data: any[],
+    transformations: DataPipeline['transformations']
+  ): Promise<any[]> {
+    let processedData = [...data];
+
+    for (const transformation of transformations) {
+      switch (transformation.type) {
+        case 'filter':
+          processedData = this.applyFilter(processedData, transformation.config);
+          break;
+        case 'map':
+          processedData = this.applyMapping(processedData, transformation.config);
+          break;
+        case 'aggregate':
+          processedData = this.applyAggregation(processedData, transformation.config);
+          break;
+        case 'join':
+          processedData = await this.applyJoin(processedData, transformation.config);
+          break;
+        case 'validate':
+          processedData = this.applyValidation(processedData, transformation.config);
+          break;
+      }
+    }
+
+    return processedData;
   }
 
   private async fetchFromSource(source: DataPipeline['source']): Promise<any[]> {

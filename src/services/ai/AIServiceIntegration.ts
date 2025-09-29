@@ -1,444 +1,291 @@
-import { aiService } from '../api/AIService';
-import { unifiedDataService } from '../core/UnifiedDataService';
-import { dataManagementService } from '../core/DataManagementService';
-import { authenticationService } from '../core/AuthenticationService';
+import { supabase } from '@/integrations/supabase/client';
 
-export interface AIInsightRequest {
-  type: 'feedback_analysis' | 'user_behavior' | 'product_health' | 'roadmap_optimization' | 'competitive_analysis';
-  data: {
-    entityIds?: string[];
-    timeRange?: { start: string; end: string };
-    context?: Record<string, any>;
-    filters?: Record<string, any>;
-  };
-  config: {
-    model?: string;
-    temperature?: number;
-    maxTokens?: number;
-    includeConfidence?: boolean;
-    format?: 'summary' | 'detailed' | 'actionable';
-  };
+export interface AIAnalysisResult {
+  success: boolean;
+  data?: any;
+  message?: string;
+  confidence?: number;
+  metadata?: Record<string, any>;
 }
 
 export interface AIInsight {
   id: string;
-  type: string;
+  type: 'trend' | 'anomaly' | 'recommendation' | 'prediction';
   title: string;
-  summary: string;
+  description: string;
   confidence: number;
-  insights: Array<{
-    category: string;
-    finding: string;
-    impact: 'high' | 'medium' | 'low';
-    recommendation: string;
-    dataSupport: {
-      metrics: Record<string, number>;
-      trends: Record<string, any>;
-      sources: string[];
-    };
-  }>;
-  metadata: {
-    modelUsed: string;
-    processingTime: number;
-    dataPoints: number;
-    generatedAt: string;
-  };
+  impact: 'low' | 'medium' | 'high' | 'critical';
+  actionable: boolean;
+  data: Record<string, any>;
+  generatedAt: Date;
 }
 
-export interface SmartNotification {
-  id: string;
-  userId: string;
-  title: string;
-  message: string;
-  priority: 'high' | 'medium' | 'low';
-  category: 'insight' | 'alert' | 'recommendation' | 'update';
-  actionable: boolean;
-  actions?: Array<{
-    label: string;
-    type: 'navigate' | 'execute' | 'dismiss';
-    payload: Record<string, any>;
-  }>;
-  relatedEntities: string[];
-  expiresAt?: string;
+export interface DataPattern {
+  pattern: string;
+  frequency: number;
+  strength: number;
+  predictive: boolean;
+  metadata: Record<string, any>;
 }
 
 class AIServiceIntegration {
-  private insightCache: Map<string, { insight: AIInsight; expiresAt: number }> = new Map();
-  private processingQueue: Map<string, AIInsightRequest> = new Map();
+  private readonly baseUrl = 'https://spubjrvuggyrozoawofp.supabase.co/functions/v1';
+  private insights: Map<string, AIInsight> = new Map();
+  private patterns: Map<string, DataPattern> = new Map();
 
-  async generateInsights(request: AIInsightRequest): Promise<AIInsight> {
-    // Check cache first
-    const cacheKey = this.generateCacheKey(request);
-    const cached = this.insightCache.get(cacheKey);
-    if (cached && cached.expiresAt > Date.now()) {
-      return cached.insight;
-    }
-
-    // Add to processing queue
-    const requestId = `req_${Date.now()}_${Math.random().toString(36).substr(2, 9)}`;
-    this.processingQueue.set(requestId, request);
-
+  async callAIService(endpoint: string, payload: any): Promise<any> {
     try {
-      const startTime = Date.now();
-      
-      // Gather relevant data
-      const contextData = await this.gatherContextData(request);
-      
-      // Generate AI insights
-      const aiResponse = await this.processWithAI(request, contextData);
-      
-      // Structure the insight response
-      const insight: AIInsight = {
-        id: requestId,
-        type: request.type,
-        title: aiResponse.title || `${request.type.replace('_', ' ')} Analysis`,
-        summary: aiResponse.summary,
-        confidence: aiResponse.confidence || 0.8,
-        insights: this.structureInsights(aiResponse.insights || []),
-        metadata: {
-          modelUsed: request.config.model || 'gpt-4',
-          processingTime: Date.now() - startTime,
-          dataPoints: contextData.totalDataPoints,
-          generatedAt: new Date().toISOString()
+      const { data, error } = await supabase.functions.invoke('ai-insights', {
+        body: {
+          action: endpoint,
+          payload
         }
-      };
-
-      // Cache the result
-      this.insightCache.set(cacheKey, {
-        insight,
-        expiresAt: Date.now() + (30 * 60 * 1000) // 30 minutes
       });
 
-      // Generate smart notifications if needed
-      await this.generateSmartNotifications(insight);
-
-      return insight;
-
-    } finally {
-      this.processingQueue.delete(requestId);
-    }
-  }
-
-  async generateSmartNotifications(insight: AIInsight): Promise<SmartNotification[]> {
-    const user = await authenticationService.getCurrentUser();
-    if (!user) return [];
-
-    const notifications: SmartNotification[] = [];
-
-    // Generate notifications for high-impact insights
-    const highImpactInsights = insight.insights.filter(i => i.impact === 'high');
-    
-    for (const finding of highImpactInsights) {
-      const notification: SmartNotification = {
-        id: `notif_${Date.now()}_${Math.random().toString(36).substr(2, 9)}`,
-        userId: user.id,
-        title: `High Impact Finding: ${finding.category}`,
-        message: finding.finding,
-        priority: 'high',
-        category: 'insight',
-        actionable: true,
-        actions: this.generateNotificationActions(finding, insight),
-        relatedEntities: [insight.id],
-        expiresAt: new Date(Date.now() + 24 * 60 * 60 * 1000).toISOString() // 24 hours
-      };
-
-      notifications.push(notification);
-    }
-
-    // Store notifications (would integrate with notification service)
-    return notifications;
-  }
-
-  async processAutomaticInsights(): Promise<void> {
-    // Automatic insight generation for key metrics
-    const user = await authenticationService.getCurrentUser();
-    if (!user) return;
-
-    const automaticInsights = [
-      {
-        type: 'feedback_analysis' as const,
-        schedule: 'daily',
-        condition: async () => {
-          // Check if there's new feedback in the last 24 hours
-          const result = await unifiedDataService.executeUnifiedQuery({
-            entities: ['feedback'],
-            filters: {
-              createdAt: { gte: new Date(Date.now() - 24 * 60 * 60 * 1000).toISOString() }
-            },
-            limit: 1
-          });
-          return result.metadata.totalCount > 0;
-        }
-      },
-      {
-        type: 'product_health' as const,
-        schedule: 'weekly',
-        condition: async () => true // Always run weekly health checks
-      }
-    ];
-
-    for (const autoInsight of automaticInsights) {
-      if (await autoInsight.condition()) {
-        const request: AIInsightRequest = {
-          type: autoInsight.type,
-          data: {
-            timeRange: {
-              start: new Date(Date.now() - 7 * 24 * 60 * 60 * 1000).toISOString(),
-              end: new Date().toISOString()
-            }
-          },
-          config: {
-            format: 'summary',
-            includeConfidence: true
-          }
-        };
-
-        try {
-          await this.generateInsights(request);
-        } catch (error) {
-          console.error(`Automatic insight generation failed for ${autoInsight.type}:`, error);
-        }
-      }
-    }
-  }
-
-  async getInsightHistory(type?: string, limit = 10): Promise<AIInsight[]> {
-    // In a real implementation, this would query from database
-    const cachedInsights = Array.from(this.insightCache.values())
-      .map(cached => cached.insight)
-      .filter(insight => !type || insight.type === type)
-      .sort((a, b) => new Date(b.metadata.generatedAt).getTime() - new Date(a.metadata.generatedAt).getTime())
-      .slice(0, limit);
-
-    return cachedInsights;
-  }
-
-  private async gatherContextData(request: AIInsightRequest): Promise<{
-    entities: Record<string, any[]>;
-    relationships: any[];
-    metrics: Record<string, number>;
-    totalDataPoints: number;
-  }> {
-    const contextData = {
-      entities: {} as Record<string, any[]>,
-      relationships: [] as any[],
-      metrics: {} as Record<string, number>,
-      totalDataPoints: 0
-    };
-
-    // Determine relevant entities based on insight type
-    const relevantEntities = this.getRelevantEntities(request.type);
-    
-    // Query unified data
-    const dataResult = await unifiedDataService.executeUnifiedQuery({
-      entities: relevantEntities,
-      relationships: true,
-      filters: request.data.filters,
-      limit: 1000 // Reasonable limit for AI processing
-    });
-
-    contextData.entities = dataResult.entities;
-    contextData.relationships = dataResult.relationships;
-    contextData.totalDataPoints = dataResult.metadata.totalCount;
-
-    // Calculate relevant metrics
-    contextData.metrics = this.calculateRelevantMetrics(dataResult, request.type);
-
-    return contextData;
-  }
-
-  private async processWithAI(request: AIInsightRequest, contextData: any): Promise<any> {
-    const prompt = this.buildAIPrompt(request, contextData);
-    
-    const response = await aiService.generateContent({
-      type: 'insights',
-      context: contextData,
-      prompt
-    });
-
-    if (!response.success) {
-      throw new Error(`AI processing failed: ${response.message}`);
-    }
-
-    try {
-      return JSON.parse(response.data.content);
+      if (error) throw error;
+      return data;
     } catch (error) {
-      // Fallback to structured parsing if JSON parsing fails
-      return this.parseAIResponse(response.data.content);
+      console.error(`AI service call failed for ${endpoint}:`, error);
+      throw error;
     }
   }
 
-  private buildAIPrompt(request: AIInsightRequest, contextData: any): string {
-    const basePrompt = `As a product management AI assistant, analyze the following data and provide insights for ${request.type}.
-
-Context Data:
-- Total data points: ${contextData.totalDataPoints}
-- Entities: ${Object.keys(contextData.entities).join(', ')}
-- Key metrics: ${JSON.stringify(contextData.metrics, null, 2)}
-- Relationships: ${contextData.relationships.length} connections found
-
-Please provide your analysis in the following JSON format:
-{
-  "title": "Analysis Title",
-  "summary": "Executive summary of findings",
-  "confidence": 0.85,
-  "insights": [
-    {
-      "category": "Category Name",
-      "finding": "Specific finding",
-      "impact": "high|medium|low",
-      "recommendation": "Actionable recommendation",
-      "dataSupport": {
-        "metrics": {"key": value},
-        "trends": {"trend": "description"},
-        "sources": ["data source references"]
-      }
-    }
-  ]
-}`;
-
-    // Add type-specific context
-    switch (request.type) {
-      case 'feedback_analysis':
-        return `${basePrompt}
-
-Focus on:
-- Sentiment trends and patterns
-- Feature request priorities
-- Customer satisfaction indicators
-- Recurring themes and issues`;
-
-      case 'user_behavior':
-        return `${basePrompt}
-
-Focus on:
-- Usage patterns and engagement
-- Feature adoption rates
-- User journey bottlenecks
-- Churn risk indicators`;
-
-      case 'product_health':
-        return `${basePrompt}
-
-Focus on:
-- Performance metrics trends
-- Quality indicators
-- User satisfaction scores
-- Technical debt assessment`;
-
-      default:
-        return basePrompt;
-    }
-  }
-
-  private structureInsights(rawInsights: any[]): AIInsight['insights'] {
-    return rawInsights.map(insight => ({
-      category: insight.category || 'General',
-      finding: insight.finding || '',
-      impact: insight.impact || 'medium',
-      recommendation: insight.recommendation || '',
-      dataSupport: {
-        metrics: insight.dataSupport?.metrics || {},
-        trends: insight.dataSupport?.trends || {},
-        sources: insight.dataSupport?.sources || []
-      }
-    }));
-  }
-
-  private generateNotificationActions(finding: any, insight: AIInsight): SmartNotification['actions'] {
-    const actions: SmartNotification['actions'] = [
-      {
-        label: 'View Full Analysis',
-        type: 'navigate',
-        payload: { route: `/insights/${insight.id}` }
-      }
-    ];
-
-    // Add context-specific actions based on finding category
-    if (finding.category.toLowerCase().includes('feedback')) {
-      actions.push({
-        label: 'Review Feedback',
-        type: 'navigate',
-        payload: { route: '/feedback', filter: finding.category }
+  async analyzeDataPatterns(data: any[]): Promise<AIAnalysisResult> {
+    try {
+      const result = await this.callAIService('pattern-analysis', {
+        data,
+        analysisType: 'comprehensive'
       });
-    }
 
-    if (finding.category.toLowerCase().includes('roadmap')) {
-      actions.push({
-        label: 'Update Roadmap',
-        type: 'navigate',
-        payload: { route: '/roadmap' }
+      const patterns = result.patterns?.map((p: any) => ({
+        pattern: p.description,
+        frequency: p.frequency,
+        strength: p.confidence,
+        predictive: p.predictive || false,
+        metadata: p.metadata || {}
+      })) || [];
+
+      patterns.forEach((pattern: DataPattern) => {
+        const id = `pattern_${Date.now()}_${Math.random().toString(36).substr(2, 9)}`;
+        this.patterns.set(id, pattern);
       });
+
+      return {
+        success: true,
+        data: { patterns, summary: result.summary },
+        confidence: result.confidence || 0.8
+      };
+    } catch (error) {
+      return {
+        success: false,
+        message: error instanceof Error ? error.message : 'Pattern analysis failed'
+      };
+    }
+  }
+
+  async generatePredictiveInsights(
+    historicalData: any[],
+    timeframe: 'week' | 'month' | 'quarter'
+  ): Promise<AIAnalysisResult> {
+    try {
+      const result = await this.callAIService('predictive-analysis', {
+        data: historicalData,
+        timeframe,
+        modelType: 'time-series'
+      });
+
+      const insights = result.predictions?.map((pred: any) => ({
+        id: `insight_${Date.now()}_${Math.random().toString(36).substr(2, 9)}`,
+        type: 'prediction' as const,
+        title: pred.title,
+        description: pred.description,
+        confidence: pred.confidence,
+        impact: pred.impact || 'medium',
+        actionable: pred.actionable || false,
+        data: pred.data || {},
+        generatedAt: new Date()
+      })) || [];
+
+      insights.forEach((insight: AIInsight) => {
+        this.insights.set(insight.id, insight);
+      });
+
+      return {
+        success: true,
+        data: { insights, predictions: result.predictions },
+        confidence: result.confidence || 0.7
+      };
+    } catch (error) {
+      return {
+        success: false,
+        message: error instanceof Error ? error.message : 'Predictive analysis failed'
+      };
+    }
+  }
+
+  async generateRecommendations(context: {
+    data: any[];
+    goals: string[];
+    constraints: string[];
+  }): Promise<AIAnalysisResult> {
+    try {
+      const result = await this.callAIService('recommendation-engine', {
+        ...context,
+        analysisType: 'actionable'
+      });
+
+      const recommendations = result.recommendations?.map((rec: any) => ({
+        id: `rec_${Date.now()}_${Math.random().toString(36).substr(2, 9)}`,
+        type: 'recommendation' as const,
+        title: rec.title,
+        description: rec.description,
+        confidence: rec.confidence,
+        impact: rec.impact || 'medium',
+        actionable: true,
+        data: {
+          priority: rec.priority,
+          effort: rec.effort,
+          timeline: rec.timeline,
+          expectedOutcome: rec.expectedOutcome
+        },
+        generatedAt: new Date()
+      })) || [];
+
+      recommendations.forEach((rec: AIInsight) => {
+        this.insights.set(rec.id, rec);
+      });
+
+      return {
+        success: true,
+        data: { recommendations },
+        confidence: result.confidence || 0.75
+      };
+    } catch (error) {
+      return {
+        success: false,
+        message: error instanceof Error ? error.message : 'Recommendation generation failed'
+      };
+    }
+  }
+
+  async detectAnomalies(data: any[], baseline?: any[]): Promise<AIAnalysisResult> {
+    try {
+      const result = await this.callAIService('anomaly-detection', {
+        data,
+        baseline,
+        sensitivity: 'medium'
+      });
+
+      const anomalies = result.anomalies?.map((anomaly: any) => ({
+        id: `anomaly_${Date.now()}_${Math.random().toString(36).substr(2, 9)}`,
+        type: 'anomaly' as const,
+        title: `Anomaly detected: ${anomaly.metric}`,
+        description: anomaly.description,
+        confidence: anomaly.confidence,
+        impact: anomaly.severity || 'medium',
+        actionable: anomaly.actionable || false,
+        data: {
+          metric: anomaly.metric,
+          expectedValue: anomaly.expected,
+          actualValue: anomaly.actual,
+          deviation: anomaly.deviation
+        },
+        generatedAt: new Date()
+      })) || [];
+
+      anomalies.forEach((anomaly: AIInsight) => {
+        this.insights.set(anomaly.id, anomaly);
+      });
+
+      return {
+        success: true,
+        data: { anomalies },
+        confidence: result.confidence || 0.8
+      };
+    } catch (error) {
+      return {
+        success: false,
+        message: error instanceof Error ? error.message : 'Anomaly detection failed'
+      };
+    }
+  }
+
+  async getInsights(filters?: {
+    type?: AIInsight['type'];
+    impact?: AIInsight['impact'];
+    actionable?: boolean;
+    since?: Date;
+  }): Promise<AIInsight[]> {
+    let insights = Array.from(this.insights.values());
+
+    if (filters) {
+      if (filters.type) {
+        insights = insights.filter(i => i.type === filters.type);
+      }
+      if (filters.impact) {
+        insights = insights.filter(i => i.impact === filters.impact);
+      }
+      if (filters.actionable !== undefined) {
+        insights = insights.filter(i => i.actionable === filters.actionable);
+      }
+      if (filters.since) {
+        insights = insights.filter(i => i.generatedAt >= filters.since!);
+      }
     }
 
-    return actions;
+    return insights.sort((a, b) => b.generatedAt.getTime() - a.generatedAt.getTime());
   }
 
-  private getRelevantEntities(type: string): string[] {
-    const entityMap: Record<string, string[]> = {
-      feedback_analysis: ['feedback', 'user', 'product'],
-      user_behavior: ['user', 'product', 'experiment'],
-      product_health: ['product', 'feedback', 'okr'],
-      roadmap_optimization: ['roadmap', 'feedback', 'okr'],
-      competitive_analysis: ['product', 'feedback', 'roadmap']
-    };
-
-    return entityMap[type] || ['product', 'feedback', 'user'];
-  }
-
-  private calculateRelevantMetrics(dataResult: any, type: string): Record<string, number> {
-    const metrics: Record<string, number> = {};
-
-    // Calculate common metrics
-    metrics.totalEntities = dataResult.metadata.totalCount;
-    metrics.relationshipsCount = dataResult.relationships.length;
-
-    // Calculate type-specific metrics
-    switch (type) {
-      case 'feedback_analysis':
-        if (dataResult.entities.feedback) {
-          const feedback = dataResult.entities.feedback;
-          metrics.totalFeedback = feedback.length;
-          metrics.positiveFeedback = feedback.filter((f: any) => f.data.sentiment === 'positive').length;
-          metrics.negativeFeedback = feedback.filter((f: any) => f.data.sentiment === 'negative').length;
-        }
-        break;
-
-      case 'user_behavior':
-        if (dataResult.entities.user) {
-          const users = dataResult.entities.user;
-          metrics.totalUsers = users.length;
-          metrics.activeUsers = users.filter((u: any) => u.data.lastActive && 
-            new Date(u.data.lastActive) > new Date(Date.now() - 30 * 24 * 60 * 60 * 1000)).length;
-        }
-        break;
+  async analyzeStrategicAlignment(params: {
+    initiative: any;
+    context: string;
+  }): Promise<AIAnalysisResult> {
+    try {
+      const analysis = await this.callAIService('strategic-analysis', {
+        type: 'alignment',
+        data: params
+      });
+      return { success: true, data: analysis };
+    } catch (error) {
+      return { success: false, message: error instanceof Error ? error.message : 'Analysis failed' };
     }
-
-    return metrics;
   }
 
-  private parseAIResponse(content: string): any {
-    // Fallback parsing for non-JSON responses
-    return {
-      title: 'AI Analysis',
-      summary: content.substring(0, 200),
-      confidence: 0.7,
-      insights: [{
-        category: 'General',
-        finding: content,
-        impact: 'medium' as const,
-        recommendation: 'Review the analysis and take appropriate action',
-        dataSupport: {
-          metrics: {},
-          trends: {},
-          sources: []
-        }
-      }]
-    };
+  async analyzeOKRAlignment(params: {
+    initiativeId: string;
+    objectiveId: string;
+  }): Promise<AIAnalysisResult> {
+    try {
+      const analysis = await this.callAIService('okr-alignment', params);
+      return { success: true, data: analysis };
+    } catch (error) {
+      return { success: false, message: error instanceof Error ? error.message : 'Analysis failed' };
+    }
   }
 
-  private generateCacheKey(request: AIInsightRequest): string {
-    return `${request.type}_${JSON.stringify(request.data)}_${JSON.stringify(request.config)}`;
+  async generateStrategicRecommendations(params: {
+    initiatives: any[];
+    okrs: any[];
+    metrics: any;
+  }): Promise<AIAnalysisResult> {
+    try {
+      const recommendations = await this.callAIService('strategic-recommendations', params);
+      return { success: true, data: recommendations };
+    } catch (error) {
+      return { success: false, message: error instanceof Error ? error.message : 'Generation failed' };
+    }
+  }
+
+  async generateStrategicInsights(params: {
+    roadmap: any;
+    historicalData: any[];
+  }): Promise<AIAnalysisResult> {
+    try {
+      const insights = await this.callAIService('strategic-insights', params);
+      return { success: true, data: insights };
+    } catch (error) {
+      return { success: false, message: error instanceof Error ? error.message : 'Generation failed' };
+    }
   }
 }
 
