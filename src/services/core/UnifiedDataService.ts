@@ -135,7 +135,7 @@ class UnifiedDataService {
   async createRelationship(relationship: {
     sourceId: string;
     targetId: string;
-    type: string;
+    type: 'depends_on' | 'related_to' | 'child_of' | 'linked_to';
     metadata?: Record<string, any>;
   }): Promise<void> {
     await dataManagementService.createRelationship(

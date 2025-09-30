@@ -215,9 +215,10 @@ class StrategicRoadmapService {
     await unifiedDataService.createRelationship({
       sourceId: initiativeId,
       targetId: objectiveId,
-      type: 'supports',
+      type: 'linked_to',
       metadata: {
         alignmentType: 'strategic',
+        relationshipSubtype: 'supports',
         createdAt: new Date().toISOString()
       }
     });

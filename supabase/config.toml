@@ -43,3 +43,12 @@ verify_jwt = false
 
 [functions.configure-auth-security]
 verify_jwt = true
+
+[functions.enterprise-api]
+verify_jwt = true
+
+[functions.strategy-api]
+verify_jwt = true
+
+[functions.unified-data]
+verify_jwt = true
