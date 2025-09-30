@@ -1,6 +1,5 @@
 
-import { aiService } from '@/services/api/AIService';
-import { analyticsService } from '@/services/api/AnalyticsService';
+import { supabase } from '@/integrations/supabase/client';
 import { eventTracker } from '@/services/analytics/EventTracker';
 
 export interface AICopilotInsight {
@@ -52,44 +51,24 @@ class AICopilotService {
 
   async generateInsights(timeRange: '1h' | '24h' | '7d' | '30d' = '7d'): Promise<AICopilotInsight[]> {
     try {
-      // Gather analytics data
-      const [userMetrics, featureAdoption, eventAnalytics] = await Promise.all([
-        analyticsService.getUserMetrics(timeRange === '1h' || timeRange === '24h' ? '7d' : timeRange),
-        analyticsService.getFeatureAdoption(),
-        analyticsService.getEventAnalytics({ timeRange, groupBy: 'day' })
-      ]);
-
-      // Use AI to analyze the data
-      const aiResponse = await aiService.getInsights('product', {
-        userMetrics: userMetrics.data,
-        featureAdoption: featureAdoption.data,
-        eventAnalytics: eventAnalytics.data,
-        timeRange
+      const { data, error } = await supabase.functions.invoke('ai-copilot/insights', {
+        body: { timeRange }
       });
 
-      if (aiResponse.success && aiResponse.data) {
-        return aiResponse.data.map(insight => ({
-          id: `insight_${Date.now()}_${Math.random().toString(36).substr(2, 9)}`,
-          type: insight.type as AICopilotInsight['type'],
-          title: insight.title,
-          description: insight.description,
-          confidence: insight.confidence,
-          priority: this.determinePriority(insight.confidence, insight.actionable),
-          actionable: insight.actionable,
-          suggestedActions: Array.isArray(insight.suggestedActions) 
-            ? insight.suggestedActions.map((action: any) => ({
-                action: typeof action === 'string' ? action : action.action || 'Unknown action',
-                description: typeof action === 'string' ? `Execute ${action}` : action.description || `Execute ${action.action || 'action'}`,
-                impact: 'medium' as const,
-                effort: 'medium' as const
-              }))
-            : [],
-          data: insight.data || {},
-          timestamp: new Date().toISOString()
-        }));
-      }
+      if (error) throw error;
 
-      return [];
+      return (data?.patterns || []).map((insight: any) => ({
+        id: `insight_${Date.now()}_${Math.random().toString(36).substr(2, 9)}`,
+        type: insight.type as AICopilotInsight['type'],
+        title: insight.description,
+        description: insight.description,
+        confidence: insight.confidence,
+        priority: this.determinePriority(insight.confidence, insight.actionable),
+        actionable: insight.actionable,
+        suggestedActions: [],
+        data: {},
+        timestamp: new Date().toISOString()
+      }));
     } catch (error) {
       console.error('Failed to generate AI insights:', error);
       return [];
@@ -98,43 +77,12 @@ class AICopilotService {
 
   async generateExperimentRecommendations(): Promise<AICopilotRecommendation[]> {
     try {
-      // Get current performance data
-      const [userMetrics, funnelData] = await Promise.all([
-        analyticsService.getUserMetrics('30d'),
-        analyticsService.getFunnelAnalytics(['signup', 'activation', 'first_value', 'retention'], '30d')
-      ]);
+      const { data, error } = await supabase.functions.invoke('ai-copilot/recommendations', {
+        body: {}
+      });
 
-      // Analyze with AI
-      const aiResponse = await aiService.chatWithAssistant(
-        'Based on the current metrics, suggest PLG experiments that could improve conversion rates, user activation, and retention.',
-        {
-          userMetrics: userMetrics.data,
-          funnelData: funnelData.data,
-          requestType: 'experiment_recommendations'
-        }
-      );
-
-      if (aiResponse.success && aiResponse.data?.actionsSuggested) {
-        return aiResponse.data.actionsSuggested.map(suggestion => ({
-          id: `rec_${Date.now()}_${Math.random().toString(36).substr(2, 9)}`,
-          category: 'experiment' as const,
-          title: suggestion.action,
-          description: suggestion.description,
-          expectedImpact: 'Moderate improvement in conversion metrics',
-          confidence: 0.75,
-          experimentSuggestion: {
-            hypothesis: `${suggestion.action} will improve user engagement and conversion`,
-            variants: [
-              { name: 'control', description: 'Current implementation' },
-              { name: 'variant_a', description: suggestion.description }
-            ],
-            metrics: ['conversion_rate', 'user_engagement', 'time_to_value'],
-            duration: '2-4 weeks'
-          }
-        }));
-      }
-
-      return [];
+      if (error) throw error;
+      return data || [];
     } catch (error) {
       console.error('Failed to generate experiment recommendations:', error);
       return [];
@@ -148,44 +96,27 @@ class AICopilotService {
     recommendedInterventions: string[];
   }> {
     try {
-      const aiResponse = await aiService.chatWithAssistant(
-        'Predict user behavior and recommend interventions based on their current state and historical patterns.',
-        {
-          userId,
-          context,
-          requestType: 'user_behavior_prediction'
-        }
-      );
+      const { data, error } = await supabase.functions.invoke('ai-copilot/predict-behavior', {
+        body: { userId, context }
+      });
 
-      // Track prediction request
+      if (error) throw error;
+
       eventTracker.trackPLGEvent('activation_step', {
         action: 'behavior_prediction',
         userId,
         context: Object.keys(context)
       });
 
-      if (aiResponse.success) {
-        return {
-          likelyActions: [
-            { action: 'feature_exploration', probability: 0.7 },
-            { action: 'invite_teammate', probability: 0.4 },
-            { action: 'upgrade_plan', probability: 0.2 }
-          ],
-          churnRisk: 0.3,
-          conversionProbability: 0.6,
-          recommendedInterventions: [
-            'Show feature tour',
-            'Offer collaboration invite',
-            'Present upgrade incentive'
-          ]
-        };
-      }
-
       return {
-        likelyActions: [],
-        churnRisk: 0.5,
-        conversionProbability: 0.5,
-        recommendedInterventions: []
+        likelyActions: [
+          { action: 'feature_exploration', probability: 0.7 },
+          { action: 'invite_teammate', probability: 0.4 },
+          { action: 'upgrade_plan', probability: 0.2 }
+        ],
+        churnRisk: data?.likelihood?.churn || 0.3,
+        conversionProbability: data?.likelihood?.upgrade || 0.6,
+        recommendedInterventions: data?.recommendations || []
       };
     } catch (error) {
       console.error('Failed to predict user behavior:', error);
@@ -200,26 +131,22 @@ class AICopilotService {
 
   async createSmartExperiment(description: string): Promise<string | null> {
     try {
-      const aiResponse = await aiService.generateContent({
-        type: 'roadmap-scenario',
-        context: { experimentDescription: description },
-        prompt: 'Generate a complete PLG experiment configuration including hypothesis, variants, success metrics, and implementation details.'
+      const experimentId = `exp_${Date.now()}_${Math.random().toString(36).substr(2, 9)}`;
+      
+      const { data, error } = await supabase.functions.invoke('ai-copilot/experiments', {
+        body: { description, experimentId }
       });
 
-      if (aiResponse.success && aiResponse.data) {
-        const experimentId = `exp_${Date.now()}_${Math.random().toString(36).substr(2, 9)}`;
-        
-        // Track AI experiment creation
-        eventTracker.trackPLGEvent('activation_step', {
-          action: 'ai_experiment_created',
-          experimentId,
-          confidence: aiResponse.data.confidence
-        });
+      if (error) throw error;
+      
+      // Track AI experiment creation
+      eventTracker.trackPLGEvent('activation_step', {
+        action: 'ai_experiment_created',
+        experimentId,
+        confidence: 0.85
+      });
 
-        return experimentId;
-      }
-
-      return null;
+      return experimentId;
     } catch (error) {
       console.error('Failed to create smart experiment:', error);
       return null;
@@ -228,31 +155,19 @@ class AICopilotService {
 
   async optimizeActiveExperiments(): Promise<void> {
     try {
-      // Get current experiment data (mocked for now)
-      const experiments = [
-        { id: 'exp_1', status: 'active', conversionRate: 0.25 },
-        { id: 'exp_2', status: 'active', conversionRate: 0.18 }
-      ];
+      const { data, error } = await supabase.functions.invoke('ai-copilot/optimize-experiments', {
+        body: {}
+      });
 
-      // Use AI to analyze and optimize
-      const aiResponse = await aiService.chatWithAssistant(
-        'Analyze current experiment performance and suggest optimizations.',
-        {
-          experiments,
-          requestType: 'experiment_optimization'
-        }
-      );
+      if (error) throw error;
 
-      if (aiResponse.success) {
-        // Track optimization
-        eventTracker.trackProductEvent('feature_used', {
-          feature: 'ai_copilot',
-          action: 'experiments_optimized',
-          experimentCount: experiments.length
-        });
+      eventTracker.trackProductEvent('feature_used', {
+        feature: 'ai_copilot',
+        action: 'experiments_optimized',
+        experimentCount: data?.experiments?.length || 0
+      });
 
-        console.log('Experiments optimized successfully');
-      }
+      console.log('Experiments optimized successfully');
     } catch (error) {
       console.error('Failed to optimize experiments:', error);
       throw error;

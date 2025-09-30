@@ -52,3 +52,9 @@ verify_jwt = true
 
 [functions.unified-data]
 verify_jwt = true
+
+[functions.ai-copilot]
+verify_jwt = true
+
+[functions.predictive-analytics]
+verify_jwt = true
