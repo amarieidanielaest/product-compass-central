@@ -1,5 +1,6 @@
 
 import { Notification, NotificationFilters } from '../../types/notifications';
+import { supabase } from '@/integrations/supabase/client';
 
 interface NotificationResponse {
   success: boolean;
@@ -11,66 +12,26 @@ class NotificationService {
   private notifications: Notification[] = [];
   private subscribers: ((notifications: Notification[]) => void)[] = [];
 
-  constructor() {
-    // Initialize with some mock notifications
-    this.notifications = [
-      {
-        id: '1',
-        type: 'info',
-        title: 'Welcome to ProductHub',
-        message: 'Your unified product management platform is ready!',
-        timestamp: new Date().toISOString(),
-        read: false,
-        priority: 'medium',
-        category: 'system'
-      },
-      {
-        id: '2',
-        type: 'feature',
-        title: 'New Sprint Created',
-        message: 'Sprint 24 has been created and is ready for planning.',
-        timestamp: new Date(Date.now() - 1000 * 60 * 30).toISOString(),
-        read: false,
-        priority: 'high',
-        category: 'product'
-      }
-    ];
-  }
-
   async getNotifications(filters?: NotificationFilters): Promise<NotificationResponse> {
     try {
-      let filteredNotifications = [...this.notifications];
+      const params = new URLSearchParams();
+      if (filters?.type) params.append('type', filters.type.join(','));
+      if (filters?.category) params.append('category', filters.category.join(','));
+      if (filters?.priority) params.append('priority', filters.priority.join(','));
+      if (filters?.read !== undefined) params.append('read', String(filters.read));
 
-      if (filters) {
-        if (filters.type) {
-          filteredNotifications = filteredNotifications.filter(n => 
-            filters.type!.includes(n.type)
-          );
-        }
-        if (filters.category) {
-          filteredNotifications = filteredNotifications.filter(n => 
-            filters.category!.includes(n.category)
-          );
-        }
-        if (filters.priority) {
-          filteredNotifications = filteredNotifications.filter(n => 
-            filters.priority!.includes(n.priority)
-          );
-        }
-        if (filters.read !== undefined) {
-          filteredNotifications = filteredNotifications.filter(n => 
-            n.read === filters.read
-          );
-        }
-      }
+      const { data, error } = await supabase.functions.invoke('notifications/list', {
+        method: 'GET'
+      });
 
-      return {
-        success: true,
-        data: filteredNotifications.sort((a, b) => 
-          new Date(b.timestamp).getTime() - new Date(a.timestamp).getTime()
-        )
-      };
+      if (error) throw error;
+
+      this.notifications = data.data || [];
+      this.notifySubscribers();
+
+      return data;
     } catch (error) {
+      console.error('Failed to fetch notifications:', error);
       return {
         success: false,
         message: 'Failed to fetch notifications'
@@ -79,31 +40,61 @@ class NotificationService {
   }
 
   async markAsRead(notificationId: string): Promise<void> {
-    const notification = this.notifications.find(n => n.id === notificationId);
-    if (notification) {
-      notification.read = true;
-      this.notifySubscribers();
+    try {
+      await supabase.functions.invoke('notifications/mark-read', {
+        body: { notificationId }
+      });
+      
+      const notification = this.notifications.find(n => n.id === notificationId);
+      if (notification) {
+        notification.read = true;
+        this.notifySubscribers();
+      }
+    } catch (error) {
+      console.error('Failed to mark notification as read:', error);
     }
   }
 
   async markAllAsRead(): Promise<void> {
-    this.notifications.forEach(n => n.read = true);
-    this.notifySubscribers();
+    try {
+      await supabase.functions.invoke('notifications/mark-all-read', {
+        method: 'POST'
+      });
+      
+      this.notifications.forEach(n => n.read = true);
+      this.notifySubscribers();
+    } catch (error) {
+      console.error('Failed to mark all notifications as read:', error);
+    }
   }
 
   async deleteNotification(notificationId: string): Promise<void> {
-    this.notifications = this.notifications.filter(n => n.id !== notificationId);
-    this.notifySubscribers();
+    try {
+      await supabase.functions.invoke('notifications/delete', {
+        method: 'DELETE',
+        body: { notificationId }
+      });
+      
+      this.notifications = this.notifications.filter(n => n.id !== notificationId);
+      this.notifySubscribers();
+    } catch (error) {
+      console.error('Failed to delete notification:', error);
+    }
   }
 
   async createNotification(notification: Omit<Notification, 'id' | 'timestamp'>): Promise<void> {
-    const newNotification: Notification = {
-      ...notification,
-      id: Date.now().toString(),
-      timestamp: new Date().toISOString()
-    };
-    this.notifications.unshift(newNotification);
-    this.notifySubscribers();
+    try {
+      const { data } = await supabase.functions.invoke('notifications/create', {
+        body: notification
+      });
+      
+      if (data?.data) {
+        this.notifications.unshift(data.data);
+        this.notifySubscribers();
+      }
+    } catch (error) {
+      console.error('Failed to create notification:', error);
+    }
   }
 
   getUnreadCount(): number {

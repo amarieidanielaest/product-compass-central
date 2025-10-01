@@ -1,6 +1,10 @@
-
-import { BaseApiService, ApiResponse } from '../api/BaseApiService';
+import { supabase } from '@/integrations/supabase/client';
 import { aiService } from '../api/AIService';
+
+interface ApiResponse<T> {
+  data?: T;
+  error?: Error;
+}
 
 export interface PortfolioInsight {
   id: string;
@@ -80,33 +84,56 @@ export interface PredictiveAnalytics {
   };
 }
 
-class PortfolioAnalyticsService extends BaseApiService {
-  constructor() {
-    super('/api/analytics/portfolio');
-  }
-
+class PortfolioAnalyticsService {
   async getPortfolioInsights(timeRange: '7d' | '30d' | '90d' = '30d'): Promise<ApiResponse<PortfolioInsight[]>> {
-    const response = await this.makeRequest<PortfolioInsight[]>(`/insights?timeRange=${timeRange}`);
-    
-    // Enhance with AI-generated insights
-    if (response.data) {
-      const aiInsights = await this.generateAIInsights(response.data);
-      response.data = [...response.data, ...aiInsights];
+    try {
+      const { data, error } = await supabase.functions.invoke('portfolio-analytics/insights', {
+        method: 'GET'
+      });
+
+      if (error) throw error;
+
+      // Enhance with AI-generated insights
+      if (data) {
+        const aiInsights = await this.generateAIInsights(data);
+        return { data: [...data, ...aiInsights] };
+      }
+
+      return { data: [] };
+    } catch (error) {
+      console.error('Failed to get portfolio insights:', error);
+      return { error: error as Error };
     }
-    
-    return response;
   }
 
   async getCrossProductMetrics(): Promise<ApiResponse<CrossProductMetrics>> {
-    return this.makeRequest<CrossProductMetrics>('/cross-product-metrics');
+    try {
+      const { data, error } = await supabase.functions.invoke('portfolio-analytics/cross-product-metrics');
+      if (error) throw error;
+      return { data };
+    } catch (error) {
+      return { error: error as Error };
+    }
   }
 
   async getPortfolioHealthScore(): Promise<ApiResponse<PortfolioHealthScore>> {
-    return this.makeRequest<PortfolioHealthScore>('/health-score');
+    try {
+      const { data, error } = await supabase.functions.invoke('portfolio-analytics/health-score');
+      if (error) throw error;
+      return { data };
+    } catch (error) {
+      return { error: error as Error };
+    }
   }
 
   async getPredictiveAnalytics(): Promise<ApiResponse<PredictiveAnalytics>> {
-    return this.makeRequest<PredictiveAnalytics>('/predictive');
+    try {
+      const { data, error } = await supabase.functions.invoke('portfolio-analytics/predictive');
+      if (error) throw error;
+      return { data };
+    } catch (error) {
+      return { error: error as Error };
+    }
   }
 
   async getCustomAnalytics(query: {
@@ -116,10 +143,15 @@ class PortfolioAnalyticsService extends BaseApiService {
     timeRange: string;
     granularity: 'hour' | 'day' | 'week' | 'month';
   }): Promise<ApiResponse<any[]>> {
-    return this.makeRequest('/custom-query', {
-      method: 'POST',
-      body: JSON.stringify(query),
-    });
+    try {
+      const { data, error } = await supabase.functions.invoke('portfolio-analytics/custom-query', {
+        body: query
+      });
+      if (error) throw error;
+      return { data };
+    } catch (error) {
+      return { error: error as Error };
+    }
   }
 
   async generatePortfolioReport(config: {
@@ -132,10 +164,15 @@ class PortfolioAnalyticsService extends BaseApiService {
     downloadUrl: string;
     summary: string;
   }>> {
-    return this.makeRequest('/reports', {
-      method: 'POST',
-      body: JSON.stringify(config),
-    });
+    try {
+      const { data, error } = await supabase.functions.invoke('portfolio-analytics/reports', {
+        body: config
+      });
+      if (error) throw error;
+      return { data };
+    } catch (error) {
+      return { error: error as Error };
+    }
   }
 
   private async generateAIInsights(existingInsights: PortfolioInsight[]): Promise<PortfolioInsight[]> {

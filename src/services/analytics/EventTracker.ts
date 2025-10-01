@@ -194,18 +194,13 @@ class EventTracker {
     this.eventQueue = [];
 
     try {
-      const response = await fetch('https://spubjrvuggyrozoawofp.supabase.co/functions/v1/analytics-api/events', {
-        method: 'POST',
-        headers: {
-          'Content-Type': 'application/json',
-          'Authorization': `Bearer ${import.meta.env?.VITE_SUPABASE_ANON_KEY || 'eyJhbGciOiJIUzI1NiIsInR5cCI6IkpXVCJ9.eyJpc3MiOiJzdXBhYmFzZSIsInJlZiI6InNwdWJqcnZ1Z2d5cm96b2F3b2ZwIiwicm9sZSI6ImFub24iLCJpYXQiOjE3NTE2MzM1NTYsImV4cCI6MjA2NzIwOTU1Nn0.X4f0Ouq6evWVNwXBkTjnSXqHiwf7rc6LlgWN9HodCxM'}`,
-        },
-        body: JSON.stringify({ events: eventsToSend }),
+      const { supabase } = await import('@/integrations/supabase/client');
+
+      const { error } = await supabase.functions.invoke('analytics-api/events', {
+        body: { events: eventsToSend }
       });
 
-      if (!response.ok) {
-        throw new Error(`Analytics API error: ${response.status}`);
-      }
+      if (error) throw error;
     } catch (error) {
       console.error('Failed to send analytics events:', error);
       // Re-queue events for retry
