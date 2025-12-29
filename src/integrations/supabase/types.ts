@@ -1046,7 +1046,7 @@ export type Database = {
         Row: {
           article_id: string
           id: string
-          ip_address: unknown | null
+          ip_address: unknown
           user_agent: string | null
           user_id: string | null
           viewed_at: string | null
@@ -1054,7 +1054,7 @@ export type Database = {
         Insert: {
           article_id: string
           id?: string
-          ip_address?: unknown | null
+          ip_address?: unknown
           user_agent?: string | null
           user_id?: string | null
           viewed_at?: string | null
@@ -1062,7 +1062,7 @@ export type Database = {
         Update: {
           article_id?: string
           id?: string
-          ip_address?: unknown | null
+          ip_address?: unknown
           user_agent?: string | null
           user_id?: string | null
           viewed_at?: string | null
@@ -1085,7 +1085,7 @@ export type Database = {
           rating_average: number | null
           rating_count: number | null
           read_time: number | null
-          search_vector: unknown | null
+          search_vector: unknown
           sort_order: number | null
           tags: string[] | null
           title: string
@@ -1108,7 +1108,7 @@ export type Database = {
           rating_average?: number | null
           rating_count?: number | null
           read_time?: number | null
-          search_vector?: unknown | null
+          search_vector?: unknown
           sort_order?: number | null
           tags?: string[] | null
           title: string
@@ -1131,7 +1131,7 @@ export type Database = {
           rating_average?: number | null
           rating_count?: number | null
           read_time?: number | null
-          search_vector?: unknown | null
+          search_vector?: unknown
           sort_order?: number | null
           tags?: string[] | null
           title?: string
@@ -2566,10 +2566,7 @@ export type Database = {
         }
         Returns: string
       }
-      get_customer_user_by_token: {
-        Args: { p_token: string }
-        Returns: Json
-      }
+      get_customer_user_by_token: { Args: { p_token: string }; Returns: Json }
       get_user_board_access: {
         Args: { board_uuid: string; user_uuid: string }
         Returns: boolean
